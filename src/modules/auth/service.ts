@@ -51,7 +51,7 @@ export async function requireUser(): Promise<AppUser> {
 }
 
 export async function requireManager(): Promise<AppUser> {
-  const user = await getVerifiedProfile()
+  const user = await requireUser()
 
   if (user.role !== 'manager') {
     throw new AuthorizationError('Không có quyền quản lý')

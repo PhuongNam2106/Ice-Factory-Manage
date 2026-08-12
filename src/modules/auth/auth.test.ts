@@ -58,6 +58,35 @@ describe('requireManager', () => {
 
     await expect(requireManager()).rejects.toThrow('Không có quyền quản lý')
   })
+
+  it('sends an inactive manager through the session-clearing route', async () => {
+    createServerSupabaseClient.mockResolvedValue({
+      auth: {
+        getClaims: vi.fn().mockResolvedValue({
+          data: { claims: { sub: '30d8b4cc-53d8-4ffb-b8c7-7d0ca980dd80' } },
+          error: null,
+        }),
+      },
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            maybeSingle: vi.fn().mockResolvedValue({
+              data: {
+                id: '30d8b4cc-53d8-4ffb-b8c7-7d0ca980dd80',
+                phone: '+84912345678',
+                full_name: 'Quản lý ngừng hoạt động',
+                role: 'manager',
+                is_active: false,
+              },
+              error: null,
+            }),
+          }),
+        }),
+      }),
+    })
+
+    await expect(requireManager()).rejects.toThrow('redirect:/auth/inactive')
+  })
 })
 
 describe('requireUser', () => {
