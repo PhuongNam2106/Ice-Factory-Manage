@@ -10,6 +10,12 @@ const items = [
   ['/alerts', 'Cảnh báo'],
 ]
 
+const managerItems = [
+  ['/admin/customers', 'Danh mục khách hàng'],
+  ['/admin/machines', 'Danh mục máy'],
+  ['/admin/users', 'Quản trị tài khoản'],
+]
+
 export function DesktopSidebar({ isManager }: { isManager: boolean }) {
   return (
     <aside className="fixed inset-y-0 hidden w-64 border-r border-sky-900 bg-sky-950 text-sky-50 md:block">
@@ -24,7 +30,11 @@ export function DesktopSidebar({ isManager }: { isManager: boolean }) {
               <Link className="block rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-sky-900 focus:outline-none focus:ring-2 focus:ring-sky-300" href={href}>{label}</Link>
             </li>
           ))}
-          {isManager ? <li><Link className="block rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-sky-900 focus:outline-none focus:ring-2 focus:ring-sky-300" href="/admin/users">Quản trị tài khoản</Link></li> : null}
+          {isManager ? managerItems.map(([href, label]) => (
+            <li key={href}>
+              <Link className="block rounded-lg px-3 py-2.5 text-sm font-medium hover:bg-sky-900 focus:outline-none focus:ring-2 focus:ring-sky-300" href={href}>{label}</Link>
+            </li>
+          )) : null}
         </ul>
       </nav>
     </aside>

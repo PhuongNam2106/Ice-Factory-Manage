@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { adminClient } from '@/lib/supabase/admin'
 import { actionFailure, actionSuccess, type ActionResult } from '@/lib/result'
-import { requireManager } from '@/modules/auth/service'
+import { authorizeManagerAction } from '@/modules/auth/action-authorization'
 import {
   userActiveSchema,
   userCreateSchema,
@@ -16,11 +16,8 @@ import {
 } from './service'
 
 export async function createUser(input: CreateUserInput): Promise<ActionResult<void>> {
-  try {
-    await requireManager()
-  } catch {
-    return actionFailure('FORBIDDEN', 'Không có quyền quản lý.')
-  }
+  const authorization = await authorizeManagerAction()
+  if (!authorization.ok) return authorization
 
   const parsed = userCreateSchema.safeParse(input)
   if (!parsed.success) {
@@ -36,11 +33,8 @@ export async function resetUserPin(input: {
   userId: string
   pin: string
 }): Promise<ActionResult<void>> {
-  try {
-    await requireManager()
-  } catch {
-    return actionFailure('FORBIDDEN', 'Không có quyền quản lý.')
-  }
+  const authorization = await authorizeManagerAction()
+  if (!authorization.ok) return authorization
 
   const parsed = userPinResetSchema.safeParse(input)
   if (!parsed.success) {
@@ -59,11 +53,8 @@ export async function setUserActive(input: {
   userId: string
   isActive: boolean
 }): Promise<ActionResult<void>> {
-  try {
-    await requireManager()
-  } catch {
-    return actionFailure('FORBIDDEN', 'Không có quyền quản lý.')
-  }
+  const authorization = await authorizeManagerAction()
+  if (!authorization.ok) return authorization
 
   const parsed = userActiveSchema.safeParse(input)
   if (!parsed.success) {

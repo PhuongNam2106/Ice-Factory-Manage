@@ -16,7 +16,7 @@ export default async function AppLayout({ children }: Readonly<{ children: React
         </header>
         <main className="mx-auto w-full max-w-7xl p-4 sm:p-6">{children}</main>
       </div>
-      <MobileNav />
+      <MobileNav isManager={user.role === 'manager'} />
     </div>
   )
 }

@@ -299,7 +299,28 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      set_customer_active: {
+        Args: { p_id: string; p_is_active: boolean }
+        Returns: undefined
+      }
+      set_machine_active: {
+        Args: { p_id: string; p_is_active: boolean }
+        Returns: undefined
+      }
+      upsert_customer: {
+        Args: {
+          p_address: string
+          p_id: string
+          p_name: string
+          p_payment_term_days: number
+          p_phone: string
+        }
+        Returns: string
+      }
+      upsert_machine: {
+        Args: { p_code: string; p_id: string; p_name: string }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "employee" | "manager"

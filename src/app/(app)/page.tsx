@@ -1,4 +1,9 @@
-export default function HomePage() {
+import { ensureOperatingDay } from '@/modules/closing/ensure-day'
+import { getOperatingDay } from '@/modules/shared/operating-day'
+
+export default async function HomePage() {
+  await ensureOperatingDay(getOperatingDay(new Date()))
+
   return (
     <section aria-labelledby="today-title" className="space-y-6">
       <div>
