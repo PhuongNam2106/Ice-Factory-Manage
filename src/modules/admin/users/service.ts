@@ -2,7 +2,7 @@ import 'server-only'
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/supabase/database.types'
-import type { ActionResult } from '@/modules/auth/actions'
+import { actionFailure, actionSuccess, type ActionResult } from '@/lib/result'
 
 export type AdminSupabaseClient = Pick<SupabaseClient<Database>, 'from'> & {
   auth: {
@@ -39,7 +39,7 @@ export async function createUserWithAdmin(
   })
 
   if (error || !data.user) {
-    return { success: false, error: 'Không thể tạo tài khoản. Vui lòng thử lại.' }
+    return actionFailure('CREATE_USER_FAILED', 'Không thể tạo tài khoản. Vui lòng thử lại.')
   }
 
   const { error: profileError } = await client.from('profiles').insert({
@@ -54,22 +54,22 @@ export async function createUserWithAdmin(
     try {
       const { error: deleteError } = await client.auth.admin.deleteUser(data.user.id)
       if (deleteError) {
-        return {
-          success: false,
-          error: 'Không thể hoàn tác tài khoản đã tạo. Liên hệ quản trị viên để đối soát.',
-        }
+        return actionFailure(
+          'USER_RECONCILIATION_REQUIRED',
+          'Không thể hoàn tác tài khoản đã tạo. Liên hệ quản trị viên để đối soát.',
+        )
       }
     } catch {
-      return {
-        success: false,
-        error: 'Không thể hoàn tác tài khoản đã tạo. Liên hệ quản trị viên để đối soát.',
-      }
+      return actionFailure(
+        'USER_RECONCILIATION_REQUIRED',
+        'Không thể hoàn tác tài khoản đã tạo. Liên hệ quản trị viên để đối soát.',
+      )
     }
 
-    return { success: false, error: 'Không thể tạo tài khoản. Vui lòng thử lại.' }
+    return actionFailure('CREATE_USER_FAILED', 'Không thể tạo tài khoản. Vui lòng thử lại.')
   }
 
-  return { success: true, data: undefined }
+  return actionSuccess(undefined)
 }
 
 export async function setUserActiveWithAdmin(
@@ -82,7 +82,11 @@ export async function setUserActiveWithAdmin(
     .eq('id', input.userId)
     .select('id')
 
-  if (error) return { success: false, error: 'Không thể cập nhật trạng thái tài khoản.' }
-  if (data.length !== 1) return { success: false, error: 'Không tìm thấy tài khoản để cập nhật.' }
-  return { success: true, data: undefined }
+  if (error) {
+    return actionFailure('UPDATE_USER_FAILED', 'Không thể cập nhật trạng thái tài khoản.')
+  }
+  if (data.length !== 1) {
+    return actionFailure('USER_NOT_FOUND', 'Không tìm thấy tài khoản để cập nhật.')
+  }
+  return actionSuccess(undefined)
 }

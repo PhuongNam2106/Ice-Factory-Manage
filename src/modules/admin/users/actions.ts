@@ -2,13 +2,13 @@
 
 import { revalidatePath } from 'next/cache'
 import { adminClient } from '@/lib/supabase/admin'
+import { actionFailure, actionSuccess, type ActionResult } from '@/lib/result'
 import { requireManager } from '@/modules/auth/service'
 import {
   userActiveSchema,
   userCreateSchema,
   userPinResetSchema,
 } from '@/modules/auth/schema'
-import type { ActionResult } from '@/modules/auth/actions'
 import {
   createUserWithAdmin,
   setUserActiveWithAdmin,
@@ -19,16 +19,16 @@ export async function createUser(input: CreateUserInput): Promise<ActionResult<v
   try {
     await requireManager()
   } catch {
-    return { success: false, error: 'Không có quyền quản lý.' }
+    return actionFailure('FORBIDDEN', 'Không có quyền quản lý.')
   }
 
   const parsed = userCreateSchema.safeParse(input)
   if (!parsed.success) {
-    return { success: false, error: 'Thông tin tài khoản không hợp lệ.' }
+    return actionFailure('VALIDATION_ERROR', 'Thông tin tài khoản không hợp lệ.')
   }
 
   const result = await createUserWithAdmin(adminClient, parsed.data)
-  if (result.success) revalidatePath('/admin/users')
+  if (result.ok) revalidatePath('/admin/users')
   return result
 }
 
@@ -39,20 +39,20 @@ export async function resetUserPin(input: {
   try {
     await requireManager()
   } catch {
-    return { success: false, error: 'Không có quyền quản lý.' }
+    return actionFailure('FORBIDDEN', 'Không có quyền quản lý.')
   }
 
   const parsed = userPinResetSchema.safeParse(input)
   if (!parsed.success) {
-    return { success: false, error: 'Mã PIN không hợp lệ.' }
+    return actionFailure('VALIDATION_ERROR', 'Mã PIN không hợp lệ.')
   }
 
   const { error } = await adminClient.auth.admin.updateUserById(parsed.data.userId, {
     password: parsed.data.pin,
   })
 
-  if (error) return { success: false, error: 'Không thể đặt lại mã PIN.' }
-  return { success: true, data: undefined }
+  if (error) return actionFailure('RESET_PIN_FAILED', 'Không thể đặt lại mã PIN.')
+  return actionSuccess(undefined)
 }
 
 export async function setUserActive(input: {
@@ -62,15 +62,15 @@ export async function setUserActive(input: {
   try {
     await requireManager()
   } catch {
-    return { success: false, error: 'Không có quyền quản lý.' }
+    return actionFailure('FORBIDDEN', 'Không có quyền quản lý.')
   }
 
   const parsed = userActiveSchema.safeParse(input)
   if (!parsed.success) {
-    return { success: false, error: 'Thông tin tài khoản không hợp lệ.' }
+    return actionFailure('VALIDATION_ERROR', 'Thông tin tài khoản không hợp lệ.')
   }
 
   const result = await setUserActiveWithAdmin(adminClient, parsed.data)
-  if (result.success) revalidatePath('/admin/users')
+  if (result.ok) revalidatePath('/admin/users')
   return result
 }

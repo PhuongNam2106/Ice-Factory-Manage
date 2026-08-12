@@ -1,12 +1,9 @@
 'use server'
 
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { actionFailure, actionSuccess, type ActionResult } from '@/lib/result'
 import { loginSchema } from './schema'
 import { redirect } from 'next/navigation'
-
-export type ActionResult<T> =
-  | { success: true; data: T }
-  | { success: false; error: string }
 
 export async function signInWithPin(input: {
   phone: string
@@ -15,7 +12,7 @@ export async function signInWithPin(input: {
   const parsed = loginSchema.safeParse(input)
 
   if (!parsed.success) {
-    return { success: false, error: 'Số điện thoại hoặc mã PIN không hợp lệ.' }
+    return actionFailure('VALIDATION_ERROR', 'Số điện thoại hoặc mã PIN không hợp lệ.')
   }
 
   const supabase = await createServerSupabaseClient()
@@ -25,7 +22,7 @@ export async function signInWithPin(input: {
   })
 
   if (error || !data.user) {
-    return { success: false, error: 'Số điện thoại hoặc mã PIN không đúng.' }
+    return actionFailure('INVALID_CREDENTIALS', 'Số điện thoại hoặc mã PIN không đúng.')
   }
 
   const { data: profile, error: profileError } = await supabase
@@ -36,10 +33,10 @@ export async function signInWithPin(input: {
 
   if (profileError || !profile?.is_active) {
     await supabase.auth.signOut()
-    return { success: false, error: 'Tài khoản đã bị ngừng hoạt động.' }
+    return actionFailure('ACCOUNT_INACTIVE', 'Tài khoản đã bị ngừng hoạt động.')
   }
 
-  return { success: true, data: undefined }
+  return actionSuccess(undefined)
 }
 
 export async function signOut(): Promise<void> {

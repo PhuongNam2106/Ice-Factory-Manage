@@ -107,25 +107,31 @@ export type Database = {
           actor_id: string
           completed_at: string | null
           created_at: string
+          entity_id: string | null
           key: string
           operation: string
           response: Json | null
+          status: string
         }
         Insert: {
           actor_id: string
           completed_at?: string | null
           created_at?: string
+          entity_id?: string | null
           key: string
           operation: string
           response?: Json | null
+          status?: string
         }
         Update: {
           actor_id?: string
           completed_at?: string | null
           created_at?: string
+          entity_id?: string | null
           key?: string
           operation?: string
           response?: Json | null
+          status?: string
         }
         Relationships: [
           {

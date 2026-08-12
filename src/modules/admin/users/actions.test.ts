@@ -32,8 +32,11 @@ describe('createUserWithAdmin', () => {
         role: 'employee',
       }),
     ).resolves.toEqual({
-      success: false,
-      error: 'Không thể tạo tài khoản. Vui lòng thử lại.',
+      ok: false,
+      error: {
+        code: 'CREATE_USER_FAILED',
+        message: 'Không thể tạo tài khoản. Vui lòng thử lại.',
+      },
     })
 
     expect(deleteUser).toHaveBeenCalledWith('aa024448-d9d3-4d54-a763-1a6b1d9fa2c1')
@@ -64,8 +67,11 @@ describe('createUserWithAdmin', () => {
         role: 'employee',
       }),
     ).resolves.toEqual({
-      success: false,
-      error: 'Không thể hoàn tác tài khoản đã tạo. Liên hệ quản trị viên để đối soát.',
+      ok: false,
+      error: {
+        code: 'USER_RECONCILIATION_REQUIRED',
+        message: 'Không thể hoàn tác tài khoản đã tạo. Liên hệ quản trị viên để đối soát.',
+      },
     })
   })
 })
@@ -88,8 +94,11 @@ describe('setUserActiveWithAdmin', () => {
         userId: 'aa024448-d9d3-4d54-a763-1a6b1d9fa2c1',
       }),
     ).resolves.toEqual({
-      success: false,
-      error: 'Không tìm thấy tài khoản để cập nhật.',
+      ok: false,
+      error: {
+        code: 'USER_NOT_FOUND',
+        message: 'Không tìm thấy tài khoản để cập nhật.',
+      },
     })
   })
 })

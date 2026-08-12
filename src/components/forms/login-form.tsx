@@ -17,8 +17,8 @@ export function LoginForm() {
         pin: String(formData.get('pin') ?? ''),
       })
 
-      if (!result.success) {
-        setError(result.error)
+      if (!result.ok) {
+        setError(result.error.message)
         return
       }
 

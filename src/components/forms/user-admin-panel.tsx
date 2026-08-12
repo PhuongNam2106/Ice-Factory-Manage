@@ -24,7 +24,7 @@ export function UserAdminPanel({ profiles }: { profiles: Profile[] }) {
         pin: String(formData.get('pin') ?? ''),
         role: formData.get('role') === 'manager' ? 'manager' : 'employee',
       })
-      setMessage(result.success ? 'Đã tạo tài khoản.' : result.error)
+      setMessage(result.ok ? 'Đã tạo tài khoản.' : result.error.message)
     })
   }
 
@@ -32,7 +32,7 @@ export function UserAdminPanel({ profiles }: { profiles: Profile[] }) {
     setMessage(null)
     startTransition(async () => {
       const result = await setUserActive({ userId, isActive })
-      setMessage(result.success ? 'Đã cập nhật trạng thái tài khoản.' : result.error)
+      setMessage(result.ok ? 'Đã cập nhật trạng thái tài khoản.' : result.error.message)
     })
   }
 
@@ -40,7 +40,7 @@ export function UserAdminPanel({ profiles }: { profiles: Profile[] }) {
     setMessage(null)
     startTransition(async () => {
       const result = await resetUserPin({ userId, pin: String(formData.get('pin') ?? '') })
-      setMessage(result.success ? 'Đã đặt lại mã PIN.' : result.error)
+      setMessage(result.ok ? 'Đã đặt lại mã PIN.' : result.error.message)
     })
   }
 
