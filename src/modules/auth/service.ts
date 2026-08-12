@@ -4,7 +4,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 
 export type AppUser = {
   id: string
-  phone: string
+  username: string
+  phone: string | null
   fullName: string
   role: 'employee' | 'manager'
 }
@@ -23,7 +24,7 @@ async function getVerifiedProfile(): Promise<AppUser> {
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('id, phone, full_name, role, is_active')
+    .select('id, username, phone, full_name, role, is_active')
     .eq('id', userId)
     .maybeSingle()
 
@@ -33,6 +34,7 @@ async function getVerifiedProfile(): Promise<AppUser> {
 
   return {
     id: profile.id,
+    username: profile.username,
     phone: profile.phone,
     fullName: profile.full_name,
     role: profile.role,

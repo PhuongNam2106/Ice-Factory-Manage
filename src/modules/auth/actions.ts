@@ -2,27 +2,27 @@
 
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { actionFailure, actionSuccess, type ActionResult } from '@/lib/result'
-import { loginSchema } from './schema'
+import { loginSchema, usernameToAuthEmail } from './schema'
 import { redirect } from 'next/navigation'
 
-export async function signInWithPin(input: {
-  phone: string
-  pin: string
+export async function signInWithPassword(input: {
+  username: string
+  password: string
 }): Promise<ActionResult<void>> {
   const parsed = loginSchema.safeParse(input)
 
   if (!parsed.success) {
-    return actionFailure('VALIDATION_ERROR', 'Số điện thoại hoặc mã PIN không hợp lệ.')
+    return actionFailure('VALIDATION_ERROR', 'Tên tài khoản hoặc mật khẩu không hợp lệ.')
   }
 
   const supabase = await createServerSupabaseClient()
   const { data, error } = await supabase.auth.signInWithPassword({
-    phone: parsed.data.phone,
-    password: parsed.data.pin,
+    email: usernameToAuthEmail(parsed.data.username),
+    password: parsed.data.password,
   })
 
   if (error || !data.user) {
-    return actionFailure('INVALID_CREDENTIALS', 'Số điện thoại hoặc mã PIN không đúng.')
+    return actionFailure('INVALID_CREDENTIALS', 'Tên tài khoản hoặc mật khẩu không đúng.')
   }
 
   const { data: profile, error: profileError } = await supabase

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { signInWithPin } from '@/modules/auth/actions'
+import { signInWithPassword } from '@/modules/auth/actions'
 
 export function LoginForm() {
   const router = useRouter()
@@ -12,9 +12,9 @@ export function LoginForm() {
   function onSubmit(formData: FormData) {
     setError(null)
     startTransition(async () => {
-      const result = await signInWithPin({
-        phone: String(formData.get('phone') ?? ''),
-        pin: String(formData.get('pin') ?? ''),
+      const result = await signInWithPassword({
+        username: String(formData.get('username') ?? ''),
+        password: String(formData.get('password') ?? ''),
       })
 
       if (!result.ok) {
@@ -30,31 +30,33 @@ export function LoginForm() {
   return (
     <form action={onSubmit} className="space-y-5" noValidate>
       <div>
-        <label className="mb-2 block text-sm font-medium text-slate-800" htmlFor="phone">
-          Số điện thoại
+        <label className="mb-2 block text-sm font-medium text-slate-800" htmlFor="username">
+          Tên tài khoản
         </label>
         <input
-          autoComplete="tel"
+          autoCapitalize="none"
+          autoComplete="username"
           className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-lg outline-none ring-sky-600 focus:ring-2"
-          id="phone"
-          inputMode="tel"
-          name="phone"
-          placeholder="0912 345 678"
+          id="username"
+          inputMode="text"
+          name="username"
+          placeholder="nhanvien01"
           required
-          type="tel"
+          spellCheck={false}
+          type="text"
         />
       </div>
       <div>
-        <label className="mb-2 block text-sm font-medium text-slate-800" htmlFor="pin">
-          Mã PIN
+        <label className="mb-2 block text-sm font-medium text-slate-800" htmlFor="password">
+          Mật khẩu
         </label>
         <input
           autoComplete="current-password"
           className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-lg tracking-[0.25em] outline-none ring-sky-600 focus:ring-2"
-          id="pin"
+          id="password"
           inputMode="numeric"
           minLength={6}
-          name="pin"
+          name="password"
           required
           type="password"
         />

@@ -13,7 +13,7 @@ export default async function UserAdministrationPage() {
 
   const { data: profiles, error } = await adminClient
     .from('profiles')
-    .select('id, phone, full_name, role, is_active')
+    .select('id, username, phone, full_name, role, is_active')
     .order('full_name')
 
   if (error) throw new Error('Không thể tải danh sách tài khoản.')

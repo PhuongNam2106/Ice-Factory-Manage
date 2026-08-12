@@ -1,9 +1,55 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createUserWithAdmin, setUserActiveWithAdmin } from './service'
+import {
+  createUserWithAdmin,
+  resetUserPasswordWithAdmin,
+  setUserActiveWithAdmin,
+} from './service'
 
 vi.mock('@/lib/supabase/admin', () => ({ adminClient: {} }))
 
 describe('createUserWithAdmin', () => {
+  it('creates a confirmed email Auth user and matching username profile', async () => {
+    const createUser = vi.fn().mockResolvedValue({
+      data: { user: { id: 'aa024448-d9d3-4d54-a763-1a6b1d9fa2c1' } },
+      error: null,
+    })
+    const insert = vi.fn().mockResolvedValue({ error: null })
+    const admin = {
+      auth: {
+        admin: {
+          createUser,
+          deleteUser: vi.fn(),
+          updateUserById: vi.fn(),
+        },
+      },
+      from: vi.fn().mockReturnValue({ insert }),
+    }
+
+    await expect(
+      createUserWithAdmin(admin, {
+        username: 'nhanvien01',
+        phone: null,
+        password: '123456',
+        fullName: 'Nhân viên mới',
+        role: 'employee',
+      }),
+    ).resolves.toEqual({ ok: true, data: undefined })
+
+    expect(createUser).toHaveBeenCalledWith({
+      email: 'nhanvien01@account.icefactory.invalid',
+      password: '123456',
+      email_confirm: true,
+    })
+    expect(insert).toHaveBeenCalledWith({
+      id: 'aa024448-d9d3-4d54-a763-1a6b1d9fa2c1',
+      username: 'nhanvien01',
+      phone: null,
+      full_name: 'Nhân viên mới',
+      role: 'employee',
+      is_active: true,
+    })
+  })
+
   it('removes the Auth user if creating its profile fails', async () => {
     const deleteUser = vi.fn().mockResolvedValue({ error: null })
     const admin = {
@@ -26,8 +72,9 @@ describe('createUserWithAdmin', () => {
 
     await expect(
       createUserWithAdmin(admin, {
+        username: 'nhanvien01',
         phone: '+84912345678',
-        pin: '123456',
+        password: '123456',
         fullName: 'Nhân viên mới',
         role: 'employee',
       }),
@@ -61,8 +108,9 @@ describe('createUserWithAdmin', () => {
 
     await expect(
       createUserWithAdmin(admin, {
+        username: 'nhanvien01',
         phone: '+84912345678',
-        pin: '123456',
+        password: '123456',
         fullName: 'Nhân viên mới',
         role: 'employee',
       }),
@@ -100,5 +148,21 @@ describe('setUserActiveWithAdmin', () => {
         message: 'Không tìm thấy tài khoản để cập nhật.',
       },
     })
+  })
+})
+
+describe('resetUserPasswordWithAdmin', () => {
+  it('updates the password of the selected Auth user', async () => {
+    const updateUserById = vi.fn().mockResolvedValue({ error: null })
+    await expect(resetUserPasswordWithAdmin({
+      auth: { admin: { updateUserById } },
+    }, {
+      userId: 'aa024448-d9d3-4d54-a763-1a6b1d9fa2c1',
+      password: '654321',
+    })).resolves.toEqual({ ok: true, data: undefined })
+    expect(updateUserById).toHaveBeenCalledWith(
+      'aa024448-d9d3-4d54-a763-1a6b1d9fa2c1',
+      { password: '654321' },
+    )
   })
 })

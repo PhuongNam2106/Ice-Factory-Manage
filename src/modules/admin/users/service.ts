@@ -3,14 +3,15 @@ import 'server-only'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/supabase/database.types'
 import { actionFailure, actionSuccess, type ActionResult } from '@/lib/result'
+import { usernameToAuthEmail } from '@/modules/auth/schema'
 
 export type AdminSupabaseClient = Pick<SupabaseClient<Database>, 'from'> & {
   auth: {
     admin: {
       createUser: (input: {
-        phone: string
+        email: string
         password: string
-        phone_confirm: boolean
+        email_confirm: boolean
       }) => Promise<{ data: { user: { id: string } | null }; error: { message: string } | null }>
       deleteUser: (id: string) => Promise<{ error: { message: string } | null }>
       updateUserById: (
@@ -21,9 +22,16 @@ export type AdminSupabaseClient = Pick<SupabaseClient<Database>, 'from'> & {
   }
 }
 
+type PasswordAdminClient = {
+  auth: {
+    admin: Pick<AdminSupabaseClient['auth']['admin'], 'updateUserById'>
+  }
+}
+
 export type CreateUserInput = {
-  phone: string
-  pin: string
+  username: string
+  phone: string | null
+  password: string
   fullName: string
   role: 'employee' | 'manager'
 }
@@ -33,9 +41,9 @@ export async function createUserWithAdmin(
   input: CreateUserInput,
 ): Promise<ActionResult<void>> {
   const { data, error } = await client.auth.admin.createUser({
-    phone: input.phone,
-    password: input.pin,
-    phone_confirm: true,
+    email: usernameToAuthEmail(input.username),
+    password: input.password,
+    email_confirm: true,
   })
 
   if (error || !data.user) {
@@ -44,6 +52,7 @@ export async function createUserWithAdmin(
 
   const { error: profileError } = await client.from('profiles').insert({
     id: data.user.id,
+    username: input.username,
     phone: input.phone,
     full_name: input.fullName,
     role: input.role,
@@ -87,6 +96,20 @@ export async function setUserActiveWithAdmin(
   }
   if (data.length !== 1) {
     return actionFailure('USER_NOT_FOUND', 'Không tìm thấy tài khoản để cập nhật.')
+  }
+  return actionSuccess(undefined)
+}
+
+export async function resetUserPasswordWithAdmin(
+  client: PasswordAdminClient,
+  input: { userId: string; password: string },
+): Promise<ActionResult<void>> {
+  const { error } = await client.auth.admin.updateUserById(input.userId, {
+    password: input.password,
+  })
+
+  if (error) {
+    return actionFailure('RESET_PASSWORD_FAILED', 'Không thể đặt lại mật khẩu.')
   }
   return actionSuccess(undefined)
 }

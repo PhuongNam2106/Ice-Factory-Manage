@@ -2,15 +2,16 @@
 
 import { revalidatePath } from 'next/cache'
 import { adminClient } from '@/lib/supabase/admin'
-import { actionFailure, actionSuccess, type ActionResult } from '@/lib/result'
+import { actionFailure, type ActionResult } from '@/lib/result'
 import { authorizeManagerAction } from '@/modules/auth/action-authorization'
 import {
   userActiveSchema,
   userCreateSchema,
-  userPinResetSchema,
+  userPasswordResetSchema,
 } from '@/modules/auth/schema'
 import {
   createUserWithAdmin,
+  resetUserPasswordWithAdmin,
   setUserActiveWithAdmin,
   type CreateUserInput,
 } from './service'
@@ -29,24 +30,19 @@ export async function createUser(input: CreateUserInput): Promise<ActionResult<v
   return result
 }
 
-export async function resetUserPin(input: {
+export async function resetUserPassword(input: {
   userId: string
-  pin: string
+  password: string
 }): Promise<ActionResult<void>> {
   const authorization = await authorizeManagerAction()
   if (!authorization.ok) return authorization
 
-  const parsed = userPinResetSchema.safeParse(input)
+  const parsed = userPasswordResetSchema.safeParse(input)
   if (!parsed.success) {
-    return actionFailure('VALIDATION_ERROR', 'Mã PIN không hợp lệ.')
+    return actionFailure('VALIDATION_ERROR', 'Mật khẩu không hợp lệ.')
   }
 
-  const { error } = await adminClient.auth.admin.updateUserById(parsed.data.userId, {
-    password: parsed.data.pin,
-  })
-
-  if (error) return actionFailure('RESET_PIN_FAILED', 'Không thể đặt lại mã PIN.')
-  return actionSuccess(undefined)
+  return resetUserPasswordWithAdmin(adminClient, parsed.data)
 }
 
 export async function setUserActive(input: {
