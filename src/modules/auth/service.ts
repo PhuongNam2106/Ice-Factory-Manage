@@ -10,6 +10,7 @@ export type AppUser = {
 }
 
 export class AuthorizationError extends Error {}
+class InvalidSessionProfileError extends AuthorizationError {}
 
 async function getVerifiedProfile(): Promise<AppUser> {
   const supabase = await createServerSupabaseClient()
@@ -27,7 +28,7 @@ async function getVerifiedProfile(): Promise<AppUser> {
     .maybeSingle()
 
   if (profileError || !profile || !profile.is_active) {
-    throw new AuthorizationError('Tài khoản không hoạt động')
+    throw new InvalidSessionProfileError('Tài khoản không hoạt động')
   }
 
   return {
@@ -41,7 +42,10 @@ async function getVerifiedProfile(): Promise<AppUser> {
 export async function requireUser(): Promise<AppUser> {
   try {
     return await getVerifiedProfile()
-  } catch {
+  } catch (error) {
+    if (error instanceof InvalidSessionProfileError) {
+      redirect('/auth/inactive')
+    }
     redirect('/login')
   }
 }
