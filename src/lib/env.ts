@@ -22,7 +22,12 @@ export type AppEnv = z.infer<typeof schema>
 export type PublicAppEnv = z.infer<typeof publicSchema>
 
 export function getPublicEnv(): PublicAppEnv {
-  return parsePublicEnv(process.env)
+  return parsePublicEnv({
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    APP_TIME_ZONE: process.env.APP_TIME_ZONE,
+  })
 }
 
 export function getEnv(): AppEnv {
