@@ -1,0 +1,28 @@
+import { expect, test } from '@playwright/test'
+
+test.skip(process.env.RUN_SALES_E2E !== 'true', 'requires pnpm db:reset and the isolated local Supabase fixture')
+test.use({ viewport: { width: 390, height: 844 } })
+
+test('nhân viên hoàn thành bán sỉ và bán lẻ trên điện thoại', async ({ page }) => {
+  await page.goto('/login')
+  await page.getByLabel('Tên tài khoản').fill('nhanvien')
+  await page.getByLabel('Mật khẩu').fill('123456')
+  await page.getByRole('button', { name: 'Đăng nhập' }).click()
+  await page.goto('/sales/new/wholesale')
+  await page.getByLabel('Khách hàng đầu mối').selectOption({ index: 1 })
+  await page.getByLabel('Số bao dòng 1').fill('10')
+  await page.getByLabel('Đơn giá dòng 1').fill('7000')
+  await page.getByLabel('Tiền nhận ngay').fill('20000')
+  await page.getByRole('button', { name: 'Lưu bán sỉ' }).click()
+  await expect(page.getByRole('status')).toContainText('Đã lưu giao dịch bán sỉ')
+  await page.goto('/sales/new/retail')
+  await page.getByLabel('Mã ca').fill('E2E-DAY')
+  await page.getByLabel('Số bao dòng 1').fill('5')
+  await page.getByLabel('Đơn giá dòng 1').fill('12000')
+  await page.getByRole('button', { name: 'Thêm mức giá' }).click()
+  await page.getByLabel('Số bao dòng 2').fill('3')
+  await page.getByLabel('Đơn giá dòng 2').fill('10000')
+  await page.getByLabel('Tổng tiền đã thu').fill('90000')
+  await page.getByRole('button', { name: 'Lưu bán lẻ' }).click()
+  await expect(page.getByRole('status')).toContainText('Đã lưu tổng hợp bán lẻ')
+})

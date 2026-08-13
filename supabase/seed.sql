@@ -23,3 +23,30 @@ insert into public.profiles (id, username, phone, full_name, role, is_active) va
   ('11111111-1111-1111-1111-111111111111', 'nhanvien', '+84912345678', 'Nhân viên E2E', 'employee', true),
   ('22222222-2222-2222-2222-222222222222', 'quanly', '+84912345679', 'Quản lý E2E', 'manager', true)
 on conflict (id) do nothing;
+
+insert into public.customers (
+  id, name, phone, address, payment_term_days, created_by
+) values (
+  '33333333-3333-4333-8333-333333333333',
+  'Đầu mối E2E',
+  '0912345680',
+  'Dữ liệu thử cục bộ',
+  7,
+  '22222222-2222-2222-2222-222222222222'
+) on conflict (id) do nothing;
+
+insert into public.operating_days (day, status)
+values (((now() at time zone 'Asia/Bangkok')::date), 'open')
+on conflict (day) do nothing;
+
+insert into public.inventory_ledger (
+  operating_day, kind, quantity_delta_bags, source_type, source_id, note, created_by
+) values (
+  ((now() at time zone 'Asia/Bangkok')::date),
+  'opening',
+  10000,
+  'local_seed',
+  '44444444-4444-4444-8444-444444444444',
+  'Tồn đầu phục vụ E2E cục bộ',
+  '22222222-2222-2222-2222-222222222222'
+) on conflict (kind, source_type, source_id) do nothing;

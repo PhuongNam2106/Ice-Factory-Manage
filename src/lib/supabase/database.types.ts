@@ -143,6 +143,57 @@ export type Database = {
           },
         ]
       }
+      inventory_ledger: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          kind: Database["public"]["Enums"]["inventory_entry_kind"]
+          note: string | null
+          operating_day: string
+          quantity_delta_bags: number
+          source_id: string
+          source_type: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          kind: Database["public"]["Enums"]["inventory_entry_kind"]
+          note?: string | null
+          operating_day: string
+          quantity_delta_bags: number
+          source_id: string
+          source_type: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["inventory_entry_kind"]
+          note?: string | null
+          operating_day?: string
+          quantity_delta_bags?: number
+          source_id?: string
+          source_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_ledger_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_ledger_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
+            referencedRelation: "operating_days"
+            referencedColumns: ["day"]
+          },
+        ]
+      }
       machines: {
         Row: {
           code: string | null
@@ -262,6 +313,300 @@ export type Database = {
         }
         Relationships: []
       }
+      receipt_allocations: {
+        Row: {
+          amount_vnd: number
+          created_at: string
+          id: string
+          receipt_id: string
+          receivable_id: string
+        }
+        Insert: {
+          amount_vnd: number
+          created_at?: string
+          id?: string
+          receipt_id: string
+          receivable_id: string
+        }
+        Update: {
+          amount_vnd?: number
+          created_at?: string
+          id?: string
+          receipt_id?: string
+          receivable_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receipt_allocations_receipt_id_fkey"
+            columns: ["receipt_id"]
+            isOneToOne: false
+            referencedRelation: "receipts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receipt_allocations_receivable_id_fkey"
+            columns: ["receivable_id"]
+            isOneToOne: false
+            referencedRelation: "receivables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      receipts: {
+        Row: {
+          amount_vnd: number
+          created_at: string
+          created_by: string
+          customer_id: string | null
+          id: string
+          idempotency_key: string | null
+          note: string | null
+          operating_day: string
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          source_sale_id: string | null
+          status: Database["public"]["Enums"]["document_status"]
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          amount_vnd: number
+          created_at?: string
+          created_by: string
+          customer_id?: string | null
+          id?: string
+          idempotency_key?: string | null
+          note?: string | null
+          operating_day: string
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          source_sale_id?: string | null
+          status?: Database["public"]["Enums"]["document_status"]
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          amount_vnd?: number
+          created_at?: string
+          created_by?: string
+          customer_id?: string | null
+          id?: string
+          idempotency_key?: string | null
+          note?: string | null
+          operating_day?: string
+          payment_method?: Database["public"]["Enums"]["payment_method"]
+          source_sale_id?: string | null
+          status?: Database["public"]["Enums"]["document_status"]
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receipts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receipts_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receipts_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
+            referencedRelation: "operating_days"
+            referencedColumns: ["day"]
+          },
+          {
+            foreignKeyName: "receipts_source_sale_id_fkey"
+            columns: ["source_sale_id"]
+            isOneToOne: true
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      receivables: {
+        Row: {
+          created_at: string
+          customer_id: string
+          due_date: string
+          id: string
+          operating_day: string
+          original_amount_vnd: number
+          outstanding_amount_vnd: number
+          sale_id: string
+          status: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          due_date: string
+          id?: string
+          operating_day: string
+          original_amount_vnd: number
+          outstanding_amount_vnd: number
+          sale_id: string
+          status?: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          due_date?: string
+          id?: string
+          operating_day?: string
+          original_amount_vnd?: number
+          outstanding_amount_vnd?: number
+          sale_id?: string
+          status?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "receivables_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receivables_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
+            referencedRelation: "operating_days"
+            referencedColumns: ["day"]
+          },
+          {
+            foreignKeyName: "receivables_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: true
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sale_lines: {
+        Row: {
+          created_at: string
+          id: string
+          line_number: number
+          line_total_vnd: number | null
+          quantity_bags: number
+          sale_id: string
+          unit_price_vnd: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          line_number: number
+          line_total_vnd?: number | null
+          quantity_bags: number
+          sale_id: string
+          unit_price_vnd: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          line_number?: number
+          line_total_vnd?: number | null
+          quantity_bags?: number
+          sale_id?: string
+          unit_price_vnd?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_lines_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales: {
+        Row: {
+          created_at: string
+          created_by: string
+          customer_id: string | null
+          id: string
+          idempotency_key: string
+          kind: Database["public"]["Enums"]["sale_kind"]
+          note: string | null
+          operating_day: string
+          paid_now_vnd: number
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          shift_code: string | null
+          status: Database["public"]["Enums"]["document_status"]
+          total_vnd: number
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          customer_id?: string | null
+          id?: string
+          idempotency_key: string
+          kind: Database["public"]["Enums"]["sale_kind"]
+          note?: string | null
+          operating_day: string
+          paid_now_vnd: number
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          shift_code?: string | null
+          status?: Database["public"]["Enums"]["document_status"]
+          total_vnd: number
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          customer_id?: string | null
+          id?: string
+          idempotency_key?: string
+          kind?: Database["public"]["Enums"]["sale_kind"]
+          note?: string | null
+          operating_day?: string
+          paid_now_vnd?: number
+          payment_method?: Database["public"]["Enums"]["payment_method"]
+          shift_code?: string | null
+          status?: Database["public"]["Enums"]["document_status"]
+          total_vnd?: number
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
+            referencedRelation: "operating_days"
+            referencedColumns: ["day"]
+          },
+        ]
+      }
       settings: {
         Row: {
           allow_negative_stock: boolean
@@ -302,6 +647,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_sale: {
+        Args: { p_idempotency_key: string; p_input: Json }
+        Returns: Json
+      }
       set_customer_active: {
         Args: { p_id: string; p_is_active: boolean }
         Returns: undefined

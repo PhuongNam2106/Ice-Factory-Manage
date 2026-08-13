@@ -3,6 +3,8 @@ import { MobileNav } from '@/components/app-shell/mobile-nav'
 import { UserMenu } from '@/components/app-shell/user-menu'
 import { requireUser } from '@/modules/auth/service'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AppLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const user = await requireUser()
 
