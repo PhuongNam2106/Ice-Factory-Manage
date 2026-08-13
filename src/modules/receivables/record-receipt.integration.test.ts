@@ -42,9 +42,13 @@ describe('record_receipt RPC integration', () => {
       const saleKey = crypto.randomUUID()
       const receiptKey1 = crypto.randomUUID()
       const receiptKey2 = crypto.randomUUID()
+      const rejectedReceiptKey = crypto.randomUUID()
 
       let userId: string | null = null
       let customerId: string | null = null
+      let saleId: string | null = null
+      let receivableId: string | null = null
+      const receiptIds: string[] = []
 
       const client = createClient<Database>(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -102,6 +106,7 @@ describe('record_receipt RPC integration', () => {
           p_idempotency_key: saleKey,
         })
         expect(saleRes.error).toBeNull()
+        saleId = (saleRes.data as { saleId: string }).saleId
 
         const { data: recData } = await adminClient
           .from('receivables')
@@ -113,7 +118,7 @@ describe('record_receipt RPC integration', () => {
         expect(Number(recData!.outstanding_amount_vnd)).toBe(100000)
         expect(recData!.status).toBe('open')
 
-        const receivableId = recData!.id
+        receivableId = recData!.id
 
         // 2. Record partial receipt 60,000 allocated to receivable
         const receiptRes1 = await client.rpc('record_receipt', {
@@ -128,6 +133,7 @@ describe('record_receipt RPC integration', () => {
           p_idempotency_key: receiptKey1,
         })
         expect(receiptRes1.error).toBeNull()
+        receiptIds.push((receiptRes1.data as { receiptId: string }).receiptId)
 
         const { data: recDataAfter1 } = await adminClient
           .from('receivables')
@@ -137,6 +143,26 @@ describe('record_receipt RPC integration', () => {
 
         expect(Number(recDataAfter1!.outstanding_amount_vnd)).toBe(40000)
         expect(recDataAfter1!.status).toBe('open')
+
+        const rejectedReceipt = await client.rpc('record_receipt', {
+          p_input: {
+            customerId,
+            operatingDay: day,
+            amountVnd: 50000,
+            paymentMethod: 'cash' as const,
+            allocations: [{ receivableId, amountVnd: 50000 }],
+          },
+          p_idempotency_key: rejectedReceiptKey,
+        })
+        expect(rejectedReceipt.error?.message).toContain('INVALID_RECEIVABLE_ALLOCATION')
+
+        const { data: unchangedAfterRejected } = await adminClient
+          .from('receivables')
+          .select('outstanding_amount_vnd, status')
+          .eq('id', receivableId)
+          .single()
+        expect(Number(unchangedAfterRejected!.outstanding_amount_vnd)).toBe(40000)
+        expect(unchangedAfterRejected!.status).toBe('open')
 
         // 3. Test idempotency
         const receiptRes1Repeat = await client.rpc('record_receipt', {
@@ -164,6 +190,7 @@ describe('record_receipt RPC integration', () => {
           p_idempotency_key: receiptKey2,
         })
         expect(receiptRes2.error).toBeNull()
+        receiptIds.push((receiptRes2.data as { receiptId: string }).receiptId)
 
         const { data: recDataAfter2 } = await adminClient
           .from('receivables')
@@ -177,11 +204,15 @@ describe('record_receipt RPC integration', () => {
         await client.auth.signOut()
 
         if (userId) {
-          await adminClient.from('receipt_allocations').delete().neq('id', '00000000-0000-0000-0000-000000000000')
-          await adminClient.from('receipts').delete().neq('id', '00000000-0000-0000-0000-000000000000')
-          await adminClient.from('receivables').delete().neq('id', '00000000-0000-0000-0000-000000000000')
-          await adminClient.from('sale_lines').delete().neq('id', '00000000-0000-0000-0000-000000000000')
-          await adminClient.from('sales').delete().neq('id', '00000000-0000-0000-0000-000000000000')
+          if (receiptIds.length) {
+            await adminClient.from('receipt_allocations').delete().in('receipt_id', receiptIds)
+            await adminClient.from('receipts').delete().in('id', receiptIds)
+          }
+          if (receivableId) await adminClient.from('receivables').delete().eq('id', receivableId)
+          if (saleId) {
+            await adminClient.from('sale_lines').delete().eq('sale_id', saleId)
+            await adminClient.from('sales').delete().eq('id', saleId)
+          }
           await adminClient.from('inventory_ledger').delete().eq('created_by', userId)
           if (customerId) {
             await adminClient.from('customers').delete().eq('id', customerId)

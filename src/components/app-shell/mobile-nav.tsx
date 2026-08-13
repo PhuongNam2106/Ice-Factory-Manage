@@ -26,6 +26,15 @@ export function MobileNav({ isManager }: { isManager: boolean }) {
       ),
     },
     {
+      href: '/production',
+      label: 'Sản xuất',
+      icon: (
+        <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v9m0 0l-3-3m3 3l3-3M5 16h14v5H5z" />
+        </svg>
+      ),
+    },
+    {
       href: '/alerts',
       label: 'Cảnh báo',
       icon: (
@@ -57,7 +66,7 @@ export function MobileNav({ isManager }: { isManager: boolean }) {
 
   return (
     <nav aria-label="Điều hướng di động" className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200/80 bg-white/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden">
-      <ul className="grid grid-cols-4 px-2">
+      <ul className="grid grid-cols-5 px-2">
         {mobileItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))
           return (

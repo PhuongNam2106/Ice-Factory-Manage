@@ -35,6 +35,13 @@ insert into public.customers (
   '22222222-2222-2222-2222-222222222222'
 ) on conflict (id) do nothing;
 
+insert into public.machines (id, name, code, created_by) values (
+  '55555555-5555-4555-8555-555555555555',
+  'Máy đá E2E',
+  'MAY-E2E',
+  '22222222-2222-2222-2222-222222222222'
+) on conflict (id) do nothing;
+
 insert into public.operating_days (day, status)
 values (((now() at time zone 'Asia/Bangkok')::date), 'open')
 on conflict (day) do nothing;

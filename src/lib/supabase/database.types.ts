@@ -280,6 +280,93 @@ export type Database = {
           },
         ]
       }
+      production_batches: {
+        Row: {
+          created_at: string
+          created_by: string
+          end_time: string
+          good_bags: number
+          id: string
+          idempotency_key: string
+          machine_id: string
+          note: string | null
+          operating_day: string
+          rejected_bags: number
+          shift_code: string
+          start_time: string
+          status: Database["public"]["Enums"]["document_status"]
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string; created_by: string; end_time: string; good_bags: number
+          id?: string; idempotency_key: string; machine_id: string; note?: string | null
+          operating_day: string; rejected_bags?: number; shift_code: string; start_time: string
+          status?: Database["public"]["Enums"]["document_status"]; updated_at?: string; version?: number
+        }
+        Update: {
+          created_at?: string; created_by?: string; end_time?: string; good_bags?: number
+          id?: string; idempotency_key?: string; machine_id?: string; note?: string | null
+          operating_day?: string; rejected_bags?: number; shift_code?: string; start_time?: string
+          status?: Database["public"]["Enums"]["document_status"]; updated_at?: string; version?: number
+        }
+        Relationships: [
+          { foreignKeyName: "production_batches_created_by_fkey"; columns: ["created_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] },
+          { foreignKeyName: "production_batches_machine_id_fkey"; columns: ["machine_id"]; isOneToOne: false; referencedRelation: "machines"; referencedColumns: ["id"] },
+          { foreignKeyName: "production_batches_operating_day_fkey"; columns: ["operating_day"]; isOneToOne: false; referencedRelation: "operating_days"; referencedColumns: ["day"] },
+        ]
+      }
+      production_shift_totals: {
+        Row: {
+          created_at: string; created_by: string; good_bags: number; id: string
+          idempotency_key: string; machine_id: string; note: string | null; operating_day: string
+          rejected_bags: number; shift_code: string; updated_at: string; version: number
+        }
+        Insert: {
+          created_at?: string; created_by: string; good_bags: number; id?: string
+          idempotency_key: string; machine_id: string; note?: string | null; operating_day: string
+          rejected_bags?: number; shift_code: string; updated_at?: string; version?: number
+        }
+        Update: {
+          created_at?: string; created_by?: string; good_bags?: number; id?: string
+          idempotency_key?: string; machine_id?: string; note?: string | null; operating_day?: string
+          rejected_bags?: number; shift_code?: string; updated_at?: string; version?: number
+        }
+        Relationships: [
+          { foreignKeyName: "production_shift_totals_created_by_fkey"; columns: ["created_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] },
+          { foreignKeyName: "production_shift_totals_machine_id_fkey"; columns: ["machine_id"]; isOneToOne: false; referencedRelation: "machines"; referencedColumns: ["id"] },
+          { foreignKeyName: "production_shift_totals_operating_day_fkey"; columns: ["operating_day"]; isOneToOne: false; referencedRelation: "operating_days"; referencedColumns: ["day"] },
+        ]
+      }
+      production_source_selections: {
+        Row: {
+          confirmed_at: string | null; confirmed_by: string | null; created_at: string; id: string
+          inventory_entry_id: string | null; is_confirmed: boolean; machine_id: string
+          official_quantity_bags: number; operating_day: string
+          selected_source: Database["public"]["Enums"]["production_source_kind"]
+          shift_code: string; updated_at: string
+        }
+        Insert: {
+          confirmed_at?: string | null; confirmed_by?: string | null; created_at?: string; id?: string
+          inventory_entry_id?: string | null; is_confirmed?: boolean; machine_id: string
+          official_quantity_bags?: number; operating_day: string
+          selected_source: Database["public"]["Enums"]["production_source_kind"]
+          shift_code: string; updated_at?: string
+        }
+        Update: {
+          confirmed_at?: string | null; confirmed_by?: string | null; created_at?: string; id?: string
+          inventory_entry_id?: string | null; is_confirmed?: boolean; machine_id?: string
+          official_quantity_bags?: number; operating_day?: string
+          selected_source?: Database["public"]["Enums"]["production_source_kind"]
+          shift_code?: string; updated_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: "production_source_selections_confirmed_by_fkey"; columns: ["confirmed_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] },
+          { foreignKeyName: "production_source_selections_inventory_entry_id_fkey"; columns: ["inventory_entry_id"]; isOneToOne: false; referencedRelation: "inventory_ledger"; referencedColumns: ["id"] },
+          { foreignKeyName: "production_source_selections_machine_id_fkey"; columns: ["machine_id"]; isOneToOne: false; referencedRelation: "machines"; referencedColumns: ["id"] },
+          { foreignKeyName: "production_source_selections_operating_day_fkey"; columns: ["operating_day"]; isOneToOne: false; referencedRelation: "operating_days"; referencedColumns: ["day"] },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -652,6 +739,18 @@ export type Database = {
         Returns: Json
       }
       record_receipt: {
+        Args: { p_idempotency_key: string; p_input: Json }
+        Returns: Json
+      }
+      record_production_batch: {
+        Args: { p_idempotency_key: string; p_input: Json }
+        Returns: Json
+      }
+      record_production_shift_total: {
+        Args: { p_idempotency_key: string; p_input: Json }
+        Returns: Json
+      }
+      select_production_source: {
         Args: { p_idempotency_key: string; p_input: Json }
         Returns: Json
       }
