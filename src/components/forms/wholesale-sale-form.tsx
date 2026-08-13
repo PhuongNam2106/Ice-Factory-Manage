@@ -48,7 +48,7 @@ export function WholesaleSaleForm({
         return
       }
 
-      setMessage('Đã lưu giao dịch bán sỉ.')
+      setMessage('Đã lưu thành công đơn bán sỉ!')
       idempotencyKey.current = createIdempotencyKey()
       formRef.current?.reset()
       setLines([emptyLine()])
@@ -56,23 +56,97 @@ export function WholesaleSaleForm({
   }
 
   return (
-    <form action={submit} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5" noValidate ref={formRef}>
-      <label className="grid gap-1 text-sm font-medium">
-        Khách hàng đầu mối
-        <select className="min-h-12 rounded-lg border border-slate-300 px-3 py-2" defaultValue="" name="customerId">
-          <option value="">Không chọn — chỉ dùng khi đã thu đủ</option>
-          {customers.map((customer) => <option key={customer.id} value={customer.id}>{customer.name}{customer.phone ? ` · ${customer.phone}` : ''}</option>)}
+    <form action={submit} className="space-y-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-2xs sm:p-8" noValidate ref={formRef}>
+      <div>
+        <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700">
+          Khách hàng đầu mối (Khách sỉ)
+        </label>
+        <select
+          className="min-h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
+          defaultValue=""
+          name="customerId"
+        >
+          <option value="">Không chọn — (Chỉ áp dụng khi đã thu đủ 100%)</option>
+          {customers.map((customer) => (
+            <option key={customer.id} value={customer.id}>
+              {customer.name} {customer.phone ? `· SĐT: ${customer.phone}` : ''}
+            </option>
+          ))}
         </select>
-      </label>
-      <SaleLineEditor lines={lines} onChange={setLines} />
-      <p className="rounded-lg bg-slate-50 p-3 text-sm font-semibold">Tạm tính: {currency.format(total)} đ</p>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="grid gap-1 text-sm font-medium">Tiền nhận ngay<input className="min-h-12 rounded-lg border border-slate-300 px-3 py-2" defaultValue="0" inputMode="numeric" min="0" name="paidNowVnd" required type="number" /></label>
-        <label className="grid gap-1 text-sm font-medium">Phương thức<select className="min-h-12 rounded-lg border border-slate-300 px-3 py-2" defaultValue="cash" name="paymentMethod"><option value="cash">Tiền mặt</option><option value="bank_transfer">Chuyển khoản</option></select></label>
       </div>
-      <label className="grid gap-1 text-sm font-medium">Ghi chú<textarea className="min-h-24 rounded-lg border border-slate-300 px-3 py-2" maxLength={1000} name="note" /></label>
-      {message ? <p aria-live="polite" className="rounded-lg bg-sky-50 p-3 text-sm text-sky-900" role="status">{message}</p> : null}
-      <button className="min-h-12 w-full rounded-lg bg-sky-700 px-4 py-3 font-semibold text-white disabled:opacity-60" disabled={isPending} type="submit">{isPending ? 'Đang lưu…' : 'Lưu bán sỉ'}</button>
+
+      <SaleLineEditor lines={lines} onChange={setLines} />
+
+      {/* Calculated Total Bar */}
+      <div className="flex items-center justify-between rounded-2xl bg-sky-50/80 p-4 ring-1 ring-sky-200/60">
+        <span className="text-xs font-bold uppercase tracking-wider text-sky-900">Tổng Giá Trị Đơn Bán Sỉ</span>
+        <span className="text-xl font-extrabold text-sky-950">{currency.format(total)} VNĐ</span>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700">
+            Tiền nhận ngay (VNĐ)
+          </label>
+          <input
+            className="min-h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
+            defaultValue="0"
+            inputMode="numeric"
+            min="0"
+            name="paidNowVnd"
+            required
+            type="number"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700">
+            Phương thức thanh toán
+          </label>
+          <select
+            className="min-h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
+            defaultValue="cash"
+            name="paymentMethod"
+          >
+            <option value="cash">💵 Tiền mặt</option>
+            <option value="bank_transfer">🏦 Chuyển khoản ngân hàng</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700">
+          Ghi chú đơn hàng
+        </label>
+        <textarea
+          className="min-h-24 w-full rounded-2xl border border-slate-300 bg-white p-4 text-sm text-slate-900 shadow-2xs outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
+          maxLength={1000}
+          name="note"
+          placeholder="Nhập thông tin giao hàng hoặc ghi chú khác (nếu có)…"
+        />
+      </div>
+
+      {message ? (
+        <div
+          aria-live="polite"
+          className={`flex items-center gap-2.5 rounded-2xl p-4 text-sm font-semibold ${
+            message.includes('thành công')
+              ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200'
+              : 'bg-rose-50 text-rose-800 ring-1 ring-rose-200'
+          }`}
+          role="status"
+        >
+          <span>{message}</span>
+        </div>
+      ) : null}
+
+      <button
+        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-sky-600 px-5 py-4 font-bold text-white shadow-lg shadow-sky-600/20 transition-all hover:bg-sky-700 active:scale-[0.99] disabled:cursor-wait disabled:opacity-60"
+        disabled={isPending}
+        type="submit"
+      >
+        {isPending ? 'Đang lưu đơn hàng…' : 'Lưu Đơn Bán Sỉ'}
+      </button>
     </form>
   )
 }

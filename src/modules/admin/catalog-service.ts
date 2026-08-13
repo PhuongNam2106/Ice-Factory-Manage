@@ -59,6 +59,14 @@ export async function listActiveCustomers(client?: CatalogClient): Promise<Custo
     .map(({ id, name, phone, paymentTermDays }) => ({ id, name, phone, paymentTermDays }))
 }
 
+export async function getCustomerById(
+  customerId: string,
+  client?: CatalogClient,
+): Promise<CustomerRecord | null> {
+  const customers = await listCustomers(client)
+  return customers.find((c) => c.id === customerId) ?? null
+}
+
 export async function listMachines(client?: CatalogClient): Promise<MachineRecord[]> {
   const supabase = await getClient(client)
   const { data, error } = await supabase

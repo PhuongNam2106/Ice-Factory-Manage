@@ -20,7 +20,19 @@ export default async function UserAdministrationPage() {
 
   return (
     <section className="space-y-6">
-      <div><p className="text-sm font-medium text-sky-700">Quản trị</p><h1 className="text-3xl font-bold tracking-tight">Tài khoản người dùng</h1></div>
+      <div>
+        <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-700">
+          <span className="h-2 w-2 rounded-full bg-sky-500" />
+          Quản trị hệ thống
+        </div>
+        <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">
+          Tài Khoản Người Dùng
+        </h1>
+        <p className="mt-1 text-xs text-slate-500">
+          Tạo mới tài khoản, phân quyền Quản lý / Nhân viên và đổi mật khẩu.
+        </p>
+      </div>
+
       <UserAdminPanel profiles={profiles} />
     </section>
   )

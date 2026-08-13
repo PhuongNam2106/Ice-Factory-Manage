@@ -1,13 +1,54 @@
 @import 'tailwindcss';
 
 :root {
-  color: #0f172a;
-  background: #f8fafc;
+  color-scheme: light;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Plus Jakarta Sans', 'Inter', sans-serif;
 }
 
 body {
   min-height: 100vh;
   margin: 0;
-  background: #f8fafc;
+  font-family: var(--font-sans);
+  background-color: #f8fafc;
+  color: #0f172a;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Custom visual utilities */
+.ice-glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.ice-gradient-bg {
+  background: radial-gradient(circle at 50% 0%, #e0f2fe 0%, #f8fafc 70%);
+}
+
+.ice-card {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ice-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.08), 0 2px 4px -2px rgba(14, 165, 233, 0.04);
+}

@@ -651,6 +651,10 @@ export type Database = {
         Args: { p_idempotency_key: string; p_input: Json }
         Returns: Json
       }
+      record_receipt: {
+        Args: { p_idempotency_key: string; p_input: Json }
+        Returns: Json
+      }
       set_customer_active: {
         Args: { p_id: string; p_is_active: boolean }
         Returns: undefined
