@@ -77,6 +77,15 @@ const items: NavItem[] = [
 
 const managerItems: NavItem[] = [
   {
+    href: '/closing',
+    label: 'Đối chiếu & khóa sổ',
+    icon: (
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5-4v14H4V4h10l6 6" />
+      </svg>
+    ),
+  },
+  {
     href: '/admin/customers',
     label: 'Khách hàng',
     icon: (

@@ -420,32 +420,38 @@ export type Database = {
       operating_days: {
         Row: {
           day: string
+          id: string
           locked_at: string | null
           locked_by: string | null
           reopen_reason: string | null
           reopened_at: string | null
           reopened_by: string | null
           snapshot: Json | null
+          snapshot_version: number
           status: Database["public"]["Enums"]["operating_day_status"]
         }
         Insert: {
           day: string
+          id?: string
           locked_at?: string | null
           locked_by?: string | null
           reopen_reason?: string | null
           reopened_at?: string | null
           reopened_by?: string | null
           snapshot?: Json | null
+          snapshot_version?: number
           status?: Database["public"]["Enums"]["operating_day_status"]
         }
         Update: {
           day?: string
+          id?: string
           locked_at?: string | null
           locked_by?: string | null
           reopen_reason?: string | null
           reopened_at?: string | null
           reopened_by?: string | null
           snapshot?: Json | null
+          snapshot_version?: number
           status?: Database["public"]["Enums"]["operating_day_status"]
         }
         Relationships: [
@@ -1137,6 +1143,11 @@ export type Database = {
         }
         Returns: Json
       }
+      get_daily_reconciliation: { Args: { p_day: string }; Returns: Json }
+      lock_operating_day: {
+        Args: { p_day: string; p_variance_override_reason?: string }
+        Returns: Json
+      }
       record_production_batch: {
         Args: { p_idempotency_key: string; p_input: Json }
         Returns: Json
@@ -1151,6 +1162,10 @@ export type Database = {
       }
       record_stock_count: {
         Args: { p_idempotency_key: string; p_input: Json }
+        Returns: Json
+      }
+      reopen_operating_day: {
+        Args: { p_day: string; p_reason: string }
         Returns: Json
       }
       review_expense: {
