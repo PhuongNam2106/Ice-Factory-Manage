@@ -122,6 +122,161 @@ export type Database = {
           },
         ]
       }
+      expense_attachments: {
+        Row: {
+          bucket_id: string
+          content_type: string
+          created_at: string
+          expense_id: string
+          id: string
+          object_path: string
+          original_name: string
+          size_bytes: number
+          uploaded_by: string
+        }
+        Insert: {
+          bucket_id?: string
+          content_type: string
+          created_at?: string
+          expense_id: string
+          id?: string
+          object_path: string
+          original_name: string
+          size_bytes: number
+          uploaded_by: string
+        }
+        Update: {
+          bucket_id?: string
+          content_type?: string
+          created_at?: string
+          expense_id?: string
+          id?: string
+          object_path?: string
+          original_name?: string
+          size_bytes?: number
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_attachments_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expense_attachments_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expense_categories: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+        }
+        Relationships: []
+      }
+      expenses: {
+        Row: {
+          amount_vnd: number
+          category_id: string
+          created_at: string
+          created_by: string
+          id: string
+          idempotency_key: string
+          note: string | null
+          operating_day: string
+          payee: string
+          review_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["expense_status"]
+          updated_at: string
+        }
+        Insert: {
+          amount_vnd: number
+          category_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          idempotency_key: string
+          note?: string | null
+          operating_day: string
+          payee: string
+          review_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["expense_status"]
+          updated_at?: string
+        }
+        Update: {
+          amount_vnd?: number
+          category_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          idempotency_key?: string
+          note?: string | null
+          operating_day?: string
+          payee?: string
+          review_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["expense_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
+            referencedRelation: "operating_days"
+            referencedColumns: ["day"]
+          },
+          {
+            foreignKeyName: "expenses_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       idempotency_keys: {
         Row: {
           actor_id: string
@@ -964,8 +1119,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_expense: {
+        Args: { p_idempotency_key: string; p_input: Json }
+        Returns: Json
+      }
       create_sale: {
         Args: { p_idempotency_key: string; p_input: Json }
+        Returns: Json
+      }
+      finalize_expense_attachment: {
+        Args: {
+          p_content_type: string
+          p_expense_id: string
+          p_object_path: string
+          p_original_name: string
+          p_size_bytes: number
+        }
         Returns: Json
       }
       record_production_batch: {
@@ -982,6 +1151,10 @@ export type Database = {
       }
       record_stock_count: {
         Args: { p_idempotency_key: string; p_input: Json }
+        Returns: Json
+      }
+      review_expense: {
+        Args: { p_decision: string; p_expense_id: string; p_reason?: string }
         Returns: Json
       }
       select_production_source: {
