@@ -9,6 +9,7 @@ const eslintConfig = [
       '.next/**',
       'coverage/**',
       'playwright-report/**',
+      'supabase/.temp/**',
       'test-results/**',
     ],
   },

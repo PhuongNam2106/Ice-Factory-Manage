@@ -7,10 +7,30 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.15"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -152,6 +172,7 @@ export type Database = {
           note: string | null
           operating_day: string
           quantity_delta_bags: number
+          reversal_of_id: string | null
           source_id: string
           source_type: string
         }
@@ -163,6 +184,7 @@ export type Database = {
           note?: string | null
           operating_day: string
           quantity_delta_bags: number
+          reversal_of_id?: string | null
           source_id: string
           source_type: string
         }
@@ -174,6 +196,7 @@ export type Database = {
           note?: string | null
           operating_day?: string
           quantity_delta_bags?: number
+          reversal_of_id?: string | null
           source_id?: string
           source_type?: string
         }
@@ -191,6 +214,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "operating_days"
             referencedColumns: ["day"]
+          },
+          {
+            foreignKeyName: "inventory_ledger_reversal_of_id_fkey"
+            columns: ["reversal_of_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_ledger"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -299,72 +329,202 @@ export type Database = {
           version: number
         }
         Insert: {
-          created_at?: string; created_by: string; end_time: string; good_bags: number
-          id?: string; idempotency_key: string; machine_id: string; note?: string | null
-          operating_day: string; rejected_bags?: number; shift_code: string; start_time: string
-          status?: Database["public"]["Enums"]["document_status"]; updated_at?: string; version?: number
+          created_at?: string
+          created_by: string
+          end_time: string
+          good_bags: number
+          id?: string
+          idempotency_key: string
+          machine_id: string
+          note?: string | null
+          operating_day: string
+          rejected_bags?: number
+          shift_code: string
+          start_time: string
+          status?: Database["public"]["Enums"]["document_status"]
+          updated_at?: string
+          version?: number
         }
         Update: {
-          created_at?: string; created_by?: string; end_time?: string; good_bags?: number
-          id?: string; idempotency_key?: string; machine_id?: string; note?: string | null
-          operating_day?: string; rejected_bags?: number; shift_code?: string; start_time?: string
-          status?: Database["public"]["Enums"]["document_status"]; updated_at?: string; version?: number
+          created_at?: string
+          created_by?: string
+          end_time?: string
+          good_bags?: number
+          id?: string
+          idempotency_key?: string
+          machine_id?: string
+          note?: string | null
+          operating_day?: string
+          rejected_bags?: number
+          shift_code?: string
+          start_time?: string
+          status?: Database["public"]["Enums"]["document_status"]
+          updated_at?: string
+          version?: number
         }
         Relationships: [
-          { foreignKeyName: "production_batches_created_by_fkey"; columns: ["created_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] },
-          { foreignKeyName: "production_batches_machine_id_fkey"; columns: ["machine_id"]; isOneToOne: false; referencedRelation: "machines"; referencedColumns: ["id"] },
-          { foreignKeyName: "production_batches_operating_day_fkey"; columns: ["operating_day"]; isOneToOne: false; referencedRelation: "operating_days"; referencedColumns: ["day"] },
+          {
+            foreignKeyName: "production_batches_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_batches_machine_id_fkey"
+            columns: ["machine_id"]
+            isOneToOne: false
+            referencedRelation: "machines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_batches_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
+            referencedRelation: "operating_days"
+            referencedColumns: ["day"]
+          },
         ]
       }
       production_shift_totals: {
         Row: {
-          created_at: string; created_by: string; good_bags: number; id: string
-          idempotency_key: string; machine_id: string; note: string | null; operating_day: string
-          rejected_bags: number; shift_code: string; updated_at: string; version: number
+          created_at: string
+          created_by: string
+          good_bags: number
+          id: string
+          idempotency_key: string
+          machine_id: string
+          note: string | null
+          operating_day: string
+          rejected_bags: number
+          shift_code: string
+          updated_at: string
+          version: number
         }
         Insert: {
-          created_at?: string; created_by: string; good_bags: number; id?: string
-          idempotency_key: string; machine_id: string; note?: string | null; operating_day: string
-          rejected_bags?: number; shift_code: string; updated_at?: string; version?: number
+          created_at?: string
+          created_by: string
+          good_bags: number
+          id?: string
+          idempotency_key: string
+          machine_id: string
+          note?: string | null
+          operating_day: string
+          rejected_bags?: number
+          shift_code: string
+          updated_at?: string
+          version?: number
         }
         Update: {
-          created_at?: string; created_by?: string; good_bags?: number; id?: string
-          idempotency_key?: string; machine_id?: string; note?: string | null; operating_day?: string
-          rejected_bags?: number; shift_code?: string; updated_at?: string; version?: number
+          created_at?: string
+          created_by?: string
+          good_bags?: number
+          id?: string
+          idempotency_key?: string
+          machine_id?: string
+          note?: string | null
+          operating_day?: string
+          rejected_bags?: number
+          shift_code?: string
+          updated_at?: string
+          version?: number
         }
         Relationships: [
-          { foreignKeyName: "production_shift_totals_created_by_fkey"; columns: ["created_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] },
-          { foreignKeyName: "production_shift_totals_machine_id_fkey"; columns: ["machine_id"]; isOneToOne: false; referencedRelation: "machines"; referencedColumns: ["id"] },
-          { foreignKeyName: "production_shift_totals_operating_day_fkey"; columns: ["operating_day"]; isOneToOne: false; referencedRelation: "operating_days"; referencedColumns: ["day"] },
+          {
+            foreignKeyName: "production_shift_totals_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_shift_totals_machine_id_fkey"
+            columns: ["machine_id"]
+            isOneToOne: false
+            referencedRelation: "machines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_shift_totals_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
+            referencedRelation: "operating_days"
+            referencedColumns: ["day"]
+          },
         ]
       }
       production_source_selections: {
         Row: {
-          confirmed_at: string | null; confirmed_by: string | null; created_at: string; id: string
-          inventory_entry_id: string | null; is_confirmed: boolean; machine_id: string
-          official_quantity_bags: number; operating_day: string
+          confirmed_at: string | null
+          confirmed_by: string | null
+          created_at: string
+          id: string
+          inventory_entry_id: string | null
+          is_confirmed: boolean
+          machine_id: string
+          official_quantity_bags: number
+          operating_day: string
           selected_source: Database["public"]["Enums"]["production_source_kind"]
-          shift_code: string; updated_at: string
+          shift_code: string
+          updated_at: string
         }
         Insert: {
-          confirmed_at?: string | null; confirmed_by?: string | null; created_at?: string; id?: string
-          inventory_entry_id?: string | null; is_confirmed?: boolean; machine_id: string
-          official_quantity_bags?: number; operating_day: string
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          id?: string
+          inventory_entry_id?: string | null
+          is_confirmed?: boolean
+          machine_id: string
+          official_quantity_bags?: number
+          operating_day: string
           selected_source: Database["public"]["Enums"]["production_source_kind"]
-          shift_code: string; updated_at?: string
+          shift_code: string
+          updated_at?: string
         }
         Update: {
-          confirmed_at?: string | null; confirmed_by?: string | null; created_at?: string; id?: string
-          inventory_entry_id?: string | null; is_confirmed?: boolean; machine_id?: string
-          official_quantity_bags?: number; operating_day?: string
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          created_at?: string
+          id?: string
+          inventory_entry_id?: string | null
+          is_confirmed?: boolean
+          machine_id?: string
+          official_quantity_bags?: number
+          operating_day?: string
           selected_source?: Database["public"]["Enums"]["production_source_kind"]
-          shift_code?: string; updated_at?: string
+          shift_code?: string
+          updated_at?: string
         }
         Relationships: [
-          { foreignKeyName: "production_source_selections_confirmed_by_fkey"; columns: ["confirmed_by"]; isOneToOne: false; referencedRelation: "profiles"; referencedColumns: ["id"] },
-          { foreignKeyName: "production_source_selections_inventory_entry_id_fkey"; columns: ["inventory_entry_id"]; isOneToOne: false; referencedRelation: "inventory_ledger"; referencedColumns: ["id"] },
-          { foreignKeyName: "production_source_selections_machine_id_fkey"; columns: ["machine_id"]; isOneToOne: false; referencedRelation: "machines"; referencedColumns: ["id"] },
-          { foreignKeyName: "production_source_selections_operating_day_fkey"; columns: ["operating_day"]; isOneToOne: false; referencedRelation: "operating_days"; referencedColumns: ["day"] },
+          {
+            foreignKeyName: "production_source_selections_confirmed_by_fkey"
+            columns: ["confirmed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_source_selections_inventory_entry_id_fkey"
+            columns: ["inventory_entry_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_ledger"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_source_selections_machine_id_fkey"
+            columns: ["machine_id"]
+            isOneToOne: false
+            referencedRelation: "machines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_source_selections_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
+            referencedRelation: "operating_days"
+            referencedColumns: ["day"]
+          },
         ]
       }
       profiles: {
@@ -729,6 +889,76 @@ export type Database = {
           },
         ]
       }
+      stock_counts: {
+        Row: {
+          actual_bags: number
+          adjustment_entry_id: string | null
+          created_at: string
+          created_by: string
+          expected_bags: number
+          id: string
+          idempotency_key: string
+          note: string | null
+          operating_day: string
+          requires_review: boolean
+          variance_bags: number | null
+          variance_pct: number | null
+          warning_pct: number
+        }
+        Insert: {
+          actual_bags: number
+          adjustment_entry_id?: string | null
+          created_at?: string
+          created_by: string
+          expected_bags: number
+          id?: string
+          idempotency_key: string
+          note?: string | null
+          operating_day: string
+          requires_review: boolean
+          variance_bags?: number | null
+          variance_pct?: number | null
+          warning_pct: number
+        }
+        Update: {
+          actual_bags?: number
+          adjustment_entry_id?: string | null
+          created_at?: string
+          created_by?: string
+          expected_bags?: number
+          id?: string
+          idempotency_key?: string
+          note?: string | null
+          operating_day?: string
+          requires_review?: boolean
+          variance_bags?: number | null
+          variance_pct?: number | null
+          warning_pct?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stock_counts_adjustment_entry_id_fkey"
+            columns: ["adjustment_entry_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_ledger"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_counts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_counts_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
+            referencedRelation: "operating_days"
+            referencedColumns: ["day"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -738,15 +968,19 @@ export type Database = {
         Args: { p_idempotency_key: string; p_input: Json }
         Returns: Json
       }
-      record_receipt: {
-        Args: { p_idempotency_key: string; p_input: Json }
-        Returns: Json
-      }
       record_production_batch: {
         Args: { p_idempotency_key: string; p_input: Json }
         Returns: Json
       }
       record_production_shift_total: {
+        Args: { p_idempotency_key: string; p_input: Json }
+        Returns: Json
+      }
+      record_receipt: {
+        Args: { p_idempotency_key: string; p_input: Json }
+        Returns: Json
+      }
+      record_stock_count: {
         Args: { p_idempotency_key: string; p_input: Json }
         Returns: Json
       }
@@ -916,6 +1150,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       app_role: ["employee", "manager"],
