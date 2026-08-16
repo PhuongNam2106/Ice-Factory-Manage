@@ -11,6 +11,13 @@ describe('getProxyDecision', () => {
       getProxyDecision({ isActive: false, isAuthenticated: true, pathname: '/login' }),
     ).toBe('allow')
   })
+
+  it.each(['/api/health', '/manifest.webmanifest', '/serwist/sw.js', '/serwist/sw.js.map', '/~offline'])(
+    'allows public PWA resource %s without a session',
+    (pathname) => {
+      expect(getProxyDecision({ isActive: false, isAuthenticated: false, pathname })).toBe('allow')
+    },
+  )
 })
 
 describe('createSessionRedirectResponse', () => {

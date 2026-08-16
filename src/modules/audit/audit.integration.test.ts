@@ -15,7 +15,7 @@ describe('audit_log', () => {
   } else {
     it('rejects direct deletion', async () => {
       const { adminClient } = await import('@/lib/supabase/admin')
-      const { error } = await adminClient.from('audit_log').delete().neq('id', '')
+      const { error } = await adminClient.from('audit_log').delete().eq('id', crypto.randomUUID())
       expect(error?.message).toContain('audit_log is append-only')
     })
   }

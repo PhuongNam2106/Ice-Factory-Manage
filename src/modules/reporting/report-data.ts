@@ -43,6 +43,7 @@ export async function getDailyReportInput(client: ReportClient, day: string): Pr
     productionBags: Number(data?.production_bags ?? 0),
     soldBags: Number(data?.sold_bags ?? 0),
     collectedVnd: Number(data?.collected_vnd ?? 0),
+    totalDebtVnd: Number(data?.total_debt_vnd ?? 0),
   }
 }
 

@@ -38,7 +38,7 @@ describe('create_sale RPC integration', () => {
       const username = `sale${suffix}`
       const email = usernameToAuthEmail(username)
       const password = process.env.SUPABASE_TEST_EMPLOYEE_PASSWORD!
-      const day = `2198-${String((Date.now() % 12) + 1).padStart(2, '0')}-${String((Date.now() % 27) + 1).padStart(2, '0')}`
+      const day = `2192-${String((Date.now() % 12) + 1).padStart(2, '0')}-${String((Date.now() % 27) + 1).padStart(2, '0')}`
       const lockedDay = `2199-01-01`
       const key = crypto.randomUUID()
       const failedKey = crypto.randomUUID()
@@ -72,7 +72,8 @@ describe('create_sale RPC integration', () => {
         })
         expect(profileError).toBeNull()
 
-        await adminClient.from('operating_days').insert([{ day }, { day: lockedDay, status: 'locked', locked_at: new Date().toISOString(), locked_by: userId }])
+        const operatingDays = await adminClient.from('operating_days').insert([{ day, status: 'open' }, { day: lockedDay, status: 'locked', locked_at: new Date().toISOString(), locked_by: userId }])
+        expect(operatingDays.error).toBeNull()
 
         const { data: customer } = await adminClient
           .from('customers')

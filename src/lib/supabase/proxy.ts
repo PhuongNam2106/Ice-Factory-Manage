@@ -2,6 +2,10 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 export type ProxyDecision = 'allow' | 'redirect-home' | 'redirect-login'
 
+function isPublicPwaPath(pathname: string) {
+  return pathname === '/api/health' || pathname === '/manifest.webmanifest' || pathname === '/~offline' || pathname.startsWith('/serwist/')
+}
+
 export function getProxyDecision({
   isActive,
   isAuthenticated,
@@ -11,7 +15,7 @@ export function getProxyDecision({
   isAuthenticated: boolean
   pathname: string
 }): ProxyDecision {
-  if (!isAuthenticated && pathname !== '/login') return 'redirect-login'
+  if (!isAuthenticated && pathname !== '/login' && !isPublicPwaPath(pathname)) return 'redirect-login'
   if (isAuthenticated && isActive && pathname === '/login') return 'redirect-home'
   return 'allow'
 }

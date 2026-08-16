@@ -43,15 +43,17 @@ insert into public.machines (id, name, code, created_by) values (
 ) on conflict (id) do nothing;
 
 insert into public.operating_days (day, status)
-values (((now() at time zone 'Asia/Bangkok')::date), 'open')
+values
+  (((now() at time zone 'Asia/Bangkok')::date - 1), 'open'),
+  (((now() at time zone 'Asia/Bangkok')::date), 'open')
 on conflict (day) do nothing;
 
 insert into public.inventory_ledger (
   operating_day, kind, quantity_delta_bags, source_type, source_id, note, created_by
 ) values (
-  ((now() at time zone 'Asia/Bangkok')::date),
+  ((now() at time zone 'Asia/Bangkok')::date - 1),
   'opening',
-  10000,
+  100,
   'local_seed',
   '44444444-4444-4444-8444-444444444444',
   'Tồn đầu phục vụ E2E cục bộ',

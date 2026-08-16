@@ -11,6 +11,7 @@ export type DailyReportInput = {
     productionBags: number
     soldBags: number
     collectedVnd: number
+    totalDebtVnd: number
   }
   expectedRevenueVnd?: number
 }
@@ -26,6 +27,7 @@ export async function buildDailyWorkbook(input: DailyReportInput): Promise<Buffe
     ['Đã thu', input.summary.collectedVnd, currencyFormat],
     ['Chi phí đã duyệt', input.summary.approvedExpenseVnd, currencyFormat],
     ['Lợi nhuận tạm tính', revenueVnd - input.summary.approvedExpenseVnd, currencyFormat],
+    ['Tổng công nợ cuối ngày', input.summary.totalDebtVnd, currencyFormat],
     ['Sản xuất', input.summary.productionBags, quantityFormat],
     ['Đã bán', input.summary.soldBags, quantityFormat],
   ]

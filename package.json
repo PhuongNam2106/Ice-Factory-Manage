@@ -13,7 +13,9 @@
     "test:e2e": "playwright test",
     "db:start": "supabase start",
     "db:reset": "supabase db reset",
-    "db:types": "supabase gen types typescript --local > src/lib/supabase/database.types.ts"
+    "db:types": "node scripts/generate-db-types.mjs",
+    "verify:env": "node scripts/verify-env.mjs",
+    "smoke": "node scripts/smoke-production.mjs"
   },
   "private": true,
   "type": "module",

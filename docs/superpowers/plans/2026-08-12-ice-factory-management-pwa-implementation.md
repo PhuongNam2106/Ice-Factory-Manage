@@ -4,7 +4,7 @@
 
 **Goal:** Xây dựng website responsive dạng PWA để khoảng 10 người tại một xưởng nước đá nhập bán hàng, sản xuất, chi phí, thu nợ và kiểm kê bằng điện thoại; quản lý đối chiếu, khóa sổ, xem dashboard và xuất Excel trên máy tính.
 
-**Architecture:** Một ứng dụng Next.js App Router viết bằng TypeScript cung cấp cả giao diện và backend-for-frontend. Nghiệp vụ nhiều bước chạy trong PostgreSQL transaction qua các Supabase RPC; giao diện không tự tính hoặc tự ghi các tổng tài chính/tồn kho quan trọng. Vercel Functions và Supabase cùng đặt tại Singapore.
+**Architecture:** Một ứng dụng Next.js App Router viết bằng TypeScript cung cấp cả giao diện và backend-for-frontend. Nghiệp vụ nhiều bước chạy trong PostgreSQL transaction qua các Supabase RPC; giao diện không tự tính hoặc tự ghi các tổng tài chính/tồn kho quan trọng. Vercel Functions được cấu hình tại Singapore (`sin1`); Supabase Cloud hiện tại ở India (`ap-south-1`) và quyết định vùng/độ trễ phải được ký trước go-live.
 
 **Tech Stack:** Node.js 24 LTS, pnpm 10, Next.js 16.x, React 19.x, TypeScript 5.x strict, Tailwind CSS 4.x, Supabase Auth/PostgreSQL/Storage, Zod, React Hook Form, Vitest, Playwright, ExcelJS, Serwist PWA.
 
@@ -323,7 +323,7 @@ git add supabase src/lib/supabase src/modules/audit package.json pnpm-lock.yaml
 git commit -m "feat: add core database and row security"
 ```
 
-### Task 3: Phone/PIN authentication, roles and responsive app shell
+### Task 3: Username/password authentication, roles and responsive app shell
 
 **Files:**
 - Create: `src/modules/auth/schema.ts`, `service.ts`, `actions.ts`, `auth.test.ts`
@@ -335,9 +335,9 @@ git commit -m "feat: add core database and row security"
 
 **Interfaces:**
 - Consumes: Supabase clients and `profiles` from Task 2.
-- Produces: `signInWithPin(input: { phone: string; pin: string }): Promise<ActionResult<void>>`.
+- Produces: `signInWithPassword(input: { username: string; password: string }): Promise<ActionResult<void>>`.
 - Produces: `requireUser(): Promise<AppUser>` and `requireManager(): Promise<AppUser>`.
-- Produces: manager-only `createUser`, `resetUserPin`, `setUserActive` actions.
+- Produces: manager-only `createUser`, `resetUserPassword`, `setUserActive` actions.
 
 - [ ] **Step 1: Write failing schema and authorization tests**
 
@@ -347,14 +347,14 @@ import { describe, expect, it } from 'vitest'
 import { loginSchema } from './schema'
 
 describe('loginSchema', () => {
-  it('normalizes a Vietnamese phone and accepts a six-digit PIN', () => {
-    expect(loginSchema.parse({ phone: '0912 345 678', pin: '123456' })).toEqual({
-      phone: '+84912345678', pin: '123456',
+  it('normalizes a username and accepts a numeric password', () => {
+    expect(loginSchema.parse({ username: ' NhanVien01 ', password: '123456' })).toEqual({
+      username: 'nhanvien01', password: '123456',
     })
   })
 
-  it('rejects a short PIN', () => {
-    expect(() => loginSchema.parse({ phone: '0912345678', pin: '1234' })).toThrow()
+  it('rejects a short password', () => {
+    expect(() => loginSchema.parse({ username: 'nhanvien01', password: '1234' })).toThrow()
   })
 })
 ```
@@ -367,12 +367,13 @@ Expected: FAIL because `loginSchema` is missing.
 
 - [ ] **Step 3: Implement login and guards**
 
-Use `supabase.auth.signInWithPassword({ phone, password: pin })`. Reject inactive profiles after authentication and sign them out. `src/proxy.ts` refreshes sessions and redirects unauthenticated requests to `/login`; server pages call `requireUser` or `requireManager` rather than trusting middleware alone.
+Normalize the username and map it to the internal technical email before calling `supabase.auth.signInWithPassword({ email, password })`. Reject inactive profiles after authentication and sign them out. `src/proxy.ts` refreshes sessions and redirects unauthenticated requests to `/login`; server pages call `requireUser` or `requireManager` rather than trusting middleware alone.
 
 ```ts
 export type AppUser = {
   id: string
-  phone: string
+  username: string
+  phone: string | null
   fullName: string
   role: 'employee' | 'manager'
 }
@@ -380,7 +381,7 @@ export type AppUser = {
 
 - [ ] **Step 4: Implement responsive shell and user administration**
 
-Mobile navigation exposes `Hôm nay`, `Nhập liệu`, `Cảnh báo`, `Tài khoản`. Desktop sidebar exposes domain pages. Manager creates users through the server-only admin client; raw PIN never enters application logs or `profiles`.
+Mobile navigation exposes `Hôm nay`, `Nhập liệu`, `Cảnh báo`, `Tài khoản`. Desktop sidebar exposes domain pages. Manager creates users through the server-only admin client; raw passwords and internal technical emails never enter application logs or `profiles`.
 
 - [ ] **Step 5: Add and run the E2E authorization test**
 
@@ -390,9 +391,9 @@ import { expect, test } from '@playwright/test'
 
 test('employee cannot open user administration', async ({ page }) => {
   await page.goto('/login')
-  await page.getByLabel('Số điện thoại').fill('0912345678')
-  await page.getByLabel('Mã PIN').fill('123456')
-  await page.getByRole('button', { name: 'Đăng nhập' }).click()
+  await page.getByLabel('Tên tài khoản').fill('nhanvien')
+  await page.getByLabel('Mật khẩu').fill('123456')
+  await page.getByRole('button', { name: /Vào hệ thống|Đăng nhập/ }).click()
   await page.goto('/admin/users')
   await expect(page).toHaveURL(/\/($|login)/)
 })
@@ -409,7 +410,7 @@ pnpm lint
 pnpm typecheck
 pnpm build
 git add src tests supabase/seed.sql
-git commit -m "feat: add phone pin authentication and app shell"
+git commit -m "feat: add username password authentication and app shell"
 ```
 
 ### Task 4: Shared domain primitives, action results and idempotency
@@ -1146,8 +1147,11 @@ git commit -m "feat: add safe cancellation and audit history"
 **Files:**
 - Create: `vercel.json`, `.github/workflows/ci.yml`
 - Create: `docs/operations/deployment.md`, `backup-restore.md`, `cutover.md`, `user-acceptance.md`
-- Create: `scripts/verify-env.mjs`, `scripts/smoke-production.mjs`
-- Modify: `README.md`, `.env.example`
+- Create: `scripts/verify-env.mjs`, `scripts/smoke-production.mjs`, `scripts/generate-db-types.mjs`, `scripts/release-scripts.test.ts`
+- Create: `src/app/api/health/route.ts`, `src/modules/health/schema.ts`, `src/modules/health/schema.test.ts`
+- Modify: `src/lib/supabase/proxy.ts`, `proxy.test.ts`
+- Modify: `src/modules/reporting/report-data.ts`, `excel/daily-report.ts`, `excel/reconciliation.test.ts`
+- Modify: `README.md`, `.env.example`, `package.json`, `playwright.config.ts`, `supabase/seed.sql`
 - Create: `tests/e2e/full-day.spec.ts`
 
 **Interfaces:**
@@ -1184,28 +1188,41 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      APP_TIME_ZONE: Asia/Bangkok
+      RUN_SUPABASE_INTEGRATION: "true"
+      SUPABASE_TEST_EMPLOYEE_PASSWORD: "123456"
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm db:start
+      - name: Export local Supabase environment to GITHUB_ENV
+        run: |
+          pnpm exec supabase status -o json > "$RUNNER_TEMP/supabase-status.json"
+          echo "NEXT_PUBLIC_SUPABASE_URL=$(jq -r .API_URL "$RUNNER_TEMP/supabase-status.json")" >> "$GITHUB_ENV"
+          echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(jq -r .PUBLISHABLE_KEY "$RUNNER_TEMP/supabase-status.json")" >> "$GITHUB_ENV"
+          echo "SUPABASE_SERVICE_ROLE_KEY=$(jq -r .SERVICE_ROLE_KEY "$RUNNER_TEMP/supabase-status.json")" >> "$GITHUB_ENV"
       - run: pnpm db:reset
       - run: pnpm db:types
       - run: git diff --exit-code src/lib/supabase/database.types.ts
-      - run: pnpm test
+      - run: pnpm vitest run --maxWorkers=1
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm build
-      - run: pnpm test:e2e
+      - name: Reset before browser acceptance flow
+        run: pnpm db:reset
+      - name: Full-day browser acceptance
+        env:
+          RUN_FULL_DAY_E2E: "true"
+        run: pnpm test:e2e
       - if: always()
-        run: pnpm supabase stop --no-backup
+        run: pnpm exec supabase stop --no-backup
 ```
 
 - [ ] **Step 3: Configure Vercel/Supabase production**
@@ -1217,7 +1234,7 @@ jobs:
 }
 ```
 
-Create separate Supabase projects for preview and production in Singapore. Configure private storage bucket, Auth phone/password settings, redirect URLs, Vercel secrets and custom domain. Never copy production service-role keys into preview.
+Create separate Supabase projects for preview and production. Configure private storage bucket, Auth email/password (mapped internally from username), redirect URLs, Vercel secrets and custom domain. Never copy production service-role keys into preview. The current Cloud project is in India (`ap-south-1`), so same-region Singapore deployment remains a documented go-live decision rather than a completed claim.
 
 - [ ] **Step 4: Document backup and restore drill**
 
@@ -1234,6 +1251,7 @@ Run:
 ```powershell
 pnpm db:reset
 pnpm test
+$env:RUN_FULL_DAY_E2E='true'
 pnpm test:e2e
 pnpm lint
 pnpm typecheck
@@ -1241,16 +1259,16 @@ pnpm build
 node scripts/verify-env.mjs
 ```
 
-Expected: every command exits 0; full-day test matches the exact acceptance totals above.
+Expected: every command exits 0; full-day test matches the exact acceptance totals above. When `.env.local` points to Cloud, export the local URL/publishable/service-role values returned by `supabase status` into the current shell before E2E; never run this destructive fixture against Cloud.
 
 - [ ] **Step 7: Deploy preview and run smoke checks**
 
-Run the preview deployment, then `node scripts/smoke-production.mjs <preview-url>`. The smoke script checks HTTPS, login page, manifest, service worker, authenticated health query and Singapore-backed API response without modifying production data.
+Run the preview deployment, then `node scripts/smoke-production.mjs <preview-url>`. The smoke script checks HTTPS, login page, manifest, service worker and an authenticated backend query executed by the deployed app without modifying production data. Verify the Supabase region manually in Dashboard and record the accepted region/latency decision.
 
 - [ ] **Step 8: Commit**
 
 ```powershell
-git add .github vercel.json docs/operations scripts tests/e2e/full-day.spec.ts README.md .env.example
+git add .github vercel.json docs/operations docs/superpowers/plans scripts README.md .env.example package.json playwright.config.ts supabase/seed.sql tests/e2e src/app/api/health src/components/production/reconciliation-card.tsx src/lib/supabase/proxy.ts src/lib/supabase/proxy.test.ts src/modules/health src/modules/reporting src/modules/audit/audit.integration.test.ts src/modules/sales/create-sale.integration.test.ts
 git commit -m "chore: add deployment and cutover runbooks"
 ```
 
@@ -1259,7 +1277,7 @@ git commit -m "chore: add deployment and cutover runbooks"
 - [ ] `pnpm db:reset` applies every migration from zero without manual SQL.
 - [ ] `pnpm db:types` produces no uncommitted diff.
 - [ ] `pnpm test`, `pnpm test:e2e`, `pnpm lint`, `pnpm typecheck` and `pnpm build` all exit 0.
-- [ ] Phone/PIN login, employee ownership rules and manager-only actions are covered by tests.
+- [ ] Username/password login, employee ownership rules and manager-only actions are covered by tests.
 - [ ] Wholesale and retail revenue derive only from quantity × unit price lines.
 - [ ] Partial/multiple receipts reconcile to receivables and cannot over-allocate.
 - [ ] Production detail and shift totals never double count stock.
@@ -1269,7 +1287,7 @@ git commit -m "chore: add deployment and cutover runbooks"
 - [ ] Mobile pages have no horizontal overflow at 360 px; desktop tables work at 1440 px.
 - [ ] Excel totals match dashboard queries and locked snapshots.
 - [ ] Audit log is append-only and contains no authentication secrets.
-- [ ] Preview runs in Vercel `sin1`; Supabase projects are in Singapore.
+- [ ] Preview runs in Vercel `sin1`; the accepted Supabase region/latency decision is signed before go-live.
 - [ ] Backup restore drill and clean-start cutover have named owners before go-live.
 
 ## Requirement Traceability
@@ -1277,7 +1295,7 @@ git commit -m "chore: add deployment and cutover runbooks"
 | Design requirement | Implemented by |
 |---|---|
 | PWA responsive trên điện thoại và máy tính | Tasks 1, 3, 12, 15 |
-| Tài khoản riêng, phone/PIN, hai vai trò | Tasks 2, 3, 14 |
+| Tài khoản riêng, username/password, hai vai trò | Tasks 2, 3, 14 |
 | Danh mục khách hàng và máy | Task 5 |
 | Bán sỉ, bán lẻ nhiều mức giá | Task 6 |
 | Bán chịu, trả một phần/nhiều lần, tuổi nợ | Tasks 7, 12 |
@@ -1290,4 +1308,4 @@ git commit -m "chore: add deployment and cutover runbooks"
 | Sửa/hủy an toàn và lịch sử thay đổi | Tasks 2, 14 |
 | Atomicity, idempotency, chống oversell/xung đột | Tasks 4, 6, 7, 9, 14 |
 | RLS, storage riêng tư, không lộ bí mật | Tasks 2, 3, 10, 15 |
-| Vercel/Supabase Singapore, backup và cutover sạch | Task 15 |
+| Vercel Singapore, quyết định vùng Supabase, backup và cutover sạch | Task 15 |

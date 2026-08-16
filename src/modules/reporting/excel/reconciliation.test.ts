@@ -21,6 +21,7 @@ function reportFixture(overrides: Partial<DailyReportInput['summary']> = {}): Da
       productionBags: 120,
       soldBags: 100,
       collectedVnd: 800_000,
+      totalDebtVnd: 110_000,
       ...overrides,
     },
   }
@@ -33,6 +34,7 @@ describe('Excel report reconciliation', () => {
     await workbook.xlsx.load(buffer as unknown as ExcelJS.Buffer)
 
     expect(workbook.getWorksheet('Tổng hợp')?.getCell('B5').value).toBe(1_000_000)
+    expect(workbook.getWorksheet('Tổng hợp')?.getCell('B11').value).toBe(110_000)
   })
 
   it('returns no workbook when the declared revenue does not reconcile', async () => {
