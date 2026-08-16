@@ -86,6 +86,15 @@ const managerItems: NavItem[] = [
     ),
   },
   {
+    href: '/admin/audit',
+    label: 'Lịch sử audit',
+    icon: (
+      <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6M7 3h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z" />
+      </svg>
+    ),
+  },
+  {
     href: '/admin/customers',
     label: 'Khách hàng',
     icon: (

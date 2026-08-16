@@ -59,7 +59,7 @@ export async function listExpenses(client: ExpenseClient, limit = 100): Promise<
   const { data, error } = await client
     .from('expenses')
     .select(
-      'id, operating_day, category_id, amount_vnd, payee, note, status, review_reason, created_by, created_at, reviewed_by, reviewed_at, expense_categories(name), expense_attachments(id, expense_id, original_name, content_type, size_bytes, created_at)',
+      'id, operating_day, category_id, amount_vnd, payee, note, status, version, review_reason, created_by, created_at, reviewed_by, reviewed_at, expense_categories(name), expense_attachments(id, expense_id, original_name, content_type, size_bytes, created_at)',
     )
     .order('created_at', { ascending: false })
     .limit(limit)
@@ -74,6 +74,7 @@ export async function listExpenses(client: ExpenseClient, limit = 100): Promise<
     payee: row.payee,
     note: row.note,
     status: row.status,
+    version: row.version,
     reviewReason: row.review_reason,
     createdBy: row.created_by,
     createdAt: row.created_at,

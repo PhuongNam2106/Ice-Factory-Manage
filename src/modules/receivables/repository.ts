@@ -97,7 +97,7 @@ export async function listReceiptsByCustomer(
   const { data, error } = await client
     .from('receipts')
     .select(
-      'id, customer_id, operating_day, amount_vnd, payment_method, note, created_at, customers(name)',
+      'id, customer_id, operating_day, amount_vnd, payment_method, note, status, version, created_by, source_sale_id, created_at, customers(name)',
     )
     .eq('customer_id', customerId)
     .order('created_at', { ascending: false })
@@ -112,6 +112,10 @@ export async function listReceiptsByCustomer(
     amountVnd: Number(item.amount_vnd),
     paymentMethod: item.payment_method,
     note: item.note,
+    status: item.status,
+    version: item.version,
+    createdBy: item.created_by,
+    sourceSaleId: item.source_sale_id,
     createdAt: item.created_at,
   }))
 }

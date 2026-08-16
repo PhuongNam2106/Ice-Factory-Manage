@@ -1,4 +1,4 @@
-export type ExpenseStatus = 'pending' | 'approved' | 'rejected'
+export type ExpenseStatus = 'pending' | 'approved' | 'rejected' | 'cancelled'
 
 export interface ExpenseItem {
   id: string
@@ -9,6 +9,7 @@ export interface ExpenseItem {
   payee: string
   note: string | null
   status: ExpenseStatus
+  version: number
   reviewReason: string | null
   createdBy: string
   createdAt: string

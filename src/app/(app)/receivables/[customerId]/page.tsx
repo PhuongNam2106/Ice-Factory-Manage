@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { CancelDocumentDialog } from '@/components/forms/cancel-document-dialog'
 import { ReceiptForm } from '@/components/forms/receipt-form'
 import { getCustomerById } from '@/modules/admin/catalog-service'
+import { requireUser } from '@/modules/auth/service'
 import { ensureOperatingDay } from '@/modules/closing/ensure-day'
 import { getOperatingDay } from '@/modules/shared/operating-day'
 import {
@@ -17,6 +19,7 @@ export default async function CustomerReceivablesPage({
   params: Promise<{ customerId: string }>
 }) {
   const { customerId } = await params
+  const user = await requireUser()
   const operatingDay = getOperatingDay(new Date())
   const supabase = await createServerSupabaseClient()
   await ensureOperatingDay(operatingDay, supabase)
@@ -78,9 +81,10 @@ export default async function CustomerReceivablesPage({
                     <p className="text-xs text-slate-500">Ghi chú: {receipt.note}</p>
                   ) : null}
                 </div>
-                <p className="text-lg font-extrabold text-emerald-700">
-                  +{currency.format(receipt.amountVnd)} đ
-                </p>
+                <div className="space-y-2 text-right">
+                  <p className={`text-lg font-extrabold ${receipt.status === 'active' ? 'text-emerald-700' : 'text-slate-400 line-through'}`}>+{currency.format(receipt.amountVnd)} đ</p>
+                  {receipt.status === 'active' && !receipt.sourceSaleId && (user.role === 'manager' || receipt.createdBy === user.id) ? <CancelDocumentDialog entityId={receipt.id} entityType="receipt" label="phiếu thu" version={receipt.version} /> : null}
+                </div>
               </li>
             ))}
           </ul>

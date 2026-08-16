@@ -33,6 +33,10 @@ export type ReceiptListItem = {
   amountVnd: number
   paymentMethod: 'cash' | 'bank_transfer'
   note: string | null
+  status: 'active' | 'cancelled'
+  version: number
+  createdBy: string
+  sourceSaleId: string | null
   createdAt: string
 }
 

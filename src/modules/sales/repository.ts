@@ -21,7 +21,7 @@ export async function listSalesByDay(
   const { data, error } = await client
     .from('sales')
     .select(
-      'id, kind, operating_day, shift_code, total_vnd, paid_now_vnd, status, created_at, customers(name)',
+      'id, kind, operating_day, shift_code, total_vnd, paid_now_vnd, status, version, created_by, created_at, customers(name)',
     )
     .eq('operating_day', operatingDay)
     .order('created_at', { ascending: false })
@@ -37,6 +37,8 @@ export async function listSalesByDay(
     totalVnd: sale.total_vnd,
     paidNowVnd: sale.paid_now_vnd,
     status: sale.status,
+    version: sale.version,
+    createdBy: sale.created_by,
     createdAt: sale.created_at,
   }))
 }

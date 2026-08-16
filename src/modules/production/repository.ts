@@ -4,7 +4,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database, Json } from '@/lib/supabase/database.types'
 import type { ProductionBatch, ProductionShiftTotal, SelectProductionSource } from './schema'
 import { calculateProductionVariance } from './schema'
-import type { ProductionReconciliationSummary } from './types'
+import type { ProductionDocumentItem, ProductionReconciliationSummary } from './types'
 
 export type ProductionClient = Pick<SupabaseClient<Database>, 'from' | 'rpc'>
 
@@ -54,7 +54,8 @@ export async function listProductionReconciliations(
     client
       .from('production_shift_totals')
       .select('id, shift_code, machine_id, good_bags, machines(name)')
-      .eq('operating_day', operatingDay),
+      .eq('operating_day', operatingDay)
+      .eq('status', 'active'),
     client
       .from('production_source_selections')
       .select('shift_code, machine_id, selected_source, is_confirmed, official_quantity_bags')
@@ -112,4 +113,16 @@ export async function listProductionReconciliations(
     const variance = calculateProductionVariance(row.batchGoodBags, row.shiftGoodBags)
     return { ...row, diffBags: variance.bags, pct: variance.pct, hasDiscrepancy: variance.hasDiscrepancy }
   })
+}
+
+export async function listProductionDocuments(client: ProductionClient, operatingDay: string): Promise<ProductionDocumentItem[]> {
+  const [batches, totals] = await Promise.all([
+    client.from('production_batches').select('id, shift_code, good_bags, status, version, created_by, machines(name)').eq('operating_day', operatingDay).order('created_at', { ascending: false }),
+    client.from('production_shift_totals').select('id, shift_code, good_bags, status, version, created_by, machines(name)').eq('operating_day', operatingDay).order('created_at', { ascending: false }),
+  ])
+  if (batches.error || totals.error) throw new Error('Không thể tải chứng từ sản xuất.')
+  return [
+    ...batches.data.map((row) => ({ id: row.id, entityType: 'production_batch' as const, label: `Mẻ ${row.machines.name} · ${row.shift_code}`, goodBags: Number(row.good_bags), status: row.status, version: row.version, createdBy: row.created_by })),
+    ...totals.data.map((row) => ({ id: row.id, entityType: 'production_shift_total' as const, label: `Tổng ca ${row.machines.name} · ${row.shift_code}`, goodBags: Number(row.good_bags), status: row.status, version: row.version, createdBy: row.created_by })),
+  ]
 }

@@ -11,6 +11,8 @@ export type SaleListItem = {
   totalVnd: number
   paidNowVnd: number
   status: 'active' | 'cancelled'
+  version: number
+  createdBy: string
   createdAt: string
 }
 

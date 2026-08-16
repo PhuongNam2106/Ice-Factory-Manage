@@ -51,10 +51,11 @@ export function RetailSaleForm({ operatingDay }: { operatingDay: string }) {
   return (
     <form action={submit} className="space-y-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-2xs sm:p-8" noValidate ref={formRef}>
       <div>
-        <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700">
+        <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700" htmlFor="retail-shift-code">
           Mã ca / Phiên bán lẻ
         </label>
         <input
+          id="retail-shift-code"
           className="min-h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold uppercase text-slate-900 shadow-2xs outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
           defaultValue="DAY"
           maxLength={30}
@@ -74,10 +75,11 @@ export function RetailSaleForm({ operatingDay }: { operatingDay: string }) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700">
+          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700" htmlFor="retail-paid-now">
             Tổng tiền đã thu (Thu đủ 100%)
           </label>
           <input
+            id="retail-paid-now"
             className="min-h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
             defaultValue="0"
             inputMode="numeric"
@@ -89,10 +91,11 @@ export function RetailSaleForm({ operatingDay }: { operatingDay: string }) {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700">
+          <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700" htmlFor="retail-payment-method">
             Phương thức nhận tiền
           </label>
           <select
+            id="retail-payment-method"
             className="min-h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
             defaultValue="cash"
             name="paymentMethod"
@@ -104,10 +107,11 @@ export function RetailSaleForm({ operatingDay }: { operatingDay: string }) {
       </div>
 
       <div>
-        <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700">
+        <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-700" htmlFor="retail-note">
           Ghi chú ca bán lẻ
         </label>
         <textarea
+          id="retail-note"
           className="min-h-24 w-full rounded-2xl border border-slate-300 bg-white p-4 text-sm text-slate-900 shadow-2xs outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
           maxLength={1000}
           name="note"

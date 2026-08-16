@@ -200,6 +200,9 @@ export type Database = {
       expenses: {
         Row: {
           amount_vnd: number
+          cancel_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           category_id: string
           created_at: string
           created_by: string
@@ -213,9 +216,13 @@ export type Database = {
           reviewed_by: string | null
           status: Database["public"]["Enums"]["expense_status"]
           updated_at: string
+          version: number
         }
         Insert: {
           amount_vnd: number
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           category_id: string
           created_at?: string
           created_by: string
@@ -229,9 +236,13 @@ export type Database = {
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["expense_status"]
           updated_at?: string
+          version?: number
         }
         Update: {
           amount_vnd?: number
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           category_id?: string
           created_at?: string
           created_by?: string
@@ -245,8 +256,16 @@ export type Database = {
           reviewed_by?: string | null
           status?: Database["public"]["Enums"]["expense_status"]
           updated_at?: string
+          version?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "expenses_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "expenses_category_id_fkey"
             columns: ["category_id"]
@@ -487,6 +506,9 @@ export type Database = {
       }
       production_batches: {
         Row: {
+          cancel_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           created_at: string
           created_by: string
           end_time: string
@@ -504,6 +526,9 @@ export type Database = {
           version: number
         }
         Insert: {
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           created_at?: string
           created_by: string
           end_time: string
@@ -521,6 +546,9 @@ export type Database = {
           version?: number
         }
         Update: {
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           created_at?: string
           created_by?: string
           end_time?: string
@@ -538,6 +566,13 @@ export type Database = {
           version?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "production_batches_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "production_batches_created_by_fkey"
             columns: ["created_by"]
@@ -570,6 +605,9 @@ export type Database = {
       }
       production_shift_totals: {
         Row: {
+          cancel_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           created_at: string
           created_by: string
           good_bags: number
@@ -580,10 +618,14 @@ export type Database = {
           operating_day: string
           rejected_bags: number
           shift_code: string
+          status: Database["public"]["Enums"]["document_status"]
           updated_at: string
           version: number
         }
         Insert: {
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           created_at?: string
           created_by: string
           good_bags: number
@@ -594,10 +636,14 @@ export type Database = {
           operating_day: string
           rejected_bags?: number
           shift_code: string
+          status?: Database["public"]["Enums"]["document_status"]
           updated_at?: string
           version?: number
         }
         Update: {
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           created_at?: string
           created_by?: string
           good_bags?: number
@@ -608,10 +654,18 @@ export type Database = {
           operating_day?: string
           rejected_bags?: number
           shift_code?: string
+          status?: Database["public"]["Enums"]["document_status"]
           updated_at?: string
           version?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "production_shift_totals_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "production_shift_totals_created_by_fkey"
             columns: ["created_by"]
@@ -798,6 +852,9 @@ export type Database = {
       receipts: {
         Row: {
           amount_vnd: number
+          cancel_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           created_at: string
           created_by: string
           customer_id: string | null
@@ -813,6 +870,9 @@ export type Database = {
         }
         Insert: {
           amount_vnd: number
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           created_at?: string
           created_by: string
           customer_id?: string | null
@@ -828,6 +888,9 @@ export type Database = {
         }
         Update: {
           amount_vnd?: number
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           created_at?: string
           created_by?: string
           customer_id?: string | null
@@ -842,6 +905,13 @@ export type Database = {
           version?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "receipts_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "receipts_created_by_fkey"
             columns: ["created_by"]
@@ -990,6 +1060,9 @@ export type Database = {
       }
       sales: {
         Row: {
+          cancel_reason: string | null
+          cancelled_at: string | null
+          cancelled_by: string | null
           created_at: string
           created_by: string
           customer_id: string | null
@@ -1007,6 +1080,9 @@ export type Database = {
           version: number
         }
         Insert: {
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           created_at?: string
           created_by: string
           customer_id?: string | null
@@ -1024,6 +1100,9 @@ export type Database = {
           version?: number
         }
         Update: {
+          cancel_reason?: string | null
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           created_at?: string
           created_by?: string
           customer_id?: string | null
@@ -1041,6 +1120,13 @@ export type Database = {
           version?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "sales_cancelled_by_fkey"
+            columns: ["cancelled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "sales_created_by_fkey"
             columns: ["created_by"]
@@ -1214,6 +1300,15 @@ export type Database = {
       }
     }
     Functions: {
+      cancel_document: {
+        Args: {
+          p_entity_id: string
+          p_entity_type: string
+          p_expected_version: number
+          p_reason: string
+        }
+        Returns: Json
+      }
       create_expense: {
         Args: { p_idempotency_key: string; p_input: Json }
         Returns: Json
@@ -1291,7 +1386,7 @@ export type Database = {
     Enums: {
       app_role: "employee" | "manager"
       document_status: "active" | "cancelled"
-      expense_status: "pending" | "approved" | "rejected"
+      expense_status: "pending" | "approved" | "rejected" | "cancelled"
       inventory_entry_kind:
         | "opening"
         | "production"
@@ -1434,7 +1529,7 @@ export const Constants = {
     Enums: {
       app_role: ["employee", "manager"],
       document_status: ["active", "cancelled"],
-      expense_status: ["pending", "approved", "rejected"],
+      expense_status: ["pending", "approved", "rejected", "cancelled"],
       inventory_entry_kind: [
         "opening",
         "production",

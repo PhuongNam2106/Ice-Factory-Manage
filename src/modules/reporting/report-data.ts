@@ -79,12 +79,12 @@ export async function getDetailReport(client: ReportClient, kind: ReportKind, fr
   if (kind === 'production') {
     const [batches, shifts] = await Promise.all([
       client.from('production_batches').select('id, operating_day, shift_code, start_time, end_time, good_bags, rejected_bags, status, machines(name)').gte('operating_day', from).lte('operating_day', to).order('operating_day'),
-      client.from('production_shift_totals').select('id, operating_day, shift_code, good_bags, rejected_bags, machines(name)').gte('operating_day', from).lte('operating_day', to).order('operating_day'),
+      client.from('production_shift_totals').select('id, operating_day, shift_code, good_bags, rejected_bags, status, machines(name)').gte('operating_day', from).lte('operating_day', to).order('operating_day'),
     ])
     fail(batches.error, 'mẻ sản xuất'); fail(shifts.error, 'tổng ca sản xuất')
     const rows = [
       ...(batches.data ?? []).map((row) => ({ day: asDate(row.operating_day), source: 'Mẻ', code: row.id, machine: row.machines?.name ?? '', shift: row.shift_code, start: row.start_time, end: row.end_time, good: Number(row.good_bags), rejected: Number(row.rejected_bags), status: row.status })),
-      ...(shifts.data ?? []).map((row) => ({ day: asDate(row.operating_day), source: 'Tổng ca', code: row.id, machine: row.machines?.name ?? '', shift: row.shift_code, start: null, end: null, good: Number(row.good_bags), rejected: Number(row.rejected_bags), status: 'recorded' })),
+      ...(shifts.data ?? []).map((row) => ({ day: asDate(row.operating_day), source: 'Tổng ca', code: row.id, machine: row.machines?.name ?? '', shift: row.shift_code, start: null, end: null, good: Number(row.good_bags), rejected: Number(row.rejected_bags), status: row.status })),
     ]
     return { title: 'SẢN XUẤT THEO NGÀY · MÁY · CA', sheetName: 'Sản xuất', columns: [
       { key: 'day', label: 'Ngày', kind: 'date' }, { key: 'source', label: 'Nguồn' }, { key: 'code', label: 'Mã' },

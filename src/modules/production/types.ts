@@ -13,6 +13,16 @@ export type ProductionBatchResult = { batchId: string }
 export type ProductionShiftTotalResult = { shiftTotalId: string }
 export type ProductionSourceSelectionResult = { selectionId: string }
 
+export type ProductionDocumentItem = {
+  id: string
+  entityType: 'production_batch' | 'production_shift_total'
+  label: string
+  goodBags: number
+  status: 'active' | 'cancelled'
+  version: number
+  createdBy: string
+}
+
 export type ProductionBatchItem = {
   id: string
   operatingDay: string

@@ -1,5 +1,7 @@
 import Link from 'next/link'
+import { CancelDocumentDialog } from '@/components/forms/cancel-document-dialog'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { requireUser } from '@/modules/auth/service'
 import { ensureOperatingDay } from '@/modules/closing/ensure-day'
 import { getOperatingDay } from '@/modules/shared/operating-day'
 import { listSalesByDay } from '@/modules/sales/repository'
@@ -7,6 +9,7 @@ import { listSalesByDay } from '@/modules/sales/repository'
 const currency = new Intl.NumberFormat('vi-VN')
 
 export default async function SalesPage() {
+  const user = await requireUser()
   const operatingDay = getOperatingDay(new Date())
   const supabase = await createServerSupabaseClient()
   await ensureOperatingDay(operatingDay, supabase)
@@ -78,9 +81,10 @@ export default async function SalesPage() {
                   </div>
                 </div>
 
-                <div className="text-right sm:self-center">
+                <div className="space-y-2 text-right sm:self-center">
                   <p className="text-lg font-extrabold text-slate-950">{currency.format(sale.totalVnd)} đ</p>
                   <p className="text-[11px] text-slate-400">{new Date(sale.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</p>
+                  {sale.status === 'active' && (user.role === 'manager' || sale.createdBy === user.id) ? <CancelDocumentDialog entityId={sale.id} entityType="sale" label="đơn bán" version={sale.version} /> : null}
                 </div>
               </li>
             ))}
