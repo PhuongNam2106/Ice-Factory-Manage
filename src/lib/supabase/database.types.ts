@@ -265,6 +265,13 @@ export type Database = {
             foreignKeyName: "expenses_operating_day_fkey"
             columns: ["operating_day"]
             isOneToOne: false
+            referencedRelation: "daily_dashboard"
+            referencedColumns: ["day"]
+          },
+          {
+            foreignKeyName: "expenses_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
             referencedRelation: "operating_days"
             referencedColumns: ["day"]
           },
@@ -362,6 +369,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_ledger_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
+            referencedRelation: "daily_dashboard"
+            referencedColumns: ["day"]
           },
           {
             foreignKeyName: "inventory_ledger_operating_day_fkey"
@@ -542,6 +556,13 @@ export type Database = {
             foreignKeyName: "production_batches_operating_day_fkey"
             columns: ["operating_day"]
             isOneToOne: false
+            referencedRelation: "daily_dashboard"
+            referencedColumns: ["day"]
+          },
+          {
+            foreignKeyName: "production_batches_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
             referencedRelation: "operating_days"
             referencedColumns: ["day"]
           },
@@ -604,6 +625,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "machines"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_shift_totals_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
+            referencedRelation: "daily_dashboard"
+            referencedColumns: ["day"]
           },
           {
             foreignKeyName: "production_shift_totals_operating_day_fkey"
@@ -678,6 +706,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "machines"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "production_source_selections_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
+            referencedRelation: "daily_dashboard"
+            referencedColumns: ["day"]
           },
           {
             foreignKeyName: "production_source_selections_operating_day_fkey"
@@ -825,6 +860,13 @@ export type Database = {
             foreignKeyName: "receipts_operating_day_fkey"
             columns: ["operating_day"]
             isOneToOne: false
+            referencedRelation: "daily_dashboard"
+            referencedColumns: ["day"]
+          },
+          {
+            foreignKeyName: "receipts_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
             referencedRelation: "operating_days"
             referencedColumns: ["day"]
           },
@@ -884,6 +926,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "customers"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "receivables_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
+            referencedRelation: "daily_dashboard"
+            referencedColumns: ["day"]
           },
           {
             foreignKeyName: "receivables_operating_day_fkey"
@@ -1010,6 +1059,13 @@ export type Database = {
             foreignKeyName: "sales_operating_day_fkey"
             columns: ["operating_day"]
             isOneToOne: false
+            referencedRelation: "daily_dashboard"
+            referencedColumns: ["day"]
+          },
+          {
+            foreignKeyName: "sales_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
             referencedRelation: "operating_days"
             referencedColumns: ["day"]
           },
@@ -1115,6 +1171,13 @@ export type Database = {
             foreignKeyName: "stock_counts_operating_day_fkey"
             columns: ["operating_day"]
             isOneToOne: false
+            referencedRelation: "daily_dashboard"
+            referencedColumns: ["day"]
+          },
+          {
+            foreignKeyName: "stock_counts_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: false
             referencedRelation: "operating_days"
             referencedColumns: ["day"]
           },
@@ -1122,7 +1185,33 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      daily_dashboard: {
+        Row: {
+          approved_expense_vnd: number | null
+          collected_vnd: number | null
+          day: string | null
+          new_debt_vnd: number | null
+          opening_stock_bags: number | null
+          overdue_debt_vnd: number | null
+          pending_expense_count: number | null
+          pending_expense_vnd: number | null
+          previous_day_unlocked: boolean | null
+          production_bags: number | null
+          production_mismatch_count: number | null
+          retail_revenue_vnd: number | null
+          sold_bags: number | null
+          status: Database["public"]["Enums"]["operating_day_status"] | null
+          stock_actual_bags: number | null
+          stock_balance_bags: number | null
+          stock_expected_bags: number | null
+          stock_variance_bags: number | null
+          stock_variance_pct: number | null
+          stock_warning_pct: number | null
+          total_debt_vnd: number | null
+          wholesale_revenue_vnd: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       create_expense: {

@@ -1,0 +1,5 @@
+export function SalesProductionChart({ productionBags, soldBags }: { productionBags: number; soldBags: number }) {
+  const max = Math.max(productionBags, soldBags, 1)
+  const rows = [['Sản xuất', productionBags, 'bg-sky-600'], ['Đã bán', soldBags, 'bg-emerald-600']] as const
+  return <section aria-labelledby="flow-chart-title" className="rounded-2xl border border-slate-200 bg-white p-5"><h2 className="font-extrabold text-slate-950" id="flow-chart-title">Sản xuất và bán ra</h2><div className="mt-5 space-y-5">{rows.map(([label, value, color]) => <div key={label}><div className="mb-2 flex justify-between gap-3 text-sm"><span className="font-semibold text-slate-600">{label}</span><span className="font-extrabold tabular-nums text-slate-950">{value} bao</span></div><div aria-label={`${label}: ${value} bao`} className="h-3 overflow-hidden rounded-full bg-slate-100" role="img"><div className={`h-full rounded-full ${color}`} style={{ width: `${(value / max) * 100}%` }} /></div></div>)}</div></section>
+}
