@@ -1,0 +1,20 @@
+import { getOperatingDay } from '@/modules/shared/operating-day'
+import { requireUser } from '@/modules/auth/service'
+
+const reports = [
+  { path: 'daily', title: 'Tổng hợp ngày', note: 'Doanh thu, chi phí, sản xuất và số bao đã bán.', daily: true },
+  { path: 'monthly', title: 'Tổng hợp tháng', note: 'Tách riêng ngày đã khóa và ngày còn mở.' },
+  { path: 'sales', title: 'Chi tiết bán hàng', note: 'Bán sỉ, bán lẻ, số bao, đơn giá và thanh toán.' },
+  { path: 'production', title: 'Chi tiết sản xuất', note: 'Theo ngày, máy, ca và nguồn ghi nhận.' },
+  { path: 'expenses', title: 'Chi tiết chi phí', note: 'Theo danh mục, trạng thái duyệt và người nhận.' },
+  { path: 'receivables', title: 'Công nợ và thanh toán', note: 'Tuổi nợ, số còn nợ và lịch sử thu tiền.' },
+  { path: 'inventory', title: 'Sổ kho thành phẩm', note: 'Toàn bộ biến động nhập, xuất và điều chỉnh.' },
+] as const
+
+export default async function ReportsPage() {
+  const user = await requireUser()
+  const today = getOperatingDay(new Date())
+  const monthStart = `${today.slice(0, 8)}01`
+
+  return <section aria-labelledby="reports-title" className="space-y-6"><header><p className="text-xs font-bold uppercase tracking-widest text-sky-700">Đối soát và lưu trữ</p><h1 className="mt-1 text-pretty text-3xl font-black text-slate-950" id="reports-title">Xuất báo cáo</h1><p className="mt-1 max-w-prose text-pretty text-sm text-slate-600">Mỗi file Excel giữ số ở dạng số, có bộ lọc, tiêu đề cố định và thông tin người xuất.</p></header><div className="grid gap-4 lg:grid-cols-2">{reports.map((report) => <form action={`/api/reports/${report.path}`} className="rounded-2xl border border-slate-200 bg-white p-5" key={report.path} method="get"><h2 className="text-lg font-extrabold text-slate-950">{report.title}</h2><p className="mt-1 min-h-10 text-sm text-slate-600">{report.note}</p><div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"><label className="min-w-0 text-xs font-bold text-slate-700">Từ ngày<input autoComplete="off" className="mt-1 min-h-11 min-w-0 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500" defaultValue={report.path === 'daily' ? today : monthStart} name="from" required type="date" /></label>{report.path === 'daily' ? null : <label className="min-w-0 text-xs font-bold text-slate-700">Đến ngày<input autoComplete="off" className="mt-1 min-h-11 min-w-0 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500" defaultValue={today} name="to" required type="date" /></label>}</div><button className="mt-4 min-h-11 w-full touch-manipulation rounded-xl bg-slate-950 px-4 py-2.5 text-sm font-bold text-white hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2" type="submit">Tải Excel {report.title}</button></form>)}</div>{user.role === 'manager' ? <section aria-labelledby="manager-exports" className="rounded-2xl border border-amber-200 bg-amber-50 p-5"><h2 className="font-extrabold text-amber-950" id="manager-exports">Dữ liệu dành cho quản lý</h2><p className="mt-1 text-sm text-amber-900">Nhật ký audit và bản sao lưu chứa dữ liệu toàn xưởng; chỉ quản lý được tải.</p><div className="mt-4 flex flex-col gap-2 sm:flex-row"><a className="min-h-11 rounded-xl bg-white px-4 py-3 text-center text-sm font-bold text-amber-950 hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600" href={`/api/reports/audit?from=${monthStart}&to=${today}`}>Tải nhật ký audit</a><a className="min-h-11 rounded-xl bg-amber-950 px-4 py-3 text-center text-sm font-bold text-white hover:bg-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600" href="/api/reports/backup">Tải bản sao lưu JSON + CSV</a></div></section> : null}</section>
+}

@@ -2,6 +2,7 @@ import { DesktopSidebar } from '@/components/app-shell/desktop-sidebar'
 import { MobileNav } from '@/components/app-shell/mobile-nav'
 import { UserMenu } from '@/components/app-shell/user-menu'
 import { requireUser } from '@/modules/auth/service'
+import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,7 +21,7 @@ export default async function AppLayout({ children }: Readonly<{ children: React
       <div className="pb-20 md:ml-64 md:pb-0">
         <header className="sticky top-0 z-10 flex min-h-16 items-center justify-between border-b border-slate-200 bg-white px-4 sm:px-6">
           <p className="font-semibold text-slate-900 md:hidden">Xưởng nước đá</p>
-          <div className="ml-auto"><UserMenu user={user} /></div>
+          <div className="ml-auto flex items-center gap-2"><Link className="min-h-11 rounded-xl px-3 py-3 text-sm font-bold text-sky-800 hover:bg-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500" href="/reports">Báo cáo</Link><UserMenu user={user} /></div>
         </header>
         <main className="mx-auto w-full max-w-7xl p-4 sm:p-6" id="main-content">
           {children}
