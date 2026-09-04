@@ -4,80 +4,114 @@ import { z } from 'zod'
 import { actionFailure, actionSuccess, type ActionResult } from '@/lib/result'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { getFieldErrors } from '@/lib/validation'
-import { ensureOperatingDay } from '@/modules/closing/ensure-day'
 import {
-  createProductionBatchRecord,
-  createProductionShiftTotalRecord,
-  selectProductionSourceRecord,
-  type ProductionClient,
+  correctProductionActionRecord, getProductionBoardRecord, getProductionSummaryRecord,
+  lockProductionDayRecord, recordHarvestRecord, reopenProductionDayRecord,
+  setHarvestQuantityRecord, startMachineRecord, stopMachineRecord, type ProductionClient,
 } from './repository'
 import {
-  productionBatchSchema,
-  productionShiftTotalSchema,
-  selectProductionSourceSchema,
-  type ProductionBatchInput,
-  type ProductionBatch,
-  type ProductionShiftTotalInput,
-  type ProductionShiftTotal,
-  type SelectProductionSourceInput,
-  type SelectProductionSource,
+  harvestQuantitySchema, machineActionSchema, productionCorrectionSchema,
+  productionDateSchema, productionRangeSchema,
+  type HarvestQuantityInput, type MachineActionInput, type ProductionCorrectionInput, type ProductionDateInput,
 } from './schema'
-import type { ProductionBatchResult, ProductionShiftTotalResult, ProductionSourceSelectionResult } from './types'
+import type { MachineActionResult, MachineProductivitySummary, ProductionBoardSnapshot, ProductionDayResult } from './types'
 
-function mapProductionError(message: string): ActionResult<never> {
-  if (message.includes('DAY_LOCKED')) return actionFailure('DAY_LOCKED', 'Ngày vận hành đã khóa.')
-  if (message.includes('FORBIDDEN')) return actionFailure('MANAGER_REQUIRED', 'Chỉ quản lý được xác nhận nguồn sản lượng chính thức.')
-  if (message.includes('ACTIVE_MACHINE_NOT_FOUND')) return actionFailure('MACHINE_NOT_FOUND', 'Máy không tồn tại hoặc đã ngừng hoạt động.')
-  if (message.includes('PRODUCTION_SHIFT_TOTAL_NOT_FOUND')) return actionFailure('SOURCE_NOT_FOUND', 'Chưa có tổng cuối ca để chọn.')
-  if (message.includes('PRODUCTION_BATCHES_NOT_FOUND')) return actionFailure('SOURCE_NOT_FOUND', 'Chưa có dữ liệu từng mẻ để chọn.')
-  return actionFailure('PRODUCTION_WRITE_FAILED', 'Không thể lưu dữ liệu sản xuất. Vui lòng thử lại.')
+const logSchema = z.object({
+  id: z.string(), type: z.enum(['start', 'harvest', 'stop']), occurredAt: z.string(), actorName: z.string(),
+  runId: z.string().uuid(), harvestId: z.string().uuid().optional(), bagQuantity: z.number().nullable().optional(),
+  quantityUpdatedAt: z.string().nullable().optional(), quantityUpdatedBy: z.string().nullable().optional(),
+})
+const boardSchema: z.ZodType<ProductionBoardSnapshot> = z.object({
+  productionDate: z.string(), startsAt: z.string(), endsAt: z.string(), status: z.enum(['open', 'locked']),
+  reminderMinutes: z.number().int().positive(),
+  machines: z.array(z.object({
+    id: z.string().uuid(), name: z.string(), code: z.string(),
+    openRun: z.object({ id: z.string().uuid(), productionDate: z.string(), startedAt: z.string(), startedBy: z.string() }).nullable(),
+    pendingHarvest: z.object({ id: z.string().uuid(), runId: z.string().uuid(), harvestedAt: z.string(), harvestedBy: z.string() }).nullable(),
+    totalBags: z.number(), harvestCount: z.number(), logs: z.array(logSchema),
+  })),
+})
+const summarySchema: z.ZodType<MachineProductivitySummary[]> = z.array(z.object({
+  machineId: z.string().uuid(), machineName: z.string(), machineCode: z.string(), totalBags: z.number(),
+  harvestCount: z.number(), pendingHarvestCount: z.number(), averageBagsPerHarvest: z.number().nullable(),
+  runtimeSeconds: z.number(), downtimeSeconds: z.number(), averageHarvestIntervalSeconds: z.number().nullable(),
+  latestHarvestAt: z.string().nullable(), isRunning: z.boolean(),
+}))
+const actionResultSchema: z.ZodType<MachineActionResult> = z.object({
+  machineId: z.string().uuid(), runId: z.string().uuid().optional(), harvestId: z.string().uuid().optional(),
+  productionDate: z.string().optional(), startedAt: z.string().optional(), harvestedAt: z.string().optional(),
+  stoppedAt: z.string().optional(), quantity: z.number().optional(), quantityUpdatedAt: z.string().optional(),
+})
+const dayResultSchema: z.ZodType<ProductionDayResult> = z.object({ productionDate: z.string(), status: z.enum(['open', 'locked']) })
+
+export function mapProductionError(message: string): ActionResult<never> {
+  const mappings: Array<[string, string, string]> = [
+    ['MACHINE_ALREADY_RUNNING', 'MACHINE_ALREADY_RUNNING', 'Máy đang chạy nên không thể bắt đầu thêm lần nữa.'],
+    ['MACHINE_NOT_RUNNING', 'MACHINE_NOT_RUNNING', 'Máy chưa chạy nên không thể thực hiện thao tác này.'],
+    ['PENDING_HARVEST_EXISTS', 'PENDING_HARVEST_EXISTS', 'Lần xả gần nhất chưa nhập số bao. Hãy cập nhật số bao trước khi xả tiếp.'],
+    ['START_OUTSIDE_PRODUCTION_HOURS', 'START_OUTSIDE_PRODUCTION_HOURS', 'Không thể bắt đầu máy trong khoảng 18:00–20:00.'],
+    ['PRODUCTION_DAY_LOCKED', 'PRODUCTION_DAY_LOCKED', 'Ngày sản xuất đã khóa nên không thể chỉnh sửa.'],
+    ['FORBIDDEN_QUANTITY_EDIT', 'FORBIDDEN_QUANTITY_EDIT', 'Bạn chỉ có thể sửa số bao do chính mình nhập.'],
+    ['OPEN_MACHINE_RUNS', 'OPEN_MACHINE_RUNS', 'Còn máy đang chạy. Hãy tắt toàn bộ máy trước khi khóa ngày.'],
+    ['PENDING_HARVESTS', 'PENDING_HARVESTS', 'Còn lần xả chưa nhập số bao. Hãy hoàn tất trước khi khóa ngày.'],
+    ['PRODUCTION_DAY_NOT_FOUND', 'PRODUCTION_DAY_NOT_FOUND', 'Ngày này chưa có hoạt động sản xuất để khóa.'],
+    ['MACHINE_RUN_OVERLAP', 'INVALID_TIMELINE', 'Thời gian chỉnh sửa làm các phiên chạy bị chồng lấn.'],
+    ['HARVEST_OUTSIDE_RUN', 'INVALID_TIMELINE', 'Thời gian xả phải nằm trong thời gian máy chạy.'],
+    ['RUN_OUTSIDE_PRODUCTION_DAY', 'INVALID_TIMELINE', 'Giờ bắt đầu phải nằm trong ngày sản xuất của phiên này.'],
+    ['machine_runs_check', 'INVALID_TIMELINE', 'Giờ tắt máy phải sau giờ bắt đầu.'],
+    ['ACTIVE_MACHINE_NOT_FOUND', 'MACHINE_NOT_FOUND', 'Máy không tồn tại hoặc đã ngừng hoạt động.'],
+    ['HARVEST_NOT_FOUND', 'HARVEST_NOT_FOUND', 'Không tìm thấy lần xả đá.'],
+    ['FORBIDDEN', 'FORBIDDEN', 'Bạn không có quyền thực hiện thao tác này.'],
+  ]
+  const match = mappings.find(([needle]) => message.includes(needle))
+  return match ? actionFailure(match[1], match[2]) : actionFailure('PRODUCTION_WRITE_FAILED', 'Không thể cập nhật sản xuất. Vui lòng thử lại.')
 }
 
-async function runWrite<TInput, TParsed extends { operatingDay: string }, TOutput>(options: {
-  input: TInput
-  schema: z.ZodType<TParsed, TInput>
-  resultSchema: z.ZodType<TOutput>
-  client?: ProductionClient
-  write: (client: ProductionClient, input: TParsed) => PromiseLike<{ data: unknown; error: { message: string } | null }>
-}): Promise<ActionResult<TOutput>> {
-  const parsed = options.schema.safeParse(options.input)
-  if (!parsed.success) {
-    return actionFailure('VALIDATION_ERROR', 'Thông tin sản xuất không hợp lệ.', getFieldErrors(parsed.error))
-  }
-  const client = options.client ?? (await createServerSupabaseClient())
-  try {
-    await ensureOperatingDay(parsed.data.operatingDay, client)
-  } catch {
-    return actionFailure('OPERATING_DAY_FAILED', 'Không thể khởi tạo ngày vận hành.')
-  }
-  const { data, error } = await options.write(client, parsed.data)
+async function parsedRpc<T>(result: PromiseLike<{ data: unknown; error: { message: string } | null }>, schema: z.ZodType<T>): Promise<ActionResult<T>> {
+  const { data, error } = await result
   if (error) return mapProductionError(error.message)
-  const result = options.resultSchema.safeParse(data)
-  return result.success
-    ? actionSuccess(result.data)
-    : actionFailure('INVALID_SERVER_RESPONSE', 'Máy chủ trả về dữ liệu sản xuất không hợp lệ.')
+  const parsed = schema.safeParse(data)
+  return parsed.success ? actionSuccess(parsed.data) : actionFailure('INVALID_SERVER_RESPONSE', 'Máy chủ trả về dữ liệu không hợp lệ.')
 }
 
-export function createProductionBatchWithClient(input: ProductionBatchInput, client?: ProductionClient) {
-  return runWrite<ProductionBatchInput, ProductionBatch, ProductionBatchResult>({
-    input, client, schema: productionBatchSchema,
-    resultSchema: z.object({ batchId: z.string().uuid() }),
-    write: (c, value) => createProductionBatchRecord(c, value),
-  })
+function validate<T>(schema: z.ZodType<T>, input: unknown): ActionResult<T> {
+  const parsed = schema.safeParse(input)
+  return parsed.success ? actionSuccess(parsed.data) : actionFailure('VALIDATION_ERROR', 'Thông tin sản xuất không hợp lệ.', getFieldErrors(parsed.error))
 }
+async function clientOrDefault(client?: ProductionClient) { return client ?? await createServerSupabaseClient() }
 
-export function createProductionShiftTotalWithClient(input: ProductionShiftTotalInput, client?: ProductionClient) {
-  return runWrite<ProductionShiftTotalInput, ProductionShiftTotal, ProductionShiftTotalResult>({
-    input, client, schema: productionShiftTotalSchema,
-    resultSchema: z.object({ shiftTotalId: z.string().uuid() }),
-    write: (c, value) => createProductionShiftTotalRecord(c, value),
-  })
+export async function getProductionBoard(client: ProductionClient, productionDate: string) {
+  return parsedRpc(getProductionBoardRecord(client, productionDate), boardSchema)
 }
-
-export function selectOfficialProductionSourceWithClient(input: SelectProductionSourceInput, client?: ProductionClient) {
-  return runWrite<SelectProductionSourceInput, SelectProductionSource, ProductionSourceSelectionResult>({
-    input, client, schema: selectProductionSourceSchema,
-    resultSchema: z.object({ selectionId: z.string().uuid() }),
-    write: (c, value) => selectProductionSourceRecord(c, value),
-  })
+export async function getProductionSummary(client: ProductionClient, from: string, to: string) {
+  const input = validate(productionRangeSchema, { from, to }); if (!input.ok) return input
+  return parsedRpc(getProductionSummaryRecord(client, from, to), summarySchema)
+}
+export async function startMachineWithClient(input: MachineActionInput, client?: ProductionClient) {
+  const value = validate(machineActionSchema, input); if (!value.ok) return value
+  return parsedRpc(startMachineRecord(await clientOrDefault(client), value.data.machineId, value.data.idempotencyKey), actionResultSchema)
+}
+export async function recordHarvestWithClient(input: MachineActionInput, client?: ProductionClient) {
+  const value = validate(machineActionSchema, input); if (!value.ok) return value
+  return parsedRpc(recordHarvestRecord(await clientOrDefault(client), value.data.machineId, value.data.idempotencyKey), actionResultSchema)
+}
+export async function stopMachineWithClient(input: MachineActionInput, client?: ProductionClient) {
+  const value = validate(machineActionSchema, input); if (!value.ok) return value
+  return parsedRpc(stopMachineRecord(await clientOrDefault(client), value.data.machineId, value.data.idempotencyKey), actionResultSchema)
+}
+export async function setHarvestQuantityWithClient(input: HarvestQuantityInput, client?: ProductionClient) {
+  const value = validate(harvestQuantitySchema, input); if (!value.ok) return value
+  return parsedRpc(setHarvestQuantityRecord(await clientOrDefault(client), value.data.harvestId, value.data.quantity, value.data.idempotencyKey), actionResultSchema)
+}
+export async function correctProductionActionWithClient(input: ProductionCorrectionInput, client?: ProductionClient) {
+  const value = validate(productionCorrectionSchema, input); if (!value.ok) return value
+  return parsedRpc(correctProductionActionRecord(await clientOrDefault(client), value.data, value.data.idempotencyKey), actionResultSchema)
+}
+export async function lockProductionDayWithClient(input: ProductionDateInput, client?: ProductionClient) {
+  const value = validate(productionDateSchema, input); if (!value.ok) return value
+  return parsedRpc(lockProductionDayRecord(await clientOrDefault(client), value.data.productionDate), dayResultSchema)
+}
+export async function reopenProductionDayWithClient(input: ProductionDateInput, client?: ProductionClient) {
+  const value = validate(productionDateSchema, input); if (!value.ok) return value
+  return parsedRpc(reopenProductionDayRecord(await clientOrDefault(client), value.data.productionDate), dayResultSchema)
 }

@@ -1,65 +1,66 @@
-import type {
-  ProductionBatch,
-  ProductionShiftTotal,
-  SelectProductionSource,
-} from './schema'
+export type ProductionDayStatus = 'open' | 'locked'
+export type ProductionActionType = 'start' | 'harvest' | 'stop'
 
-export type { ProductionBatch, ProductionShiftTotal, SelectProductionSource }
+export type MachineRunState = { id: string; productionDate: string; startedAt: string; startedBy: string }
+export type PendingHarvestState = { id: string; runId: string; harvestedAt: string; harvestedBy: string }
 
-export type ProductionShiftCode = 'ca_sang' | 'ca_chieu' | 'ca_dem'
-export type ProductionSourceKind = 'batches' | 'shift_total'
-
-export type ProductionBatchResult = { batchId: string }
-export type ProductionShiftTotalResult = { shiftTotalId: string }
-export type ProductionSourceSelectionResult = { selectionId: string }
-
-export type ProductionDocumentItem = {
+export type MachineLogItem = {
   id: string
-  entityType: 'production_batch' | 'production_shift_total'
-  label: string
-  goodBags: number
-  status: 'active' | 'cancelled'
-  version: number
-  createdBy: string
+  type: ProductionActionType
+  occurredAt: string
+  actorName: string
+  runId: string
+  harvestId?: string
+  bagQuantity?: number | null
+  quantityUpdatedAt?: string | null
+  quantityUpdatedBy?: string | null
 }
 
-export type ProductionBatchItem = {
+export type MachineProductionState = {
   id: string
-  operatingDay: string
-  shiftCode: ProductionShiftCode
+  name: string
+  code: string
+  openRun: MachineRunState | null
+  pendingHarvest: PendingHarvestState | null
+  totalBags: number
+  harvestCount: number
+  logs: MachineLogItem[]
+}
+
+export type ProductionBoardSnapshot = {
+  productionDate: string
+  startsAt: string
+  endsAt: string
+  status: ProductionDayStatus
+  reminderMinutes: number
+  machines: MachineProductionState[]
+}
+
+export type MachineProductivitySummary = {
   machineId: string
   machineName: string
-  startTime: string
-  endTime: string
-  goodBags: number
-  rejectedBags: number
-  note: string | null
-  createdAt: string
+  machineCode: string
+  totalBags: number
+  harvestCount: number
+  pendingHarvestCount: number
+  averageBagsPerHarvest: number | null
+  runtimeSeconds: number
+  downtimeSeconds: number
+  averageHarvestIntervalSeconds: number | null
+  latestHarvestAt: string | null
+  isRunning: boolean
 }
 
-export type ProductionShiftTotalItem = {
-  id: string
-  operatingDay: string
-  shiftCode: ProductionShiftCode
+export type MachineActionResult = {
   machineId: string
-  machineName: string
-  goodBags: number
-  rejectedBags: number
-  note: string | null
-  createdAt: string
+  runId?: string
+  harvestId?: string
+  productionDate?: string
+  startedAt?: string
+  harvestedAt?: string
+  stoppedAt?: string
+  quantity?: number
+  quantityUpdatedAt?: string
 }
 
-export type ProductionReconciliationSummary = {
-  operatingDay: string
-  shiftCode: ProductionShiftCode
-  machineId: string
-  machineName: string
-  batchGoodBags: number
-  shiftGoodBags: number | null
-  selectedSource: ProductionSourceKind
-  isConfirmed: boolean
-  diffBags: string
-  pct: string | null
-  hasDiscrepancy: boolean
-  officialQuantityBags: number
-}
+export type ProductionDayResult = { productionDate: string; status: ProductionDayStatus }

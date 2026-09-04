@@ -1,7 +1,10 @@
+// @vitest-environment node
+
 import { createClient } from '@supabase/supabase-js'
 import { describe, expect, it } from 'vitest'
 import type { Database } from '@/lib/supabase/database.types'
 import { usernameToAuthEmail } from '@/modules/auth/schema'
+import { canStartMachine } from './production-day'
 
 function isLocalUrl(url?: string) {
   if (!url) return false
@@ -13,115 +16,201 @@ function isLocalUrl(url?: string) {
 }
 
 const canRun = Boolean(
-  process.env.RUN_SUPABASE_INTEGRATION === 'true' &&
-    isLocalUrl(process.env.NEXT_PUBLIC_SUPABASE_URL) &&
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY &&
-    process.env.SUPABASE_SERVICE_ROLE_KEY &&
-    process.env.SUPABASE_TEST_EMPLOYEE_PASSWORD,
+  process.env.RUN_SUPABASE_INTEGRATION === 'true'
+    && isLocalUrl(process.env.NEXT_PUBLIC_SUPABASE_URL)
+    && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+    && process.env.SUPABASE_SERVICE_ROLE_KEY
+    && process.env.SUPABASE_TEST_EMPLOYEE_PASSWORD,
 )
 
-describe('production reconciliation RPC integration', () => {
+describe('realtime machine production RPC integration', () => {
   if (!canRun) {
     it.skip('requires isolated local Supabase', () => {})
     return
   }
 
-  it('posts one official quantity, preserves reversal history, and requires a manager', async () => {
-    const { adminClient } = await import('@/lib/supabase/admin')
-    const suffix = String(Date.now()).slice(-7)
-    const email = usernameToAuthEmail('quanly')
-    const password = process.env.SUPABASE_TEST_EMPLOYEE_PASSWORD!
-    const day = `2197-${String((Date.now() % 12) + 1).padStart(2, '0')}-${String((Date.now() % 27) + 1).padStart(2, '0')}`
-    const client = createClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-    )
+  it.skipIf(!canStartMachine(new Date()))(
+    'records an idempotent run and harvest without changing inventory',
+    async () => {
+      const { adminClient } = await import('@/lib/supabase/admin')
+      const password = process.env.SUPABASE_TEST_EMPLOYEE_PASSWORD!
+      const employee = createClient<Database>(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+      )
+      const manager = createClient<Database>(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+      )
+      expect((await employee.auth.signInWithPassword({
+        email: usernameToAuthEmail('nhanvien'),
+        password,
+      })).error).toBeNull()
+      expect((await manager.auth.signInWithPassword({
+        email: usernameToAuthEmail('quanly'),
+        password,
+      })).error).toBeNull()
 
-    const userId = '22222222-2222-2222-2222-222222222222'
-    await adminClient.from('profiles').update({ role: 'manager' }).eq('id', userId)
-    await adminClient.from('operating_days').upsert({ day }, { onConflict: 'day' })
-    const machine = await adminClient
-      .from('machines')
-      .insert({ name: `Production test ${suffix}`, code: `P${suffix}`, created_by: userId })
-      .select('id')
-      .single()
-    expect(machine.error).toBeNull()
-    const machineId = machine.data!.id
-    expect((await client.auth.signInWithPassword({ email, password })).error).toBeNull()
+      const suffix = String(Date.now()).slice(-7)
+      const machine = await adminClient.from('machines').insert({
+        name: `Realtime machine ${suffix}`,
+        code: `RT${suffix}`,
+        created_by: '22222222-2222-2222-2222-222222222222',
+      }).select('id').single()
+      expect(machine.error).toBeNull()
+      const machineId = machine.data!.id
+      const inventoryBefore = await adminClient.from('inventory_ledger').select('id')
+      const startKey = crypto.randomUUID()
 
-    try {
-      const batch = await client.rpc('record_production_batch', {
-        p_input: {
-          operatingDay: day, shiftCode: 'ca_sang', machineId,
-          startTime: `${day}T00:00:00+07:00`, endTime: `${day}T04:00:00+07:00`,
-          goodBags: 120, rejectedBags: 1,
-        },
+      try {
+        const started = await employee.rpc('start_machine', {
+          p_machine_id: machineId,
+          p_idempotency_key: startKey,
+        })
+        expect(started.error).toBeNull()
+        expect(started.data).toMatchObject({ machineId })
+        const runId = (started.data as { runId: string }).runId
+
+        const repeated = await employee.rpc('start_machine', {
+          p_machine_id: machineId,
+          p_idempotency_key: startKey,
+        })
+        expect(repeated.data).toEqual(started.data)
+
+        const harvest = await employee.rpc('record_machine_harvest', {
+          p_machine_id: machineId,
+          p_idempotency_key: crypto.randomUUID(),
+        })
+        expect(harvest.error).toBeNull()
+        const harvestId = (harvest.data as { harvestId: string }).harvestId
+
+        const pendingConflict = await employee.rpc('record_machine_harvest', {
+          p_machine_id: machineId,
+          p_idempotency_key: crypto.randomUUID(),
+        })
+        expect(pendingConflict.error?.message).toContain('PENDING_HARVEST_EXISTS')
+
+        const zeroQuantity = await employee.rpc('set_harvest_quantity', {
+          p_harvest_id: harvestId,
+          p_quantity: 0,
+          p_idempotency_key: crypto.randomUUID(),
+        })
+        expect(zeroQuantity.error).toBeNull()
+        expect(zeroQuantity.data).toMatchObject({ harvestId, quantity: 0 })
+
+        const correctedQuantity = await employee.rpc('set_harvest_quantity', {
+          p_harvest_id: harvestId,
+          p_quantity: 42,
+          p_idempotency_key: crypto.randomUUID(),
+        })
+        expect(correctedQuantity.error).toBeNull()
+        expect(correctedQuantity.data).toMatchObject({ harvestId, quantity: 42 })
+
+        expect((await manager.rpc('set_harvest_quantity', {
+          p_harvest_id: harvestId,
+          p_quantity: 43,
+          p_idempotency_key: crypto.randomUUID(),
+        })).error).toBeNull()
+        const originalEmployeeCorrection = await employee.rpc('set_harvest_quantity', {
+          p_harvest_id: harvestId,
+          p_quantity: 44,
+          p_idempotency_key: crypto.randomUUID(),
+        })
+        expect(originalEmployeeCorrection.error).toBeNull()
+
+        const stopped = await employee.rpc('stop_machine', {
+          p_machine_id: machineId,
+          p_idempotency_key: crypto.randomUUID(),
+        })
+        expect(stopped.error).toBeNull()
+        expect(stopped.data).toMatchObject({ runId })
+
+        const [runs, harvests, revisions, inventoryAfter] = await Promise.all([
+          adminClient.from('machine_runs').select('*').eq('machine_id', machineId),
+          adminClient.from('machine_harvests').select('*').eq('machine_id', machineId),
+          adminClient.from('machine_harvest_revisions').select('*').eq('harvest_id', harvestId).order('changed_at'),
+          adminClient.from('inventory_ledger').select('id'),
+        ])
+        expect(runs.data).toHaveLength(1)
+        expect(harvests.data).toHaveLength(1)
+        expect(revisions.data?.map((row) => [row.old_quantity, row.new_quantity])).toEqual([
+          [null, 0],
+          [0, 42],
+          [42, 43],
+          [43, 44],
+        ])
+        expect(inventoryAfter.data).toHaveLength(inventoryBefore.data?.length ?? 0)
+      } finally {
+        await employee.auth.signOut(); await manager.auth.signOut()
+        const harvestIds = (await adminClient.from('machine_harvests').select('id').eq('machine_id', machineId)).data?.map((row) => row.id) ?? []
+        if (harvestIds.length) await adminClient.from('machine_harvest_revisions').delete().in('harvest_id', harvestIds)
+        await adminClient.from('machine_harvests').delete().eq('machine_id', machineId)
+        const productionDayIds = (await adminClient.from('machine_runs').select('production_day_id').eq('machine_id', machineId)).data?.map((row) => row.production_day_id) ?? []
+        await adminClient.from('machine_runs').delete().eq('machine_id', machineId)
+        if (productionDayIds.length) await adminClient.from('production_days').delete().in('id', productionDayIds)
+        await adminClient.from('machines').delete().eq('id', machineId)
+      }
+    },
+    45_000,
+  )
+
+  it.skipIf(!canStartMachine(new Date()))(
+    'lets a manager correct time, then lock and reopen the production day with audit',
+    async () => {
+      const { adminClient } = await import('@/lib/supabase/admin')
+      const password = process.env.SUPABASE_TEST_EMPLOYEE_PASSWORD!
+      const manager = createClient<Database>(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+      )
+      expect((await manager.auth.signInWithPassword({
+        email: usernameToAuthEmail('quanly'),
+        password,
+      })).error).toBeNull()
+
+      const machineId = '55555555-5555-4555-8555-555555555555'
+      const started = await manager.rpc('start_machine', {
+        p_machine_id: machineId,
         p_idempotency_key: crypto.randomUUID(),
       })
-      expect(batch.error).toBeNull()
+      expect(started.error).toBeNull()
+      const runId = (started.data as { runId: string; productionDate: string }).runId
+      const productionDate = (started.data as { productionDate: string }).productionDate
+      expect((await manager.rpc('stop_machine', {
+        p_machine_id: machineId,
+        p_idempotency_key: crypto.randomUUID(),
+      })).error).toBeNull()
 
-      const shift = await client.rpc('record_production_shift_total', {
-        p_input: {
-          operatingDay: day,
-          shiftCode: 'ca_sang',
-          machineId,
-          goodBags: 125,
-          rejectedBags: 0,
-        },
+      const run = await adminClient.from('machine_runs').select('started_at').eq('id', runId).single()
+      const correctedStart = new Date(new Date(run.data!.started_at).getTime() - 60_000).toISOString()
+      const correction = await manager.rpc('correct_production_action', {
+        p_input: { actionType: 'change_run_start', runId, occurredAt: correctedStart },
         p_idempotency_key: crypto.randomUUID(),
       })
-      expect(shift.error).toBeNull()
+      expect(correction.error).toBeNull()
 
-      await adminClient.from('profiles').update({ role: 'employee' }).eq('id', userId)
-      const forbidden = await client.rpc('select_production_source', {
-        p_input: {
-          operatingDay: day,
-          shiftCode: 'ca_sang',
-          machineId,
-          selectedSource: 'shift_total',
-        },
+      const locked = await manager.rpc('lock_production_day', { p_production_date: productionDate })
+      expect(locked.error).toBeNull()
+      expect(locked.data).toMatchObject({ productionDate, status: 'locked' })
+
+      const blockedCorrection = await manager.rpc('correct_production_action', {
+        p_input: { actionType: 'change_run_start', runId, occurredAt: new Date().toISOString() },
         p_idempotency_key: crypto.randomUUID(),
       })
-      expect(forbidden.error?.message).toContain('FORBIDDEN')
+      expect(blockedCorrection.error?.message).toContain('PRODUCTION_DAY_LOCKED')
 
-      await adminClient.from('profiles').update({ role: 'manager' }).eq('id', userId)
-      const selection = await client.rpc('select_production_source', {
-        p_input: {
-          operatingDay: day,
-          shiftCode: 'ca_sang',
-          machineId,
-          selectedSource: 'shift_total',
-        },
-        p_idempotency_key: crypto.randomUUID(),
-      })
-      expect(selection.error).toBeNull()
+      expect((await manager.rpc('reopen_production_day', {
+        p_production_date: productionDate,
+      })).error).toBeNull()
+      const audit = await adminClient.from('audit_log')
+        .select('action, before_data, after_data')
+        .eq('entity_id', runId)
+        .eq('action', 'machine_run.start_time_changed')
+      expect(audit.data).toHaveLength(1)
+      expect(audit.data?.[0].before_data).not.toEqual(audit.data?.[0].after_data)
 
-      const ledger = await adminClient.from('inventory_ledger')
-        .select('kind, quantity_delta_bags')
-        .eq('operating_day', day)
-        .order('created_at')
-      expect(ledger.error).toBeNull()
-      expect(ledger.data).toHaveLength(3)
-      expect(ledger.data!.reduce((sum, row) => sum + Number(row.quantity_delta_bags), 0)).toBe(125)
-      expect(ledger.data!.map((row) => row.kind)).toEqual(['production', 'reversal', 'production'])
-
-      const official = await adminClient.from('production_source_selections')
-        .select('selected_source, official_quantity_bags, is_confirmed')
-        .eq('operating_day', day)
-        .eq('machine_id', machineId)
-        .single()
-      expect(official.data).toEqual({
-        selected_source: 'shift_total', official_quantity_bags: 125, is_confirmed: true,
-      })
-    } finally {
-      await client.auth.signOut()
-      await adminClient.from('production_source_selections').delete().eq('machine_id', machineId)
-      await adminClient.from('inventory_ledger').delete().eq('operating_day', day)
-      await adminClient.from('production_shift_totals').delete().eq('machine_id', machineId)
-      await adminClient.from('production_batches').delete().eq('machine_id', machineId)
-      await adminClient.from('machines').delete().eq('id', machineId)
-      await adminClient.from('operating_days').delete().eq('day', day)
-      await adminClient.from('profiles').update({ role: 'manager' }).eq('id', userId)
-    }
-  }, 45_000)
+      await manager.auth.signOut()
+    },
+    45_000,
+  )
 })

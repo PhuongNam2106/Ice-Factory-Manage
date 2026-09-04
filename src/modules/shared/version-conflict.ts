@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const cancellableEntityTypes = ['sale', 'receipt', 'production_batch', 'production_shift_total', 'expense'] as const
+export const cancellableEntityTypes = ['sale', 'receipt', 'expense'] as const
 
 export const cancelDocumentSchema = z.object({
   entityType: z.enum(cancellableEntityTypes),

@@ -9,7 +9,7 @@ import {
 } from '@/modules/expenses/actions'
 import type { ExpenseCategoryItem } from '@/modules/expenses/types'
 import { createIdempotencyKey } from '@/modules/shared/idempotency'
-import { button, control, Field } from './production-batch-form'
+import { button, control, Field } from './form-primitives'
 
 export function ExpenseForm({
   categories,

@@ -2,6 +2,8 @@
 
 PWA quản lý xưởng nước đá, vận hành theo đơn vị bao.
 
+Màn hình Sản xuất theo dõi thời gian thực từng máy: bắt đầu chạy, xả đá, tắt máy và số bao của từng lần xả. Ngày sản xuất từ 20:00 đến 18:00 hôm sau; sản lượng máy là chỉ số năng suất và không tự làm thay đổi tồn kho thành phẩm.
+
 ## Yêu cầu
 
 - Node.js 24

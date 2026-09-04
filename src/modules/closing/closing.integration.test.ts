@@ -42,7 +42,6 @@ describe('daily closing integration', () => {
       expect((firstLock.data as { snapshotVersion: number }).snapshotVersion).toBe(1)
 
       const { data: customer } = await adminClient.from('customers').select('id').limit(1).single()
-      const { data: machine } = await adminClient.from('machines').select('id').limit(1).single()
       const { data: category } = await adminClient.from('expense_categories').select('id').limit(1).single()
       const attempts = await Promise.all([
         client.rpc('create_sale', {
@@ -51,10 +50,6 @@ describe('daily closing integration', () => {
         }),
         client.rpc('record_receipt', {
           p_input: { customerId: customer!.id, operatingDay: day, amountVnd: 1000, paymentMethod: 'cash', allocations: [] },
-          p_idempotency_key: crypto.randomUUID(),
-        }),
-        client.rpc('record_production_batch', {
-          p_input: { operatingDay: day, shiftCode: 'ca_sang', machineId: machine!.id, startTime: `${day}T00:00:00+07:00`, endTime: `${day}T01:00:00+07:00`, goodBags: 1, rejectedBags: 0 },
           p_idempotency_key: crypto.randomUUID(),
         }),
         client.rpc('create_expense', {

@@ -55,7 +55,7 @@ Chức năng này chỉ theo dõi hoạt động và năng suất máy. Số bao
 
 ### `production_days`
 
-- `id bigint identity` làm khóa chính.
+- `id uuid` làm khóa chính để tương thích trực tiếp với `audit_log.entity_id` hiện có.
 - `production_date date` duy nhất, là ngày nhãn.
 - `starts_at`, `ends_at` là `timestamptz` và phải đúng cửa sổ 20:00–18:00 theo `Asia/Bangkok`.
 - `status` gồm `open`, `locked`.
@@ -63,7 +63,7 @@ Chức năng này chỉ theo dõi hoạt động và năng suất máy. Số bao
 
 ### `machine_runs`
 
-- `id bigint identity`.
+- `id uuid`.
 - `machine_id`, `production_day_id` là khóa ngoại có index.
 - `started_at`, `started_by`, `stopped_at`, `stopped_by`.
 - Partial unique index trên `machine_id where stopped_at is null` bảo đảm mỗi máy chỉ có một phiên mở.
@@ -71,7 +71,7 @@ Chức năng này chỉ theo dõi hoạt động và năng suất máy. Số bao
 
 ### `machine_harvests`
 
-- `id bigint identity`.
+- `id uuid`.
 - `machine_id`, `machine_run_id` là khóa ngoại có index.
 - `harvested_at`, `harvested_by`.
 - `bag_quantity bigint null`, `quantity_updated_at`, `quantity_updated_by`.

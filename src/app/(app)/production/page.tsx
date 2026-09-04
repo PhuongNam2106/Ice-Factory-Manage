@@ -1,25 +1,33 @@
-import Link from 'next/link'
-import { CancelDocumentDialog } from '@/components/forms/cancel-document-dialog'
-import { ReconciliationCard } from '@/components/production/reconciliation-card'
+import { ProductionBoard } from '@/components/production/production-board'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { listProductionAuditEvents } from '@/modules/audit/repository'
 import { requireUser } from '@/modules/auth/service'
-import { ensureOperatingDay } from '@/modules/closing/ensure-day'
-import { listProductionDocuments, listProductionReconciliations } from '@/modules/production/repository'
-import { getOperatingDay } from '@/modules/shared/operating-day'
+import { getProductionDate } from '@/modules/production/production-day'
+import { getProductionBoard, getProductionSummary } from '@/modules/production/service'
 
-export default async function ProductionPage() {
+export default async function ProductionPage({ searchParams }: { searchParams: Promise<{ day?: string; from?: string; to?: string }> }) {
   const user = await requireUser()
-  const operatingDay = getOperatingDay(new Date())
+  const currentProductionDate = getProductionDate(new Date())
+  const params = await searchParams
+  const requestedDay = params.day
+  const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(requestedDay ?? '') ? requestedDay! : currentProductionDate
+  const from = /^\d{4}-\d{2}-\d{2}$/.test(params.from ?? '') ? params.from! : selectedDate
+  const to = /^\d{4}-\d{2}-\d{2}$/.test(params.to ?? '') ? params.to! : selectedDate
   const client = await createServerSupabaseClient()
-  await ensureOperatingDay(operatingDay, client)
-  const [rows, documents] = await Promise.all([
-    listProductionReconciliations(client, operatingDay),
-    listProductionDocuments(client, operatingDay),
+  const [board, summary, auditItems] = await Promise.all([
+    getProductionBoard(client, selectedDate),
+    getProductionSummary(client, from, to),
+    user.role === 'manager' ? listProductionAuditEvents(client) : Promise.resolve([]),
   ])
+  if (!board.ok) throw new Error(board.error.message)
+  if (!summary.ok) throw new Error(summary.error.message)
 
   return <section className="space-y-6">
-    <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-bold text-sky-700">Ngày vận hành {operatingDay}</p><h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">Sản Xuất Nước Đá</h1><p className="mt-1 text-sm text-slate-600">Nhập theo từng mẻ hoặc tổng cuối ca; hệ thống chỉ tính một nguồn vào tồn kho.</p></div><div className="grid grid-cols-2 gap-3"><Link className="min-h-12 rounded-2xl bg-sky-700 px-4 py-3 text-center text-sm font-bold text-white shadow-lg shadow-sky-700/20" href="/production/new/batch">+ Nhập từng mẻ</Link><Link className="min-h-12 rounded-2xl border border-sky-300 bg-white px-4 py-3 text-center text-sm font-bold text-sky-800" href="/production/new/shift-total">+ Tổng cuối ca</Link></div></header>
-    <section aria-labelledby="reconciliation-heading"><h2 className="mb-3 text-lg font-extrabold text-slate-950" id="reconciliation-heading">Đối soát sản lượng</h2>{rows.length ? <div className="grid gap-4 lg:grid-cols-2">{rows.map((row) => <ReconciliationCard isManager={user.role === 'manager'} item={row} key={`${row.machineId}:${row.shiftCode}`} />)}</div> : <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center"><p className="font-bold text-slate-800">Chưa có dữ liệu sản xuất hôm nay.</p><p className="mt-1 text-sm text-slate-500">Bắt đầu bằng cách nhập từng mẻ hoặc tổng cuối ca.</p></div>}</section>
-    <section aria-labelledby="production-documents"><h2 className="mb-3 text-lg font-extrabold text-slate-950" id="production-documents">Chứng từ sản xuất</h2><div className="divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200 bg-white">{documents.map((document) => <article className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between" key={document.id}><div><p className="font-bold text-slate-950">{document.label}</p><p className="text-sm text-slate-500">{document.goodBags} bao · {document.status === 'active' ? 'Đang hiệu lực' : 'Đã hủy'}</p></div>{document.status === 'active' && (user.role === 'manager' || document.createdBy === user.id) ? <CancelDocumentDialog entityId={document.id} entityType={document.entityType} label="chứng từ sản xuất" version={document.version} /> : null}</article>)}{documents.length === 0 ? <p className="p-5 text-sm text-slate-500">Chưa có chứng từ.</p> : null}</div></section>
+    <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div><p className="text-xs font-bold uppercase tracking-wider text-sky-700">Ngày sản xuất {selectedDate}</p><h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">Theo dõi máy làm nước đá</h1><p className="mt-1 max-w-2xl text-sm text-slate-600">Ghi thời điểm bắt đầu, xả đá, tắt máy và số bao theo từng máy. Ngày sản xuất kéo dài từ 20:00 đến 18:00 hôm sau.</p></div>
+      <form className="flex items-end gap-2" method="get"><label className="text-sm font-bold text-slate-700">Xem ngày<input className="mt-1 block min-h-12 rounded-xl border border-slate-300 bg-white px-3" defaultValue={selectedDate} name="day" type="date" /></label><input name="from" type="hidden" value={from} /><input name="to" type="hidden" value={to} /><button className="min-h-12 rounded-xl bg-slate-900 px-4 font-bold text-white" type="submit">Xem</button></form>
+    </header>
+    <form className="flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white p-4" method="get"><input name="day" type="hidden" value={selectedDate} /><label className="text-sm font-bold">Năng suất từ<input className="mt-1 block min-h-11 rounded-xl border border-slate-300 px-3" defaultValue={from} name="from" type="date" /></label><label className="text-sm font-bold">Đến<input className="mt-1 block min-h-11 rounded-xl border border-slate-300 px-3" defaultValue={to} name="to" type="date" /></label><button className="min-h-11 rounded-xl bg-sky-700 px-4 font-bold text-white">Xem năng suất</button></form>
+    <ProductionBoard auditItems={auditItems} currentProductionDate={currentProductionDate} currentUser={user} initialSnapshot={board.data} summary={summary.data} />
   </section>
 }

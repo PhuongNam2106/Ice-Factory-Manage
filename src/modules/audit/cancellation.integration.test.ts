@@ -22,7 +22,7 @@ describe('safe cancellation integration', () => {
     return
   }
 
-  it('reverses sale, receipt, production and expense effects with version and ownership checks', async () => {
+  it('reverses sale, receipt and expense effects with version and ownership checks', async () => {
     const { adminClient } = await import('@/lib/supabase/admin')
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
@@ -81,16 +81,6 @@ describe('safe cancellation integration', () => {
       expect((await employee.rpc('cancel_document', { p_entity_type: 'receipt', p_entity_id: receiptId, p_expected_version: 1, p_reason: 'Ghi nhận nhầm khoản thu' })).error).toBeNull()
       expect((await adminClient.from('receivables').select('outstanding_amount_vnd').eq('id', secondDebt.data!.id).single()).data?.outstanding_amount_vnd).toBe(50_000)
 
-      const machine = await adminClient.from('machines').select('id').eq('code', 'MAY-E2E').single()
-      const batch = await employee.rpc('record_production_batch', { p_input: {
-        operatingDay: day, shiftCode: 'ca_sang', machineId: machine.data!.id,
-        startTime: `${day}T01:00:00+07:00`, endTime: `${day}T02:00:00+07:00`, goodBags: 7, rejectedBags: 0,
-      }, p_idempotency_key: crypto.randomUUID() })
-      const batchId = (batch.data as { batchId: string }).batchId
-      expect((await employee.rpc('cancel_document', { p_entity_type: 'production_batch', p_entity_id: batchId, p_expected_version: 1, p_reason: 'Mẻ thử nhập sai sản lượng' })).error).toBeNull()
-      const selection = await adminClient.from('production_source_selections').select('official_quantity_bags').eq('operating_day', day).eq('shift_code', 'ca_sang').single()
-      expect(selection.data?.official_quantity_bags).toBe(0)
-
       const category = await adminClient.from('expense_categories').select('id').eq('code', 'electricity').single()
       const expense = await manager.rpc('create_expense', { p_input: { operatingDay: day, categoryId: category.data!.id, amountVnd: 250_000, payee: 'Điện lực' }, p_idempotency_key: crypto.randomUUID() })
       const expenseId = (expense.data as { expenseId: string }).expenseId
@@ -110,9 +100,6 @@ describe('safe cancellation integration', () => {
       await employee.auth.signOut(); await manager.auth.signOut()
       await adminClient.from('expense_attachments').delete().in('expense_id', (await adminClient.from('expenses').select('id').eq('operating_day', day)).data?.map((row) => row.id) ?? [])
       await adminClient.from('expenses').delete().eq('operating_day', day)
-      await adminClient.from('production_source_selections').delete().eq('operating_day', day)
-      await adminClient.from('production_batches').delete().eq('operating_day', day)
-      await adminClient.from('production_shift_totals').delete().eq('operating_day', day)
       await adminClient.from('receipt_allocations').delete().in('receipt_id', (await adminClient.from('receipts').select('id').eq('operating_day', day)).data?.map((row) => row.id) ?? [])
       await adminClient.from('receipts').delete().eq('operating_day', day)
       await adminClient.from('receivables').delete().eq('operating_day', day)

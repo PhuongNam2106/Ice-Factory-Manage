@@ -5,7 +5,7 @@ const reports = [
   { path: 'daily', title: 'Tổng hợp ngày', note: 'Doanh thu, chi phí, sản xuất và số bao đã bán.', daily: true },
   { path: 'monthly', title: 'Tổng hợp tháng', note: 'Tách riêng ngày đã khóa và ngày còn mở.' },
   { path: 'sales', title: 'Chi tiết bán hàng', note: 'Bán sỉ, bán lẻ, số bao, đơn giá và thanh toán.' },
-  { path: 'production', title: 'Chi tiết sản xuất', note: 'Theo ngày, máy, ca và nguồn ghi nhận.' },
+  { path: 'production', title: 'Chi tiết sản xuất', note: 'Theo ngày, máy, lần xả và người thực hiện.' },
   { path: 'expenses', title: 'Chi tiết chi phí', note: 'Theo danh mục, trạng thái duyệt và người nhận.' },
   { path: 'receivables', title: 'Công nợ và thanh toán', note: 'Tuổi nợ, số còn nợ và lịch sử thu tiền.' },
   { path: 'inventory', title: 'Sổ kho thành phẩm', note: 'Toàn bộ biến động nhập, xuất và điều chỉnh.' },

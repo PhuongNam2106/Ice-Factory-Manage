@@ -3,7 +3,7 @@
 import { useRef, useState, useTransition } from 'react'
 import { recordStockCount } from '@/modules/inventory/actions'
 import { createIdempotencyKey } from '@/modules/shared/idempotency'
-import { button, control, Field, Message } from './production-batch-form'
+import { button, control, Field, Message } from './form-primitives'
 
 export function StockCountForm({
   operatingDay,

@@ -1,34 +1,20 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import type { ActionResult } from '@/lib/result'
 import { requireManager, requireUser } from '@/modules/auth/service'
-import type { ProductionBatchInput, ProductionShiftTotalInput, SelectProductionSourceInput } from './schema'
-import { createProductionBatchWithClient, createProductionShiftTotalWithClient, selectOfficialProductionSourceWithClient } from './service'
-import type { ProductionBatchResult, ProductionShiftTotalResult, ProductionSourceSelectionResult } from './types'
+import type { HarvestQuantityInput, MachineActionInput, ProductionCorrectionInput, ProductionDateInput } from './schema'
+import {
+  correctProductionActionWithClient, lockProductionDayWithClient, recordHarvestWithClient,
+  reopenProductionDayWithClient, setHarvestQuantityWithClient, startMachineWithClient, stopMachineWithClient,
+} from './service'
 
-function refreshProduction() {
-  revalidatePath('/production')
-  revalidatePath('/')
-}
+function refreshProduction() { revalidatePath('/production'); revalidatePath('/') }
+async function refreshOnSuccess<T extends { ok: boolean }>(operation: Promise<T>) { const result = await operation; if (result.ok) refreshProduction(); return result }
 
-export async function createProductionBatch(input: ProductionBatchInput): Promise<ActionResult<ProductionBatchResult>> {
-  await requireUser()
-  const result = await createProductionBatchWithClient(input)
-  if (result.ok) refreshProduction()
-  return result
-}
-
-export async function createProductionShiftTotal(input: ProductionShiftTotalInput): Promise<ActionResult<ProductionShiftTotalResult>> {
-  await requireUser()
-  const result = await createProductionShiftTotalWithClient(input)
-  if (result.ok) refreshProduction()
-  return result
-}
-
-export async function selectOfficialProductionSource(input: SelectProductionSourceInput): Promise<ActionResult<ProductionSourceSelectionResult>> {
-  await requireManager()
-  const result = await selectOfficialProductionSourceWithClient(input)
-  if (result.ok) refreshProduction()
-  return result
-}
+export async function startMachine(input: MachineActionInput) { await requireUser(); return refreshOnSuccess(startMachineWithClient(input)) }
+export async function recordHarvest(input: MachineActionInput) { await requireUser(); return refreshOnSuccess(recordHarvestWithClient(input)) }
+export async function stopMachine(input: MachineActionInput) { await requireUser(); return refreshOnSuccess(stopMachineWithClient(input)) }
+export async function setHarvestQuantity(input: HarvestQuantityInput) { await requireUser(); return refreshOnSuccess(setHarvestQuantityWithClient(input)) }
+export async function correctProductionAction(input: ProductionCorrectionInput) { await requireManager(); return refreshOnSuccess(correctProductionActionWithClient(input)) }
+export async function lockProductionDay(input: ProductionDateInput) { await requireManager(); return refreshOnSuccess(lockProductionDayWithClient(input)) }
+export async function reopenProductionDay(input: ProductionDateInput) { await requireManager(); return refreshOnSuccess(reopenProductionDayWithClient(input)) }

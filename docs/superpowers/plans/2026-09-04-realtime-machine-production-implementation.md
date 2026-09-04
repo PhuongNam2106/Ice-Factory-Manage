@@ -10,6 +10,8 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-04-realtime-machine-production-design.md`
 
+**Trạng thái 2026-09-04:** Đã triển khai đầy đủ vào repo chính và Supabase Cloud. Migration Cloud, RPC, Realtime, giao diện mobile/desktop, công cụ quản lý, báo cáo, backup và E2E đã hoàn thành. Kiểm chứng cuối: 102 unit tests đạt, integration sản xuất/khóa sổ/hủy chứng từ đạt, E2E sản xuất và full-day đạt, ESLint/typecheck/build đạt, database lint không có lỗi; Cloud smoke test được rollback sạch và advisor không còn cảnh báo index mới.
+
 ## Global Constraints
 
 - Múi giờ nghiệp vụ là `Asia/Bangkok`; ngày sản xuất từ 20:00 đến 18:00 hôm sau và mang nhãn ngày bắt đầu.
@@ -67,7 +69,7 @@ expect(canStartMachine(new Date('2026-09-05T13:00:00Z'))).toBe(true)
 - RPC: `start_machine(p_machine_id uuid, p_idempotency_key uuid) -> jsonb`
 - RPC: `record_machine_harvest(p_machine_id uuid, p_idempotency_key uuid) -> jsonb`
 - RPC: `stop_machine(p_machine_id uuid, p_idempotency_key uuid) -> jsonb`
-- RPC: `set_harvest_quantity(p_harvest_id bigint, p_quantity bigint, p_idempotency_key uuid) -> jsonb`
+- RPC: `set_harvest_quantity(p_harvest_id uuid, p_quantity bigint, p_idempotency_key uuid) -> jsonb`
 - RPC manager: `correct_production_action(p_input jsonb, p_idempotency_key uuid) -> jsonb`
 - RPC manager: `lock_production_day(p_production_date date) -> jsonb`
 - RPC manager: `reopen_production_day(p_production_date date) -> jsonb`

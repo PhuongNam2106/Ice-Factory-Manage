@@ -8,7 +8,7 @@ import type { Database } from '@/lib/supabase/database.types'
 import { cancelDocumentSchema, type CancelDocumentInput } from './version-conflict'
 
 export type CancelDocumentResult = { entityType: CancelDocumentInput['entityType']; entityId: string; version: number }
-const resultSchema = z.object({ entityType: z.enum(['sale', 'receipt', 'production_batch', 'production_shift_total', 'expense']), entityId: z.uuid(), version: z.int().positive() })
+const resultSchema = z.object({ entityType: z.enum(['sale', 'receipt', 'expense']), entityId: z.uuid(), version: z.int().positive() })
 
 export async function cancelDocumentWithClient(input: CancelDocumentInput, client?: SupabaseClient<Database>): Promise<ActionResult<CancelDocumentResult>> {
   const parsed = cancelDocumentSchema.safeParse(input)

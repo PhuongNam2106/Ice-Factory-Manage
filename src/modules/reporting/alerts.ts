@@ -23,7 +23,6 @@ export function getOperationalAlerts(input: {
   if (input.stockBalanceBags < 0) alerts.push({ code: 'INSUFFICIENT_STOCK', severity: 'danger', message: 'Tồn kho đang âm.', blocking: false })
   if (input.overdueDebtVnd > 0) alerts.push({ code: 'OVERDUE_DEBT', severity: 'warning', message: `Có ${input.overdueDebtVnd.toLocaleString('vi-VN')} đ công nợ quá hạn.`, blocking: false })
   if (input.pendingExpenseCount > 0) alerts.push({ code: 'PENDING_EXPENSE', severity: 'warning', message: `${input.pendingExpenseCount} khoản chi đang chờ duyệt.`, blocking: false })
-  if (input.productionMismatchCount > 0) alerts.push({ code: 'PRODUCTION_MISMATCH', severity: 'warning', message: 'Có ca sản xuất chưa xác nhận nguồn chính thức.', blocking: false })
   if (input.previousDayUnlocked) alerts.push({ code: 'UNLOCKED_PREVIOUS_DAY', severity: 'warning', message: 'Ngày vận hành trước đó chưa khóa sổ.', blocking: false })
   if (input.hasOutlier) alerts.push({ code: 'OUTLIER_VALUE', severity: 'info', message: 'Có số lượng hoặc đơn giá khác thường so với 30 giao dịch gần nhất.', blocking: false })
   return alerts

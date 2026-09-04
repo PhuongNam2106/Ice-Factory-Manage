@@ -36,6 +36,12 @@
 - Database: không chạy migration ngược phá hủy dữ liệu. Nếu migration mới chỉ bổ sung tương thích thì giữ schema và rollback app; nếu dữ liệu hỏng, cô lập production và restore sang dự án mới theo `backup-restore.md`.
 - Sau rollback, khóa nhập liệu, ghi thời điểm/sự cố và chỉ mở lại khi đối soát hoàn tất.
 
+## Chuyển đổi màn hình sản xuất thời gian thực
+
+Migration `20260904054132_realtime_machine_production.sql` thay hoàn toàn dữ liệu sản xuất theo mẻ/ca. Trước khi chạy phải xuất backup và đối chiếu số dòng của `production_batches`, `production_shift_totals`, `production_source_selections` cùng các dòng ledger có nguồn `production_*`.
+
+Migration xóa dữ liệu sản xuất cũ và các bút toán tồn kho do luồng sản xuất cũ tạo; dữ liệu bán hàng, thu tiền, công nợ, chi phí, khách hàng và người dùng được giữ nguyên. Sau khi chạy, Supabase Realtime phải cho phép private Broadcast topic `production:machines`; chạy security/performance advisors và smoke test Bắt đầu → Xả đá → Số bao → Tắt máy trước khi mở cho nhân viên.
+
 ## Smoke test
 
 Thiết lập `SMOKE_USERNAME` và `SMOKE_PASSWORD` cho một tài khoản active chỉ dùng kiểm tra, rồi chạy:

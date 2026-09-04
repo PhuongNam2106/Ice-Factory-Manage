@@ -412,6 +412,175 @@ export type Database = {
           },
         ]
       }
+      machine_harvest_revisions: {
+        Row: {
+          changed_at: string
+          changed_by: string
+          harvest_id: string
+          id: number
+          new_quantity: number
+          old_quantity: number | null
+        }
+        Insert: {
+          changed_at?: string
+          changed_by: string
+          harvest_id: string
+          id?: never
+          new_quantity: number
+          old_quantity?: number | null
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string
+          harvest_id?: string
+          id?: never
+          new_quantity?: number
+          old_quantity?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "machine_harvest_revisions_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "machine_harvest_revisions_harvest_id_fkey"
+            columns: ["harvest_id"]
+            isOneToOne: false
+            referencedRelation: "machine_harvests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      machine_harvests: {
+        Row: {
+          bag_quantity: number | null
+          created_at: string
+          harvested_at: string
+          harvested_by: string
+          id: string
+          machine_id: string
+          machine_run_id: string
+          quantity_updated_at: string | null
+          quantity_updated_by: string | null
+        }
+        Insert: {
+          bag_quantity?: number | null
+          created_at?: string
+          harvested_at: string
+          harvested_by: string
+          id?: string
+          machine_id: string
+          machine_run_id: string
+          quantity_updated_at?: string | null
+          quantity_updated_by?: string | null
+        }
+        Update: {
+          bag_quantity?: number | null
+          created_at?: string
+          harvested_at?: string
+          harvested_by?: string
+          id?: string
+          machine_id?: string
+          machine_run_id?: string
+          quantity_updated_at?: string | null
+          quantity_updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "machine_harvests_harvested_by_fkey"
+            columns: ["harvested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "machine_harvests_machine_id_fkey"
+            columns: ["machine_id"]
+            isOneToOne: false
+            referencedRelation: "machines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "machine_harvests_machine_run_id_machine_id_fkey"
+            columns: ["machine_run_id", "machine_id"]
+            isOneToOne: false
+            referencedRelation: "machine_runs"
+            referencedColumns: ["id", "machine_id"]
+          },
+          {
+            foreignKeyName: "machine_harvests_quantity_updated_by_fkey"
+            columns: ["quantity_updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      machine_runs: {
+        Row: {
+          created_at: string
+          id: string
+          machine_id: string
+          production_day_id: string
+          started_at: string
+          started_by: string
+          stopped_at: string | null
+          stopped_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          machine_id: string
+          production_day_id: string
+          started_at: string
+          started_by: string
+          stopped_at?: string | null
+          stopped_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          machine_id?: string
+          production_day_id?: string
+          started_at?: string
+          started_by?: string
+          stopped_at?: string | null
+          stopped_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "machine_runs_machine_id_fkey"
+            columns: ["machine_id"]
+            isOneToOne: false
+            referencedRelation: "machines"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "machine_runs_production_day_id_fkey"
+            columns: ["production_day_id"]
+            isOneToOne: false
+            referencedRelation: "production_days"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "machine_runs_started_by_fkey"
+            columns: ["started_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "machine_runs_stopped_by_fkey"
+            columns: ["stopped_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       machines: {
         Row: {
           code: string | null
@@ -504,276 +673,102 @@ export type Database = {
           },
         ]
       }
-      production_batches: {
+      production_action_requests: {
         Row: {
-          cancel_reason: string | null
-          cancelled_at: string | null
-          cancelled_by: string | null
+          actor_id: string
+          completed_at: string | null
           created_at: string
-          created_by: string
-          end_time: string
-          good_bags: number
-          id: string
-          idempotency_key: string
           machine_id: string
-          note: string | null
-          operating_day: string
-          rejected_bags: number
-          shift_code: string
-          start_time: string
-          status: Database["public"]["Enums"]["document_status"]
-          updated_at: string
-          version: number
+          operation: string
+          request_id: string
+          response: Json | null
         }
         Insert: {
-          cancel_reason?: string | null
-          cancelled_at?: string | null
-          cancelled_by?: string | null
+          actor_id: string
+          completed_at?: string | null
           created_at?: string
-          created_by: string
-          end_time: string
-          good_bags: number
-          id?: string
-          idempotency_key: string
           machine_id: string
-          note?: string | null
-          operating_day: string
-          rejected_bags?: number
-          shift_code: string
-          start_time: string
-          status?: Database["public"]["Enums"]["document_status"]
-          updated_at?: string
-          version?: number
+          operation: string
+          request_id: string
+          response?: Json | null
         }
         Update: {
-          cancel_reason?: string | null
-          cancelled_at?: string | null
-          cancelled_by?: string | null
+          actor_id?: string
+          completed_at?: string | null
           created_at?: string
-          created_by?: string
-          end_time?: string
-          good_bags?: number
-          id?: string
-          idempotency_key?: string
           machine_id?: string
-          note?: string | null
-          operating_day?: string
-          rejected_bags?: number
-          shift_code?: string
-          start_time?: string
-          status?: Database["public"]["Enums"]["document_status"]
-          updated_at?: string
-          version?: number
+          operation?: string
+          request_id?: string
+          response?: Json | null
         }
         Relationships: [
           {
-            foreignKeyName: "production_batches_cancelled_by_fkey"
-            columns: ["cancelled_by"]
+            foreignKeyName: "production_action_requests_actor_id_fkey"
+            columns: ["actor_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "production_batches_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "production_batches_machine_id_fkey"
+            foreignKeyName: "production_action_requests_machine_id_fkey"
             columns: ["machine_id"]
             isOneToOne: false
             referencedRelation: "machines"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "production_batches_operating_day_fkey"
-            columns: ["operating_day"]
-            isOneToOne: false
-            referencedRelation: "daily_dashboard"
-            referencedColumns: ["day"]
-          },
-          {
-            foreignKeyName: "production_batches_operating_day_fkey"
-            columns: ["operating_day"]
-            isOneToOne: false
-            referencedRelation: "operating_days"
-            referencedColumns: ["day"]
           },
         ]
       }
-      production_shift_totals: {
+      production_days: {
         Row: {
-          cancel_reason: string | null
-          cancelled_at: string | null
-          cancelled_by: string | null
           created_at: string
-          created_by: string
-          good_bags: number
+          ends_at: string
           id: string
-          idempotency_key: string
-          machine_id: string
-          note: string | null
-          operating_day: string
-          rejected_bags: number
-          shift_code: string
-          status: Database["public"]["Enums"]["document_status"]
-          updated_at: string
-          version: number
+          locked_at: string | null
+          locked_by: string | null
+          production_date: string
+          reopened_at: string | null
+          reopened_by: string | null
+          starts_at: string
+          status: Database["public"]["Enums"]["operating_day_status"]
         }
         Insert: {
-          cancel_reason?: string | null
-          cancelled_at?: string | null
-          cancelled_by?: string | null
           created_at?: string
-          created_by: string
-          good_bags: number
+          ends_at: string
           id?: string
-          idempotency_key: string
-          machine_id: string
-          note?: string | null
-          operating_day: string
-          rejected_bags?: number
-          shift_code: string
-          status?: Database["public"]["Enums"]["document_status"]
-          updated_at?: string
-          version?: number
+          locked_at?: string | null
+          locked_by?: string | null
+          production_date: string
+          reopened_at?: string | null
+          reopened_by?: string | null
+          starts_at: string
+          status?: Database["public"]["Enums"]["operating_day_status"]
         }
         Update: {
-          cancel_reason?: string | null
-          cancelled_at?: string | null
-          cancelled_by?: string | null
           created_at?: string
-          created_by?: string
-          good_bags?: number
+          ends_at?: string
           id?: string
-          idempotency_key?: string
-          machine_id?: string
-          note?: string | null
-          operating_day?: string
-          rejected_bags?: number
-          shift_code?: string
-          status?: Database["public"]["Enums"]["document_status"]
-          updated_at?: string
-          version?: number
+          locked_at?: string | null
+          locked_by?: string | null
+          production_date?: string
+          reopened_at?: string | null
+          reopened_by?: string | null
+          starts_at?: string
+          status?: Database["public"]["Enums"]["operating_day_status"]
         }
         Relationships: [
           {
-            foreignKeyName: "production_shift_totals_cancelled_by_fkey"
-            columns: ["cancelled_by"]
+            foreignKeyName: "production_days_locked_by_fkey"
+            columns: ["locked_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "production_shift_totals_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "production_days_reopened_by_fkey"
+            columns: ["reopened_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "production_shift_totals_machine_id_fkey"
-            columns: ["machine_id"]
-            isOneToOne: false
-            referencedRelation: "machines"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "production_shift_totals_operating_day_fkey"
-            columns: ["operating_day"]
-            isOneToOne: false
-            referencedRelation: "daily_dashboard"
-            referencedColumns: ["day"]
-          },
-          {
-            foreignKeyName: "production_shift_totals_operating_day_fkey"
-            columns: ["operating_day"]
-            isOneToOne: false
-            referencedRelation: "operating_days"
-            referencedColumns: ["day"]
-          },
-        ]
-      }
-      production_source_selections: {
-        Row: {
-          confirmed_at: string | null
-          confirmed_by: string | null
-          created_at: string
-          id: string
-          inventory_entry_id: string | null
-          is_confirmed: boolean
-          machine_id: string
-          official_quantity_bags: number
-          operating_day: string
-          selected_source: Database["public"]["Enums"]["production_source_kind"]
-          shift_code: string
-          updated_at: string
-        }
-        Insert: {
-          confirmed_at?: string | null
-          confirmed_by?: string | null
-          created_at?: string
-          id?: string
-          inventory_entry_id?: string | null
-          is_confirmed?: boolean
-          machine_id: string
-          official_quantity_bags?: number
-          operating_day: string
-          selected_source: Database["public"]["Enums"]["production_source_kind"]
-          shift_code: string
-          updated_at?: string
-        }
-        Update: {
-          confirmed_at?: string | null
-          confirmed_by?: string | null
-          created_at?: string
-          id?: string
-          inventory_entry_id?: string | null
-          is_confirmed?: boolean
-          machine_id?: string
-          official_quantity_bags?: number
-          operating_day?: string
-          selected_source?: Database["public"]["Enums"]["production_source_kind"]
-          shift_code?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "production_source_selections_confirmed_by_fkey"
-            columns: ["confirmed_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "production_source_selections_inventory_entry_id_fkey"
-            columns: ["inventory_entry_id"]
-            isOneToOne: false
-            referencedRelation: "inventory_ledger"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "production_source_selections_machine_id_fkey"
-            columns: ["machine_id"]
-            isOneToOne: false
-            referencedRelation: "machines"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "production_source_selections_operating_day_fkey"
-            columns: ["operating_day"]
-            isOneToOne: false
-            referencedRelation: "daily_dashboard"
-            referencedColumns: ["day"]
-          },
-          {
-            foreignKeyName: "production_source_selections_operating_day_fkey"
-            columns: ["operating_day"]
-            isOneToOne: false
-            referencedRelation: "operating_days"
-            referencedColumns: ["day"]
           },
         ]
       }
@@ -1161,6 +1156,7 @@ export type Database = {
         Row: {
           allow_negative_stock: boolean
           id: boolean
+          production_harvest_reminder_minutes: number
           stock_variance_warning_pct: number
           time_zone: string
           updated_at: string
@@ -1169,6 +1165,7 @@ export type Database = {
         Insert: {
           allow_negative_stock?: boolean
           id?: boolean
+          production_harvest_reminder_minutes?: number
           stock_variance_warning_pct?: number
           time_zone?: string
           updated_at?: string
@@ -1177,6 +1174,7 @@ export type Database = {
         Update: {
           allow_negative_stock?: boolean
           id?: boolean
+          production_harvest_reminder_minutes?: number
           stock_variance_warning_pct?: number
           time_zone?: string
           updated_at?: string
@@ -1309,6 +1307,10 @@ export type Database = {
         }
         Returns: Json
       }
+      correct_production_action: {
+        Args: { p_idempotency_key: string; p_input: Json }
+        Returns: Json
+      }
       create_expense: {
         Args: { p_idempotency_key: string; p_input: Json }
         Returns: Json
@@ -1328,16 +1330,24 @@ export type Database = {
         Returns: Json
       }
       get_daily_reconciliation: { Args: { p_day: string }; Returns: Json }
+      get_production_board: {
+        Args: { p_production_date: string }
+        Returns: Json
+      }
+      get_production_summary: {
+        Args: { p_from: string; p_to: string }
+        Returns: Json
+      }
       lock_operating_day: {
         Args: { p_day: string; p_variance_override_reason?: string }
         Returns: Json
       }
-      record_production_batch: {
-        Args: { p_idempotency_key: string; p_input: Json }
+      lock_production_day: {
+        Args: { p_production_date: string }
         Returns: Json
       }
-      record_production_shift_total: {
-        Args: { p_idempotency_key: string; p_input: Json }
+      record_machine_harvest: {
+        Args: { p_idempotency_key: string; p_machine_id: string }
         Returns: Json
       }
       record_receipt: {
@@ -1352,21 +1362,37 @@ export type Database = {
         Args: { p_day: string; p_reason: string }
         Returns: Json
       }
-      review_expense: {
-        Args: { p_decision: string; p_expense_id: string; p_reason?: string }
+      reopen_production_day: {
+        Args: { p_production_date: string }
         Returns: Json
       }
-      select_production_source: {
-        Args: { p_idempotency_key: string; p_input: Json }
+      review_expense: {
+        Args: { p_decision: string; p_expense_id: string; p_reason?: string }
         Returns: Json
       }
       set_customer_active: {
         Args: { p_id: string; p_is_active: boolean }
         Returns: undefined
       }
+      set_harvest_quantity: {
+        Args: {
+          p_harvest_id: string
+          p_idempotency_key: string
+          p_quantity: number
+        }
+        Returns: Json
+      }
       set_machine_active: {
         Args: { p_id: string; p_is_active: boolean }
         Returns: undefined
+      }
+      start_machine: {
+        Args: { p_idempotency_key: string; p_machine_id: string }
+        Returns: Json
+      }
+      stop_machine: {
+        Args: { p_idempotency_key: string; p_machine_id: string }
+        Returns: Json
       }
       upsert_customer: {
         Args: {
@@ -1395,7 +1421,6 @@ export type Database = {
         | "reversal"
       operating_day_status: "open" | "locked"
       payment_method: "cash" | "bank_transfer"
-      production_source_kind: "batches" | "shift_total"
       sale_kind: "wholesale" | "retail"
     }
     CompositeTypes: {
@@ -1539,7 +1564,6 @@ export const Constants = {
       ],
       operating_day_status: ["open", "locked"],
       payment_method: ["cash", "bank_transfer"],
-      production_source_kind: ["batches", "shift_total"],
       sale_kind: ["wholesale", "retail"],
     },
   },

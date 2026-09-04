@@ -20,6 +20,12 @@ function asDate(value: string) {
   return new Date(value.includes('T') ? value : `${value}T12:00:00+07:00`)
 }
 
+function addDays(value: string, days: number) {
+  const date = new Date(`${value}T00:00:00Z`)
+  date.setUTCDate(date.getUTCDate() + days)
+  return date.toISOString().slice(0, 10)
+}
+
 function fail(error: { message: string } | null, label: string) {
   if (error) throw new Error(`Không thể tải ${label}: ${error.message}`)
 }
@@ -78,19 +84,22 @@ export async function getDetailReport(client: ReportClient, kind: ReportKind, fr
   }
 
   if (kind === 'production') {
-    const [batches, shifts] = await Promise.all([
-      client.from('production_batches').select('id, operating_day, shift_code, start_time, end_time, good_bags, rejected_bags, status, machines(name)').gte('operating_day', from).lte('operating_day', to).order('operating_day'),
-      client.from('production_shift_totals').select('id, operating_day, shift_code, good_bags, rejected_bags, status, machines(name)').gte('operating_day', from).lte('operating_day', to).order('operating_day'),
-    ])
-    fail(batches.error, 'mẻ sản xuất'); fail(shifts.error, 'tổng ca sản xuất')
-    const rows = [
-      ...(batches.data ?? []).map((row) => ({ day: asDate(row.operating_day), source: 'Mẻ', code: row.id, machine: row.machines?.name ?? '', shift: row.shift_code, start: row.start_time, end: row.end_time, good: Number(row.good_bags), rejected: Number(row.rejected_bags), status: row.status })),
-      ...(shifts.data ?? []).map((row) => ({ day: asDate(row.operating_day), source: 'Tổng ca', code: row.id, machine: row.machines?.name ?? '', shift: row.shift_code, start: null, end: null, good: Number(row.good_bags), rejected: Number(row.rejected_bags), status: row.status })),
-    ]
-    return { title: 'SẢN XUẤT THEO NGÀY · MÁY · CA', sheetName: 'Sản xuất', columns: [
-      { key: 'day', label: 'Ngày', kind: 'date' }, { key: 'source', label: 'Nguồn' }, { key: 'code', label: 'Mã' },
-      { key: 'machine', label: 'Máy' }, { key: 'shift', label: 'Ca' }, { key: 'start', label: 'Bắt đầu' }, { key: 'end', label: 'Kết thúc' },
-      { key: 'good', label: 'Bao đạt', kind: 'quantity' }, { key: 'rejected', label: 'Bao hỏng', kind: 'quantity' }, { key: 'status', label: 'Trạng thái' },
+    const { data, error } = await client.from('machine_harvests').select('id, harvested_at, bag_quantity, quantity_updated_at, machines(name), machine_runs(started_at, stopped_at, production_days(production_date)), harvester:profiles!machine_harvests_harvested_by_fkey(full_name), updater:profiles!machine_harvests_quantity_updated_by_fkey(full_name)').gte('harvested_at', `${from}T20:00:00+07:00`).lte('harvested_at', `${addDays(to, 1)}T18:00:00+07:00`).order('harvested_at')
+    fail(error, 'năng suất máy')
+    const rows = (data ?? []).map((row) => ({
+      day: asDate(row.machine_runs.production_days.production_date), code: row.id,
+      machine: row.machines.name, start: asDate(row.machine_runs.started_at),
+      harvest: asDate(row.harvested_at), stop: row.machine_runs.stopped_at ? asDate(row.machine_runs.stopped_at) : null,
+      bags: row.bag_quantity === null ? null : Number(row.bag_quantity),
+      harvester: row.harvester.full_name, quantityUpdated: row.quantity_updated_at ? asDate(row.quantity_updated_at) : null,
+      updater: row.updater?.full_name ?? null,
+    }))
+    return { title: 'NĂNG SUẤT MÁY THEO LẦN XẢ ĐÁ', sheetName: 'Sản xuất', columns: [
+      { key: 'day', label: 'Ngày sản xuất', kind: 'date' }, { key: 'code', label: 'Mã lần xả' },
+      { key: 'machine', label: 'Máy' }, { key: 'start', label: 'Bắt đầu máy', kind: 'date' },
+      { key: 'harvest', label: 'Xả đá', kind: 'date' }, { key: 'stop', label: 'Tắt máy', kind: 'date' },
+      { key: 'bags', label: 'Số bao', kind: 'quantity' }, { key: 'harvester', label: 'Người xả' },
+      { key: 'quantityUpdated', label: 'Giờ cập nhật bao', kind: 'date' }, { key: 'updater', label: 'Người cập nhật bao' },
     ], rows }
   }
 
@@ -140,7 +149,7 @@ export async function getDetailReport(client: ReportClient, kind: ReportKind, fr
   ], rows: (data ?? []).map((row) => ({ created: asDate(row.created_at), code: row.id, actor: row.actor_id, entityType: row.entity_type, entityId: row.entity_id, action: row.action, reason: row.reason, before: JSON.stringify(row.before_data), after: JSON.stringify(row.after_data) })) }
 }
 
-const backupTables = ['profiles', 'customers', 'machines', 'settings', 'operating_days', 'sales', 'sale_lines', 'receivables', 'receipts', 'receipt_allocations', 'production_batches', 'production_shift_totals', 'production_source_selections', 'inventory_ledger', 'stock_counts', 'expense_categories', 'expenses', 'expense_attachments', 'audit_log'] as const
+const backupTables = ['profiles', 'customers', 'machines', 'settings', 'operating_days', 'sales', 'sale_lines', 'receivables', 'receipts', 'receipt_allocations', 'production_days', 'machine_runs', 'machine_harvests', 'machine_harvest_revisions', 'production_action_requests', 'inventory_ledger', 'stock_counts', 'expense_categories', 'expenses', 'expense_attachments', 'audit_log'] as const
 
 export async function getBackupTables(client: ReportClient) {
   const tables = []
