@@ -10,6 +10,7 @@ import { ProductionDeleteDialog } from './production-delete-dialog'
 
 const labels = { start: 'Bắt đầu chạy', harvest: 'Xả đá', stop: 'Tắt máy' } as const
 const actionNames = { start: 'bắt đầu chạy', harvest: 'xả đá', stop: 'tắt máy' } as const
+const actionTextColors = { start: 'text-emerald-700', harvest: 'text-sky-700', stop: 'text-rose-700' } as const
 const time = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit' })
 const dateTime = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })
 
@@ -63,7 +64,7 @@ export function MachineProductionLog({ machine, isManager, locked, writable }: {
         const deleteReason = locked ? 'Ngày sản xuất đã khóa.' : !writable ? 'Chưa có kết nối đồng bộ an toàn.' : !isLatest ? 'Phải xóa hành động mới nhất trước.' : undefined
         return <li className={`rounded-2xl border p-4 text-sm [content-visibility:auto] [contain-intrinsic-size:0_148px] ${item.type === 'harvest' && item.bagQuantity === 0 ? 'border-amber-400 bg-amber-50' : 'border-slate-200 bg-white'}`} key={item.id}>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div><p className="font-extrabold text-slate-900">{labels[item.type]}{item.type === 'harvest' ? item.bagQuantity === null || item.bagQuantity === undefined ? ' · Chờ số bao' : ` · ${item.bagQuantity} bao` : ''}</p><p className="mt-1 text-slate-500">{dateTime.format(new Date(item.occurredAt))} · {item.actorName}</p>{item.quantityUpdatedAt ? <p className="mt-1 text-xs text-slate-500">Số bao cập nhật {dateTime.format(new Date(item.quantityUpdatedAt))} bởi {item.quantityUpdatedBy}</p> : null}</div>
+            <div><p className={`font-extrabold ${actionTextColors[item.type]}`}>{labels[item.type]}{item.type === 'harvest' ? item.bagQuantity === null || item.bagQuantity === undefined ? ' · Chờ số bao' : ` · ${item.bagQuantity} bao` : ''}</p><p className="mt-1 text-slate-500">{dateTime.format(new Date(item.occurredAt))} · {item.actorName}</p>{item.quantityUpdatedAt ? <p className="mt-1 text-xs text-slate-500">Số bao cập nhật {dateTime.format(new Date(item.quantityUpdatedAt))} bởi {item.quantityUpdatedBy}</p> : null}</div>
             {isManager && !locked ? <div className="flex flex-wrap gap-2">
               <button className="min-h-10 rounded-xl border border-slate-300 px-3 text-xs font-bold text-slate-700 disabled:opacity-50" disabled={!writable} onClick={() => setCorrection({ actionType: item.type === 'start' ? 'change_run_start' : item.type === 'stop' ? 'change_run_stop' : 'change_harvest_time', runId: item.runId, harvestId: item.harvestId, initialTime: item.occurredAt, label: `Sửa giờ ${labels[item.type].toLowerCase()} · ${machine.name}` })}>Sửa thời gian</button>
               <button aria-label={`Xóa ${actionNames[item.type]} lúc ${time.format(new Date(item.occurredAt))}`} className="min-h-10 rounded-xl border border-rose-300 px-3 text-xs font-bold text-rose-700 disabled:border-slate-200 disabled:text-slate-400" disabled={!canDelete} onClick={() => setDeleting(item)} title={deleteReason}>Xóa</button>

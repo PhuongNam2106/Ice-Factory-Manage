@@ -23,6 +23,11 @@
   "engines": {
     "node": ">=24 <25"
   },
+  "pnpm": {
+    "overrides": {
+      "browserslist": "4.28.9"
+    }
+  },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",
     "@supabase/ssr": "^0.12.4",

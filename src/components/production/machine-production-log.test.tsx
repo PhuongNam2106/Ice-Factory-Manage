@@ -40,10 +40,25 @@ const machine: MachineProductionState = {
       harvestId: '33333333-3333-4333-8333-333333333333',
       bagQuantity: 24,
     },
+    {
+      id: '22222222-2222-4222-8222-222222222222:start',
+      type: 'start',
+      occurredAt: '2026-09-05T13:00:00Z',
+      actorName: 'An',
+      runId: '22222222-2222-4222-8222-222222222222',
+    },
   ],
 }
 
 describe('MachineProductionLog', () => {
+  it('uses a distinct readable color for each action type', () => {
+    render(<MachineProductionLog isManager={false} locked={false} machine={machine} writable />)
+
+    expect(screen.getByText('Bắt đầu chạy')).toHaveClass('text-emerald-700')
+    expect(screen.getByText('Xả đá · 24 bao')).toHaveClass('text-sky-700')
+    expect(screen.getByText('Tắt máy')).toHaveClass('text-rose-700')
+  })
+
   it('lets a manager delete only the latest action first', () => {
     render(<MachineProductionLog isManager locked={false} machine={machine} writable />)
 
