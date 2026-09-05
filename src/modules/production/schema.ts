@@ -32,7 +32,19 @@ export const productionCorrectionSchema = z.discriminatedUnion('actionType', [
   z.object({ ...correctionBase, actionType: z.literal('change_harvest_time'), harvestId: z.string().uuid() }),
 ])
 
+const deleteActionBase = {
+  machineId: z.string().uuid('Máy không hợp lệ'),
+  idempotencyKey: idempotencyKeySchema,
+}
+
+export const deleteProductionActionSchema = z.discriminatedUnion('actionType', [
+  z.object({ ...deleteActionBase, actionType: z.literal('start'), runId: z.string().uuid('Phiên chạy không hợp lệ') }),
+  z.object({ ...deleteActionBase, actionType: z.literal('harvest'), harvestId: z.string().uuid('Lần xả đá không hợp lệ') }),
+  z.object({ ...deleteActionBase, actionType: z.literal('stop'), runId: z.string().uuid('Phiên chạy không hợp lệ') }),
+])
+
 export type MachineActionInput = z.input<typeof machineActionSchema>
 export type HarvestQuantityInput = z.input<typeof harvestQuantitySchema>
 export type ProductionCorrectionInput = z.input<typeof productionCorrectionSchema>
+export type DeleteProductionActionInput = z.input<typeof deleteProductionActionSchema>
 export type ProductionDateInput = z.input<typeof productionDateSchema>

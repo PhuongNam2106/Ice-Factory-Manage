@@ -21,6 +21,10 @@ export default async function ProductionPage({ searchParams }: { searchParams: P
   ])
   if (!board.ok) throw new Error(board.error.message)
   if (!summary.ok) throw new Error(summary.error.message)
+  const overview = {
+    ...board.data,
+    machines: board.data.machines.map((machine) => ({ ...machine, logs: [] })),
+  }
 
   return <section className="space-y-6">
     <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -28,6 +32,6 @@ export default async function ProductionPage({ searchParams }: { searchParams: P
       <form className="flex items-end gap-2" method="get"><label className="text-sm font-bold text-slate-700">Xem ngày<input className="mt-1 block min-h-12 rounded-xl border border-slate-300 bg-white px-3" defaultValue={selectedDate} name="day" type="date" /></label><input name="from" type="hidden" value={from} /><input name="to" type="hidden" value={to} /><button className="min-h-12 rounded-xl bg-slate-900 px-4 font-bold text-white" type="submit">Xem</button></form>
     </header>
     <form className="flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white p-4" method="get"><input name="day" type="hidden" value={selectedDate} /><label className="text-sm font-bold">Năng suất từ<input className="mt-1 block min-h-11 rounded-xl border border-slate-300 px-3" defaultValue={from} name="from" type="date" /></label><label className="text-sm font-bold">Đến<input className="mt-1 block min-h-11 rounded-xl border border-slate-300 px-3" defaultValue={to} name="to" type="date" /></label><button className="min-h-11 rounded-xl bg-sky-700 px-4 font-bold text-white">Xem năng suất</button></form>
-    <ProductionBoard auditItems={auditItems} currentProductionDate={currentProductionDate} currentUser={user} initialSnapshot={board.data} summary={summary.data} />
+    <ProductionBoard auditItems={auditItems} currentProductionDate={currentProductionDate} currentUser={user} initialSnapshot={overview} summary={summary.data} />
   </section>
 }

@@ -2,7 +2,7 @@ import 'server-only'
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database, Json } from '@/lib/supabase/database.types'
-import type { ProductionCorrectionInput } from './schema'
+import type { DeleteProductionActionInput, ProductionCorrectionInput } from './schema'
 
 export type ProductionClient = Pick<SupabaseClient<Database>, 'rpc'>
 
@@ -22,6 +22,16 @@ export const correctProductionActionRecord = (client: ProductionClient, input: P
   const { idempotencyKey: _ignored, ...payload } = input
   void _ignored
   return client.rpc('correct_production_action', { p_input: payload as Json, p_idempotency_key: idempotencyKey })
+}
+export const deleteProductionActionRecord = (client: ProductionClient, input: DeleteProductionActionInput) => {
+  const args = {
+    p_action_type: input.actionType,
+    p_machine_id: input.machineId,
+    p_run_id: input.actionType === 'harvest' ? null : input.runId,
+    p_harvest_id: input.actionType === 'harvest' ? input.harvestId : null,
+    p_idempotency_key: input.idempotencyKey,
+  } as unknown as Database['public']['Functions']['delete_production_action']['Args']
+  return client.rpc('delete_production_action', args)
 }
 export const lockProductionDayRecord = (client: ProductionClient, productionDate: string) =>
   client.rpc('lock_production_day', { p_production_date: productionDate })

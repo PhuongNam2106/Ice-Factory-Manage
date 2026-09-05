@@ -1319,6 +1319,16 @@ export type Database = {
         Args: { p_idempotency_key: string; p_input: Json }
         Returns: Json
       }
+      delete_production_action: {
+        Args: {
+          p_action_type: string
+          p_harvest_id: string
+          p_idempotency_key: string
+          p_machine_id: string
+          p_run_id: string
+        }
+        Returns: Json
+      }
       finalize_expense_attachment: {
         Args: {
           p_content_type: string

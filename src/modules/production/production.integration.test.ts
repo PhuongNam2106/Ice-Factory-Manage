@@ -213,4 +213,76 @@ describe('realtime machine production RPC integration', () => {
     },
     45_000,
   )
+
+  it.skipIf(!canStartMachine(new Date()))(
+    'lets only a manager delete machine actions from newest to oldest with audit',
+    async () => {
+      const { adminClient } = await import('@/lib/supabase/admin')
+      const password = process.env.SUPABASE_TEST_EMPLOYEE_PASSWORD!
+      const employee = createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!)
+      const manager = createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!)
+      expect((await employee.auth.signInWithPassword({ email: usernameToAuthEmail('nhanvien'), password })).error).toBeNull()
+      expect((await manager.auth.signInWithPassword({ email: usernameToAuthEmail('quanly'), password })).error).toBeNull()
+
+      const suffix = String(Date.now()).slice(-7)
+      const created = await adminClient.from('machines').insert({
+        name: `Delete action machine ${suffix}`,
+        code: `DA${suffix}`,
+        created_by: '22222222-2222-2222-2222-222222222222',
+      }).select('id').single()
+      expect(created.error).toBeNull()
+      const machineId = created.data!.id
+      let productionDayId: string | undefined
+
+      try {
+        const started = await manager.rpc('start_machine', { p_machine_id: machineId, p_idempotency_key: crypto.randomUUID() })
+        expect(started.error).toBeNull()
+        const runId = (started.data as { runId: string }).runId
+        productionDayId = (await adminClient.from('machine_runs').select('production_day_id').eq('id', runId).single()).data?.production_day_id
+        const harvested = await manager.rpc('record_machine_harvest', { p_machine_id: machineId, p_idempotency_key: crypto.randomUUID() })
+        const harvestId = (harvested.data as { harvestId: string }).harvestId
+        expect((await manager.rpc('set_harvest_quantity', { p_harvest_id: harvestId, p_quantity: 24, p_idempotency_key: crypto.randomUUID() })).error).toBeNull()
+        expect((await manager.rpc('stop_machine', { p_machine_id: machineId, p_idempotency_key: crypto.randomUUID() })).error).toBeNull()
+
+        const deleteArgs = {
+          p_action_type: 'stop', p_machine_id: machineId, p_run_id: runId,
+          p_harvest_id: null, p_idempotency_key: crypto.randomUUID(),
+        } as unknown as Database['public']['Functions']['delete_production_action']['Args']
+        expect((await employee.rpc('delete_production_action', deleteArgs)).error?.message).toContain('FORBIDDEN')
+
+        const outOfOrder = {
+          p_action_type: 'harvest', p_machine_id: machineId, p_run_id: null,
+          p_harvest_id: harvestId, p_idempotency_key: crypto.randomUUID(),
+        } as unknown as Database['public']['Functions']['delete_production_action']['Args']
+        expect((await manager.rpc('delete_production_action', outOfOrder)).error?.message).toContain('DELETE_ACTION_NOT_LATEST')
+
+        const deletionKey = crypto.randomUUID()
+        const stopDeletion = { ...deleteArgs, p_idempotency_key: deletionKey }
+        const deletedStop = await manager.rpc('delete_production_action', stopDeletion)
+        expect(deletedStop.error).toBeNull()
+        expect((await manager.rpc('delete_production_action', stopDeletion)).data).toEqual(deletedStop.data)
+        expect((await adminClient.from('machine_runs').select('stopped_at').eq('id', runId).single()).data?.stopped_at).toBeNull()
+
+        expect((await manager.rpc('delete_production_action', { ...outOfOrder, p_idempotency_key: crypto.randomUUID() })).error).toBeNull()
+        expect((await manager.rpc('delete_production_action', {
+          ...deleteArgs, p_action_type: 'start', p_idempotency_key: crypto.randomUUID(),
+        })).error).toBeNull()
+
+        const audit = await adminClient.from('audit_log').select('action, before_data').in('entity_id', [runId, harvestId])
+        expect(audit.data?.map((item) => item.action).sort()).toEqual([
+          'machine_harvest.deleted', 'machine_run.start_deleted', 'machine_run.stop_deleted',
+        ])
+        const harvestAudit = audit.data?.find((item) => item.action === 'machine_harvest.deleted')
+        expect((harvestAudit?.before_data as { quantity_revisions?: unknown[] }).quantity_revisions).toHaveLength(1)
+      } finally {
+        await employee.auth.signOut(); await manager.auth.signOut()
+        await adminClient.from('production_action_requests').delete().eq('machine_id', machineId)
+        await adminClient.from('machine_harvests').delete().eq('machine_id', machineId)
+        await adminClient.from('machine_runs').delete().eq('machine_id', machineId)
+        if (productionDayId) await adminClient.from('production_days').delete().eq('id', productionDayId)
+        await adminClient.from('machines').delete().eq('id', machineId)
+      }
+    },
+    45_000,
+  )
 })

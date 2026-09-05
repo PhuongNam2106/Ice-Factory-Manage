@@ -5,14 +5,14 @@ import { actionFailure, actionSuccess, type ActionResult } from '@/lib/result'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { getFieldErrors } from '@/lib/validation'
 import {
-  correctProductionActionRecord, getProductionBoardRecord, getProductionSummaryRecord,
+  correctProductionActionRecord, deleteProductionActionRecord, getProductionBoardRecord, getProductionSummaryRecord,
   lockProductionDayRecord, recordHarvestRecord, reopenProductionDayRecord,
   setHarvestQuantityRecord, startMachineRecord, stopMachineRecord, type ProductionClient,
 } from './repository'
 import {
-  harvestQuantitySchema, machineActionSchema, productionCorrectionSchema,
+  deleteProductionActionSchema, harvestQuantitySchema, machineActionSchema, productionCorrectionSchema,
   productionDateSchema, productionRangeSchema,
-  type HarvestQuantityInput, type MachineActionInput, type ProductionCorrectionInput, type ProductionDateInput,
+  type DeleteProductionActionInput, type HarvestQuantityInput, type MachineActionInput, type ProductionCorrectionInput, type ProductionDateInput,
 } from './schema'
 import type { MachineActionResult, MachineProductivitySummary, ProductionBoardSnapshot, ProductionDayResult } from './types'
 
@@ -54,6 +54,8 @@ export function mapProductionError(message: string): ActionResult<never> {
     ['FORBIDDEN_QUANTITY_EDIT', 'FORBIDDEN_QUANTITY_EDIT', 'Bạn chỉ có thể sửa số bao do chính mình nhập.'],
     ['OPEN_MACHINE_RUNS', 'OPEN_MACHINE_RUNS', 'Còn máy đang chạy. Hãy tắt toàn bộ máy trước khi khóa ngày.'],
     ['PENDING_HARVESTS', 'PENDING_HARVESTS', 'Còn lần xả chưa nhập số bao. Hãy hoàn tất trước khi khóa ngày.'],
+    ['DELETE_ACTION_NOT_LATEST', 'DELETE_ACTION_NOT_LATEST', 'Phải xóa hành động mới nhất của máy trước.'],
+    ['DELETE_ACTION_NOT_FOUND', 'DELETE_ACTION_NOT_FOUND', 'Hành động này không còn tồn tại hoặc đã được xóa.'],
     ['PRODUCTION_DAY_NOT_FOUND', 'PRODUCTION_DAY_NOT_FOUND', 'Ngày này chưa có hoạt động sản xuất để khóa.'],
     ['MACHINE_RUN_OVERLAP', 'INVALID_TIMELINE', 'Thời gian chỉnh sửa làm các phiên chạy bị chồng lấn.'],
     ['HARVEST_OUTSIDE_RUN', 'INVALID_TIMELINE', 'Thời gian xả phải nằm trong thời gian máy chạy.'],
@@ -106,6 +108,10 @@ export async function setHarvestQuantityWithClient(input: HarvestQuantityInput, 
 export async function correctProductionActionWithClient(input: ProductionCorrectionInput, client?: ProductionClient) {
   const value = validate(productionCorrectionSchema, input); if (!value.ok) return value
   return parsedRpc(correctProductionActionRecord(await clientOrDefault(client), value.data, value.data.idempotencyKey), actionResultSchema)
+}
+export async function deleteProductionActionWithClient(input: DeleteProductionActionInput, client?: ProductionClient) {
+  const value = validate(deleteProductionActionSchema, input); if (!value.ok) return value
+  return parsedRpc(deleteProductionActionRecord(await clientOrDefault(client), value.data), actionResultSchema)
 }
 export async function lockProductionDayWithClient(input: ProductionDateInput, client?: ProductionClient) {
   const value = validate(productionDateSchema, input); if (!value.ok) return value
