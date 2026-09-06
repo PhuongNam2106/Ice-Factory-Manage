@@ -635,7 +635,7 @@ git commit -m 'feat: reconcile daily production loss'
 - Produces `listDailyLossReports(client, limit?): Promise<DailyLossHistoryItem[]>`.
 - Server actions are `refreshDailyLoss`, `saveDailyLossAction`, and `confirmDailyLossWarningAction`.
 
-- [ ] **Step 1: Define the stable report type and parser contract**
+- [x] **Step 1: Define the stable report type and parser contract**
 
 Use these externally visible fields:
 
@@ -663,11 +663,11 @@ export type DailyLossReport = {
 }
 ```
 
-- [ ] **Step 2: Write failing service tests**
+- [x] **Step 2: Write failing service tests**
 
 Cover invalid bag counts, `VERSION_CONFLICT`, `DAY_LOCKED`, missing prior close, stale report, forbidden warning confirmation, malformed RPC response, and success parsing. Assert Vietnamese messages identify the cause rather than returning a generic database message.
 
-- [ ] **Step 3: Run the tests and verify they fail**
+- [x] **Step 3: Run the tests and verify they fail**
 
 ```powershell
 corepack pnpm vitest run src/modules/loss/repository.test.ts src/modules/loss/service.test.ts
@@ -675,7 +675,7 @@ corepack pnpm vitest run src/modules/loss/repository.test.ts src/modules/loss/se
 
 Expected: failure because repository/service modules are absent.
 
-- [ ] **Step 4: Implement repository calls**
+- [x] **Step 4: Implement repository calls**
 
 ```ts
 export function getDailyLossReportRecord(client: LossClient, day: string) {
@@ -698,7 +698,7 @@ export function saveDailyLossRecord(client: LossClient, input: DailyLossInput) {
 
 List history from `daily_loss_reports` ordered by `operating_day desc`. Load manager version history from `daily_loss_report_versions` and join `profiles(full_name)` for the editor label.
 
-- [ ] **Step 5: Implement service validation and error mapping**
+- [x] **Step 5: Implement service validation and error mapping**
 
 Map at least these database codes/messages:
 
@@ -715,11 +715,11 @@ const errors = {
 
 Parse every RPC response with Zod before returning `actionSuccess`.
 
-- [ ] **Step 6: Implement authenticated actions and revalidation**
+- [x] **Step 6: Implement authenticated actions and revalidation**
 
 `saveDailyLossAction` requires any active user. Warning confirmation requires a manager. Successful writes revalidate `/`, `/loss`, `/closing`, `/alerts`, the affected loss day, and the affected closing day.
 
-- [ ] **Step 7: Regenerate and inspect database types**
+- [x] **Step 7: Regenerate and inspect database types**
 
 ```powershell
 corepack pnpm db:types
@@ -728,7 +728,7 @@ git diff -- src/lib/supabase/database.types.ts
 
 Expected: types include all new settings columns, occurrence columns, loss tables, enum, and RPC signatures; no production project reference appears in generated output.
 
-- [ ] **Step 8: Run module tests and static checks**
+- [x] **Step 8: Run module tests and static checks**
 
 ```powershell
 corepack pnpm vitest run src/modules/loss
@@ -738,7 +738,7 @@ corepack pnpm typecheck
 
 Expected: all commands exit `0`.
 
-- [ ] **Step 9: Commit Task 5**
+- [x] **Step 9: Commit Task 5**
 
 ```powershell
 git add src/modules/loss src/lib/supabase/database.types.ts
