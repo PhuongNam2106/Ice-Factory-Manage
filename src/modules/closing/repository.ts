@@ -9,11 +9,8 @@ export function getDailyReconciliationRecord(client: ClosingClient, day: string)
   return client.rpc('get_daily_reconciliation', { p_day: day })
 }
 
-export function lockOperatingDayRecord(client: ClosingClient, day: string, reason?: string | null) {
-  return client.rpc('lock_operating_day', {
-    p_day: day,
-    p_variance_override_reason: reason ?? undefined,
-  })
+export function lockOperatingDayRecord(client: ClosingClient, day: string) {
+  return client.rpc('lock_operating_day', { p_day: day })
 }
 
 export function reopenOperatingDayRecord(client: ClosingClient, day: string, reason: string) {

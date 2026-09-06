@@ -154,7 +154,7 @@ describe('realtime machine production RPC integration', () => {
   )
 
   it(
-    'lets a manager correct time, then lock and reopen the production day with audit',
+    'lets a manager correct time, then lock and reopen the unified operating day with audit',
     async () => {
       const { adminClient } = await import('@/lib/supabase/admin')
       const password = process.env.SUPABASE_TEST_EMPLOYEE_PASSWORD!
@@ -188,18 +188,32 @@ describe('realtime machine production RPC integration', () => {
       })
       expect(correction.error).toBeNull()
 
-      const locked = await manager.rpc('lock_production_day', { p_production_date: productionDate })
+      const lossDraft = await manager.rpc('get_daily_loss_report', { p_day: productionDate })
+      expect(lossDraft.error).toBeNull()
+      const openingBags = (lossDraft.data as { openingBags: number | null }).openingBags
+      const savedLoss = await manager.rpc('save_daily_loss_report', {
+        p_input: {
+          operatingDay: productionDate,
+          closingBags: openingBags ?? 0,
+          ...(openingBags == null ? { openingBags: 0 } : {}),
+        },
+        p_idempotency_key: crypto.randomUUID(),
+      })
+      expect(savedLoss.error).toBeNull()
+
+      const locked = await manager.rpc('lock_operating_day', { p_day: productionDate })
       expect(locked.error).toBeNull()
-      expect(locked.data).toMatchObject({ productionDate, status: 'locked' })
+      expect(locked.data).toMatchObject({ day: productionDate, status: 'locked' })
 
       const blockedCorrection = await manager.rpc('correct_production_action', {
         p_input: { actionType: 'change_run_start', runId, occurredAt: new Date().toISOString() },
         p_idempotency_key: crypto.randomUUID(),
       })
-      expect(blockedCorrection.error?.message).toContain('PRODUCTION_DAY_LOCKED')
+      expect(blockedCorrection.error?.message).toContain('DAY_LOCKED')
 
-      expect((await manager.rpc('reopen_production_day', {
-        p_production_date: productionDate,
+      expect((await manager.rpc('reopen_operating_day', {
+        p_day: productionDate,
+        p_reason: 'Tiếp tục hiệu chỉnh sản xuất',
       })).error).toBeNull()
       const audit = await adminClient.from('audit_log')
         .select('action, before_data, after_data')

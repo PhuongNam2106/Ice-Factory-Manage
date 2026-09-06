@@ -33,7 +33,3 @@ export const deleteProductionActionRecord = (client: ProductionClient, input: De
   } as unknown as Database['public']['Functions']['delete_production_action']['Args']
   return client.rpc('delete_production_action', args)
 }
-export const lockProductionDayRecord = (client: ProductionClient, productionDate: string) =>
-  client.rpc('lock_production_day', { p_production_date: productionDate })
-export const reopenProductionDayRecord = (client: ProductionClient, productionDate: string) =>
-  client.rpc('reopen_production_day', { p_production_date: productionDate })

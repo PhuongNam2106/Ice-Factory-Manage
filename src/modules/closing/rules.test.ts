@@ -4,36 +4,44 @@ import type { ClosingCheckInput } from './types'
 
 function baseInput(overrides: Partial<ClosingCheckInput> = {}): ClosingCheckInput {
   return {
-    stockCountExists: true,
+    lossReportExists: true,
+    previousDayReady: true,
+    pendingHarvestCount: 0,
+    lossReportStale: false,
+    lossRequiresReview: false,
+    lossWarningConfirmed: false,
     pendingExpenseCount: 0,
     unnamedCreditSaleCount: 0,
-    invalidProductionSourceCount: 0,
     invalidDocumentCount: 0,
-    stockVariancePct: 0,
-    stockWarningPct: 5,
     ...overrides,
   }
 }
 
 describe('daily closing rules', () => {
-  it('blocks a day with pending expenses', () => {
-    expect(evaluateClosingChecks(baseInput({ pendingExpenseCount: 1 }))).toContainEqual(
-      expect.objectContaining({ code: 'PENDING_EXPENSES', blocking: true }),
+  it.each([
+    [{ lossReportExists: false }, 'MISSING_LOSS_REPORT'],
+    [{ previousDayReady: false }, 'PREVIOUS_DAY_NOT_READY'],
+    [{ pendingHarvestCount: 1 }, 'PENDING_HARVEST_QUANTITY'],
+    [{ lossReportStale: true }, 'LOSS_REPORT_STALE'],
+  ] as const)('blocks an incomplete loss condition %s', (override, code) => {
+    expect(evaluateClosingChecks(baseInput(override))).toContainEqual(
+      expect.objectContaining({ code, blocking: true, overridable: false }),
     )
   })
 
-  it('allows a manager reason only for stock variance over threshold', () => {
-    expect(
-      evaluateClosingChecks(baseInput({ stockVariancePct: 7, stockWarningPct: 5 })),
-    ).toContainEqual(
-      expect.objectContaining({ code: 'STOCK_VARIANCE', blocking: true, overridable: true }),
+  it('requires a separate manager confirmation for an over-threshold loss', () => {
+    expect(evaluateClosingChecks(baseInput({ lossRequiresReview: true }))).toContainEqual(
+      expect.objectContaining({ code: 'LOSS_REVIEW_REQUIRED', blocking: true, overridable: false }),
+    )
+    expect(evaluateClosingChecks(baseInput({ lossRequiresReview: true, lossWarningConfirmed: true }))).not.toContainEqual(
+      expect.objectContaining({ code: 'LOSS_REVIEW_REQUIRED' }),
     )
   })
 
-  it('blocks when the day has no stock count', () => {
-    expect(evaluateClosingChecks(baseInput({ stockCountExists: false }))).toContainEqual(
-      expect.objectContaining({ code: 'MISSING_STOCK_COUNT', overridable: false }),
-    )
+  it('retains unrelated expense and document blockers', () => {
+    const checks = evaluateClosingChecks(baseInput({ pendingExpenseCount: 1, invalidDocumentCount: 1 }))
+    expect(checks).toContainEqual(expect.objectContaining({ code: 'PENDING_EXPENSES' }))
+    expect(checks).toContainEqual(expect.objectContaining({ code: 'INVALID_DOCUMENTS' }))
   })
 
   it('returns no blocking checks for a clean day', () => {

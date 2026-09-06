@@ -33,7 +33,7 @@
 - `supabase/migrations/20260906100000_unified_20h_operating_day.sql`: SQL day mapping, cutover setting, occurrence timestamps, and 20:00 production boundary.
 - `supabase/migrations/20260906101000_daily_loss_schema.sql`: loss report tables, immutable versions, indexes, grants, RLS, and mutation guards.
 - `supabase/migrations/20260906102000_daily_loss_rpcs.sql`: source snapshots, save/read/history/confirm RPCs, audit writes, and stale detection.
-- `supabase/migrations/20260906103000_daily_loss_closing.sql`: unified closing/reopening and synchronized production-day lock state.
+- `supabase/migrations/20260906090030_daily_loss_closing.sql`: unified closing/reopening and synchronized production-day lock state.
 - `supabase/migrations/20260906104000_daily_loss_dashboard.sql`: dashboard view and report-facing loss fields.
 
 ### New application units
@@ -841,7 +841,7 @@ corepack pnpm typecheck
 
 Expected: all enabled tests pass and both mobile/desktop render without horizontal overflow.
 
-- [ ] **Step 9: Commit Task 6**
+- [x] **Step 9: Commit Task 6**
 
 ```powershell
 git add src/components/loss src/components/forms/daily-loss-form.tsx src/components/forms/daily-loss-form.test.tsx 'src/app/(app)/loss' 'src/app/(app)/inventory' src/components/app-shell src/components/dashboard/quick-actions.tsx tests/e2e/loss.spec.ts
@@ -853,7 +853,7 @@ git commit -m 'feat: replace stock count with loss screen'
 ### Task 7: Unify manual closing and remove separate production-day locking
 
 **Files:**
-- Create: `supabase/migrations/20260906103000_daily_loss_closing.sql`
+- Create: `supabase/migrations/20260906090030_daily_loss_closing.sql`
 - Modify: `src/modules/closing/types.ts:1-50`
 - Modify: `src/modules/closing/service.ts:1-92`
 - Modify: `src/modules/closing/repository.ts:8-21`
@@ -877,7 +877,7 @@ git commit -m 'feat: replace stock count with loss screen'
 - Keeps `reopen_operating_day(p_day date, p_reason text)` and its required reason.
 - Removes public/UI use of `lock_production_day` and `reopen_production_day`; operating-day lock/reopen synchronizes the matching `production_days` row.
 
-- [ ] **Step 1: Rewrite failing closing-rule tests**
+- [x] **Step 1: Rewrite failing closing-rule tests**
 
 Use this input contract:
 
@@ -897,7 +897,7 @@ const baseInput: ClosingCheckInput = {
 
 Assert each missing/incomplete loss condition is a non-overridable blocker except `LOSS_REVIEW_REQUIRED`, which remains blocked until the separate manager confirmation exists. Do not expect a reason field.
 
-- [ ] **Step 2: Run closing tests and verify old stock checks fail**
+- [x] **Step 2: Run closing tests and verify old stock checks fail**
 
 ```powershell
 corepack pnpm vitest run src/modules/closing/rules.test.ts src/modules/closing/closing.integration.test.ts
@@ -905,7 +905,7 @@ corepack pnpm vitest run src/modules/closing/rules.test.ts src/modules/closing/c
 
 Expected: failures refer to `MISSING_STOCK_COUNT`, `STOCK_VARIANCE`, or old RPC shape.
 
-- [ ] **Step 3: Replace the reconciliation/lock SQL**
+- [x] **Step 3: Replace the reconciliation/lock SQL**
 
 `get_daily_reconciliation` must join the loss report response and expose these totals:
 
@@ -932,11 +932,11 @@ Before locking, recompute `private.daily_loss_source_snapshot(p_day)` and requir
 
 On reopen, clear both lock states, preserve the required reopen reason, and write one audit entry for the unified operation.
 
-- [ ] **Step 4: Remove separate production lock controls**
+- [x] **Step 4: Remove separate production lock controls**
 
 Delete `ProductionDayControls` from `ProductionBoard`. Remove its actions/service/repository calls and update production tests to lock through `lock_operating_day`. Production action RPCs must continue rejecting writes when the corresponding unified day is locked.
 
-- [ ] **Step 5: Update closing UI and messages**
+- [x] **Step 5: Update closing UI and messages**
 
 Render hard blockers with their exact cause. When `LOSS_REVIEW_REQUIRED` is present, show `ConfirmLossWarningButton`; after confirmation, revalidate and show the normal `Khóa ngày` button. Remove the loss-override reason input from `LockDayDialog`. Keep reason input only in `ReopenDayDialog`.
 
@@ -954,11 +954,11 @@ Phải xử lý trước khi khóa sổ.
 
 for hard blockers.
 
-- [ ] **Step 6: Prove unified locking in integration tests**
+- [x] **Step 6: Prove unified locking in integration tests**
 
 Assert lock fails for missing report, pending quantity, stale report, and unconfirmed over-threshold difference. Assert a confirmed report locks both day tables. Assert reopening unlocks both and writes audit data. Assert employees cannot confirm, lock, or reopen.
 
-- [ ] **Step 7: Run closing and production checks**
+- [x] **Step 7: Run closing and production checks**
 
 ```powershell
 corepack pnpm vitest run src/modules/closing src/modules/production src/components/closing
@@ -971,7 +971,7 @@ Expected: all commands exit `0`.
 - [ ] **Step 8: Commit Task 7**
 
 ```powershell
-git add supabase/migrations/20260906103000_daily_loss_closing.sql src/modules/closing src/components/closing 'src/app/(app)/closing/[day]/page.tsx' src/components/production src/modules/production
+git add supabase/migrations/20260906090030_daily_loss_closing.sql src/modules/closing src/components/closing 'src/app/(app)/closing/[day]/page.tsx' src/components/production src/modules/production
 git commit -m 'feat: unify closing with daily loss'
 ```
 
