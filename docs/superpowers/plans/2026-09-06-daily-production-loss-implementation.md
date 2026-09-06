@@ -348,7 +348,7 @@ git commit -m 'feat: record actual transaction time'
 ### Task 3: Define the daily loss domain and database schema
 
 **Files:**
-- Create: `supabase/migrations/20260906101000_daily_loss_schema.sql`
+- Create: `supabase/migrations/20260906061436_daily_loss_schema.sql`
 - Create: `src/modules/loss/schema.ts`
 - Create: `src/modules/loss/schema.test.ts`
 - Create: `src/modules/loss/types.ts`
@@ -359,7 +359,7 @@ git commit -m 'feat: record actual transaction time'
 - Produces `calculateDailyLoss(input): DailyLossCalculation`.
 - Produces `dailyLossInputSchema` with `operatingDay`, optional first-day `openingBags`, required `closingBags`, optional `note`, optional `expectedVersion`, and `idempotencyKey`.
 
-- [ ] **Step 1: Write failing formula and validation tests**
+- [x] **Step 1: Write failing formula and validation tests**
 
 ```ts
 it('calculates a positive loss against production', () => {
@@ -390,7 +390,7 @@ it('does not invent a percentage when production is zero', () => {
 })
 ```
 
-- [ ] **Step 2: Run the loss-domain test and verify it fails**
+- [x] **Step 2: Run the loss-domain test and verify it fails**
 
 ```powershell
 corepack pnpm vitest run src/modules/loss/schema.test.ts
@@ -398,7 +398,7 @@ corepack pnpm vitest run src/modules/loss/schema.test.ts
 
 Expected: failure because the loss module does not exist.
 
-- [ ] **Step 3: Implement the pure domain calculation**
+- [x] **Step 3: Implement the pure domain calculation**
 
 Use `decimal.js` for the rate and return a signed bag difference:
 
@@ -425,7 +425,7 @@ export function calculateDailyLoss(input: DailyLossCalculationInput): DailyLossC
 }
 ```
 
-- [ ] **Step 4: Create loss report and immutable-version tables**
+- [x] **Step 4: Create loss report and immutable-version tables**
 
 The migration must define this shape and equivalent checks:
 
@@ -469,7 +469,7 @@ create table public.daily_loss_report_versions (
 
 Add indexes on report day/update time and version report/time. Enable RLS on both tables. The report table gets an active-user `SELECT` policy; the version table gets a manager-only `SELECT` policy using `private.is_manager()`. Grant `SELECT` to `authenticated`, revoke direct authenticated mutations, grant `service_role` full access, and expose writes only through RPCs. Add a statement-level trigger that rejects `UPDATE`/`DELETE` on the version table even when called by a privileged application path. Verify an employee receives zero version rows rather than relying only on the page to hide them.
 
-- [ ] **Step 5: Run domain tests and SQL lint checks**
+- [x] **Step 5: Run domain tests and SQL lint checks**
 
 ```powershell
 corepack pnpm vitest run src/modules/loss/schema.test.ts
@@ -480,10 +480,10 @@ corepack pnpm typecheck
 
 Expected: loss tests pass; database lint either passes against a running local Supabase stack or reports only that the local stack is unavailable.
 
-- [ ] **Step 6: Commit Task 3**
+- [x] **Step 6: Commit Task 3**
 
 ```powershell
-git add supabase/migrations/20260906101000_daily_loss_schema.sql src/modules/loss/schema.ts src/modules/loss/schema.test.ts src/modules/loss/types.ts
+git add supabase/migrations/20260906061436_daily_loss_schema.sql src/modules/loss/schema.ts src/modules/loss/schema.test.ts src/modules/loss/types.ts
 git commit -m 'feat: define daily loss reports'
 ```
 
