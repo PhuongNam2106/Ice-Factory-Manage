@@ -1065,7 +1065,7 @@ corepack pnpm typecheck
 
 Expected: all enabled tests pass; Excel generation accepts a null percentage on zero-production days.
 
-- [ ] **Step 8: Commit Task 8**
+- [x] **Step 8: Commit Task 8**
 
 ```powershell
 git add supabase/migrations/20260906091603_daily_loss_dashboard.sql supabase/migrations/20260906092257_daily_loss_dashboard_confirmation.sql src/modules/reporting src/modules/closing/closing.integration.test.ts src/app/api/reports/loss 'src/app/(app)/reports/page.tsx' 'src/app/(app)/page.tsx' 'src/app/(app)/alerts/page.tsx' src/components/dashboard/alert-list.tsx tests/e2e/dashboard.spec.ts tests/e2e/reports.spec.ts
@@ -1089,11 +1089,11 @@ git commit -m 'feat: report daily production loss'
 - Cutover runbook provides separate Dev and Production procedures; Production requires an explicitly chosen future 20:00 boundary.
 - Full-day E2E proves sale/production/expense/loss/closing all share one operating day.
 
-- [ ] **Step 1: Replace the legacy inventory E2E assertions**
+- [x] **Step 1: Replace the legacy inventory E2E assertions**
 
 Rename the active scenario to `records and closes daily production loss`. Create harvest quantity `500`, active sales `450`, opening `100`, closing `140`, then assert `Hao hụt 10 bao`, `2%`, and a successful manager lock. Keep `inventory.spec.ts` skipped and clearly labelled as legacy archival coverage rather than deleting it.
 
-- [ ] **Step 2: Add safe Dev seed data**
+- [x] **Step 2: Add safe Dev seed data**
 
 Seed a first-day open `operating_days` row and update only the singleton settings row:
 
@@ -1106,7 +1106,7 @@ where id = true;
 
 Do not seed a report by bypassing the RPC. The E2E test must create and lock the first report for operating day `2026-09-05` through `save_daily_loss_report` and `lock_operating_day`, then verify inheritance on `2026-09-06`; this exercises the first-day exception, audit, idempotency, and version behavior.
 
-- [ ] **Step 3: Write the cutover runbook**
+- [x] **Step 3: Write the cutover runbook**
 
 Document this exact order:
 
@@ -1119,7 +1119,7 @@ Document this exact order:
 7. For Production, take a backup, choose a future Bangkok 20:00, apply migrations without Dev seed, set `operating_day_cutover_at`, deploy, enter first opening stock, and monitor one full 24-hour cycle.
 8. Roll back application deployment if smoke tests fail; do not delete the new tables or rewrite old operating days.
 
-- [ ] **Step 4: Apply migrations to Supabase Dev**
+- [x] **Step 4: Apply migrations to Supabase Dev**
 
 First verify the linked ref without printing credentials, then run:
 
@@ -1129,9 +1129,9 @@ corepack pnpm exec supabase db push --include-seed
 corepack pnpm exec supabase migration list
 ```
 
-Expected: the five `20260906` migrations appear on both local and remote lists. The target project ref must be `ycjzkesuvkyuuyptpzhb`; stop before `db push` if any other ref is shown.
+Expected: the six `20260906` migrations appear on both local and remote lists. The target project ref must be `ycjzkesuvkyuuyptpzhb`; stop before `db push` if any other ref is shown.
 
-- [ ] **Step 5: Regenerate types and run the complete verification suite**
+- [x] **Step 5: Regenerate types and run the complete verification suite**
 
 ```powershell
 corepack pnpm db:types
@@ -1144,7 +1144,7 @@ corepack pnpm build
 
 Expected: every command exits `0`; environment verification points to Dev without printing key contents.
 
-- [ ] **Step 6: Run the full-day browser scenario against Dev**
+- [x] **Step 6: Run the full-day browser scenario against Dev**
 
 ```powershell
 corepack pnpm test:e2e tests/e2e/full-day.spec.ts tests/e2e/loss.spec.ts
@@ -1152,11 +1152,11 @@ corepack pnpm test:e2e tests/e2e/full-day.spec.ts tests/e2e/loss.spec.ts
 
 Expected: current-time entry, late entry at `2026-09-06 19:50`, the exact `2026-09-06 20:00` boundary, first-day loss save/lock, next-day opening inheritance, manager confirmation, history, and legacy redirects all pass.
 
-- [ ] **Step 7: Verify security and data separation**
+- [x] **Step 7: Verify security and data separation**
 
 Confirm an anonymous client cannot read loss tables, an employee cannot call the manager confirmation/lock RPCs, version history cannot be updated/deleted, and Dev test rows do not exist in Production. Run database advisors and resolve new security/performance warnings caused by these migrations.
 
-- [ ] **Step 8: Commit Task 9**
+- [x] **Step 8: Commit Task 9**
 
 ```powershell
 git add docs/runbooks/daily-loss-cutover.md supabase/seed.sql tests/e2e/full-day.spec.ts tests/e2e/inventory.spec.ts scripts/smoke-production.mjs src/lib/supabase/database.types.ts

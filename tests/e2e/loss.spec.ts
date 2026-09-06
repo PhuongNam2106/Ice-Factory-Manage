@@ -13,14 +13,15 @@ async function login(page: Page, username: string) {
 test.describe.serial('hao hụt hằng ngày', () => {
   test('employee saves closing stock and manager sees immutable versions', async ({ page, context }) => {
     await login(page, 'nhanvien')
-    await page.goto('/loss')
-    await expect(page.getByRole('heading', { name: 'Theo dõi hao hụt sản xuất' })).toBeVisible()
+    await page.goto('/loss/2026-09-05')
+    await expect(page.getByRole('heading', { name: 'Chi tiết đối soát hao hụt' })).toBeVisible()
 
     const opening = page.getByLabel('Tồn đầu ngày')
     if (await opening.isVisible()) await opening.fill('100')
     await page.getByLabel('Tồn cuối thực tế').fill('90')
     await page.getByRole('button', { name: /Lưu đối soát|Cập nhật đối soát/ }).click()
     await expect(page.getByText(/Hao hụt 10 bao|Dư kho|Khớp kho/).first()).toBeVisible()
+    await page.goto('/loss')
     await expect(page.getByRole('heading', { name: 'Lịch sử đối soát' })).toBeVisible()
 
     const detailHref = await page.locator('a[href^="/loss/"]').first().getAttribute('href')

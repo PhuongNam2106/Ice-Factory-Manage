@@ -43,6 +43,11 @@ describe('daily loss RPC integration', () => {
       process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
       { auth: { persistSession: false, autoRefreshToken: false } },
     )
+    const anonymous = createClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+      { auth: { persistSession: false, autoRefreshToken: false } },
+    )
     expect((await client.auth.signInWithPassword({
       email: usernameToAuthEmail('nhanvien'),
       password,
@@ -167,6 +172,17 @@ describe('daily loss RPC integration', () => {
     })
     const reportId = (first.data as { id: string }).id
     expect((await adminClient.from('daily_loss_report_versions').select('id', { count: 'exact', head: true }).eq('report_id', reportId)).count).toBe(1)
+    const anonymousReport = await anonymous.from('daily_loss_reports').select('id').eq('id', reportId)
+    const anonymousVersions = await anonymous.from('daily_loss_report_versions').select('id').eq('report_id', reportId)
+    expect(anonymousReport.error).not.toBeNull()
+    expect(anonymousReport.data).toBeNull()
+    expect(anonymousVersions.error).not.toBeNull()
+    expect(anonymousVersions.data).toBeNull()
+    const { data: versionRow } = await adminClient.from('daily_loss_report_versions').select('id, version').eq('report_id', reportId).single()
+    await client.from('daily_loss_report_versions').update({ version: 999 }).eq('id', versionRow!.id)
+    await manager.from('daily_loss_report_versions').delete().eq('id', versionRow!.id)
+    const immutableVersion = await adminClient.from('daily_loss_report_versions').select('version').eq('id', versionRow!.id).single()
+    expect(immutableVersion.data?.version).toBe(1)
 
     const { data: pending } = await adminClient.from('machine_harvests').insert({
       machine_id: machineId,

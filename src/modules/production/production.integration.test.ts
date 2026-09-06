@@ -2,7 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { describe, expect, it } from 'vitest'
-import type { Database } from '@/lib/supabase/database.types'
+import type { Database, Json } from '@/lib/supabase/database.types'
 import { usernameToAuthEmail } from '@/modules/auth/schema'
 
 function isLocalUrl(url?: string) {
@@ -12,6 +12,12 @@ function isLocalUrl(url?: string) {
   } catch {
     return false
   }
+}
+
+function addDays(day: string, amount: number) {
+  const value = new Date(`${day}T00:00:00.000Z`)
+  value.setUTCDate(value.getUTCDate() + amount)
+  return value.toISOString().slice(0, 10)
 }
 
 const canRun = Boolean(
@@ -175,6 +181,28 @@ describe('realtime machine production RPC integration', () => {
       expect(started.error).toBeNull()
       const runId = (started.data as { runId: string; productionDate: string }).runId
       const productionDate = (started.data as { productionDate: string }).productionDate
+      const previousDay = addDays(productionDate, -1)
+      await adminClient.from('operating_days').upsert({
+        day: previousDay,
+        status: 'locked',
+        locked_at: new Date().toISOString(),
+        locked_by: '22222222-2222-2222-2222-222222222222',
+      }, { onConflict: 'day' })
+      await adminClient.from('daily_loss_reports').upsert({
+        operating_day: previousDay,
+        opening_bags: 0,
+        produced_bags: 0,
+        sold_bags: 0,
+        closing_bags: 0,
+        difference_bags: 0,
+        difference_pct: null,
+        classification: 'no_production',
+        warning_pct: 5,
+        requires_review: false,
+        source_snapshot: {} as Json,
+        created_by: '22222222-2222-2222-2222-222222222222',
+        updated_by: '22222222-2222-2222-2222-222222222222',
+      }, { onConflict: 'operating_day' })
       expect((await manager.rpc('stop_machine', {
         p_machine_id: machineId,
         p_idempotency_key: crypto.randomUUID(),

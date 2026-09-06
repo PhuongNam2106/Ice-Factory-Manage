@@ -222,7 +222,7 @@ describe('record_receipt RPC integration', () => {
             await adminClient.from('customers').delete().eq('id', customerId)
           }
           await adminClient.from('operating_days').delete().eq('day', day)
-          await adminClient.from('settings').update({ operating_day_cutover_at: null }).eq('id', true)
+          await adminClient.from('settings').update({ operating_day_cutover_at: '2026-09-05T13:00:00.000Z' }).eq('id', true)
           await adminClient.from('profiles').delete().eq('id', userId)
           await adminClient.auth.admin.deleteUser(userId)
         }

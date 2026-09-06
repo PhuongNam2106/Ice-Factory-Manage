@@ -18,8 +18,15 @@ async function expectResponse(url, { contentType, contains } = {}) {
   return response
 }
 
+export function assertExpectedBackendHost(actualHost, expectedHost) {
+  if (!expectedHost?.trim()) throw new Error('Thiếu biến smoke: EXPECTED_SUPABASE_HOST.')
+  if (actualHost !== expectedHost.trim().toLowerCase()) {
+    throw new Error(`Deployment không đúng Supabase mong đợi (${actualHost}).`)
+  }
+}
+
 async function checkDeployedBackend(baseUrl, env) {
-  const required = ['SMOKE_USERNAME', 'SMOKE_PASSWORD']
+  const required = ['SMOKE_USERNAME', 'SMOKE_PASSWORD', 'EXPECTED_SUPABASE_HOST']
   const missing = required.filter((name) => !env[name]?.trim())
   if (missing.length) throw new Error(`Thiếu biến smoke: ${missing.join(', ')}.`)
 
@@ -32,6 +39,7 @@ async function checkDeployedBackend(baseUrl, env) {
   if (!health.ok) throw new Error(`Health endpoint của deployment thất bại (HTTP ${health.status}).`)
   const result = await health.json()
   if (result.ok !== true || typeof result.backendHost !== 'string') throw new Error('Deployment không xác nhận được backend Supabase.')
+  assertExpectedBackendHost(result.backendHost.toLowerCase(), env.EXPECTED_SUPABASE_HOST)
 }
 
 export async function runSmoke(target, env = process.env) {
@@ -44,7 +52,7 @@ export async function runSmoke(target, env = process.env) {
   await expectResponse(`${baseUrl}/manifest.webmanifest`, { contains: 'Quản lý xưởng nước đá' })
   await expectResponse(`${baseUrl}/serwist/sw.js`, { contentType: 'javascript' })
   await checkDeployedBackend(baseUrl, env)
-  console.log('[smoke] OK: HTTPS/login, manifest, service worker và backend có xác thực của deployment đều hoạt động.')
+  console.log('[smoke] OK: HTTPS/login, manifest, service worker và đúng backend Supabase của deployment đều hoạt động.')
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

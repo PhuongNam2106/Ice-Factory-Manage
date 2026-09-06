@@ -20,13 +20,13 @@ const canRun = Boolean(
     process.env.SUPABASE_TEST_EMPLOYEE_PASSWORD,
 )
 
-describe('inventory concurrency integration', () => {
+describe('archived inventory isolation integration', () => {
   if (!canRun) {
     it.skip('requires an isolated local Supabase reset', () => {})
     return
   }
 
-  it('allows exactly one of two concurrent sales when only one bag remains', async () => {
+  it('does not use the legacy one-bag balance to block concurrent sales', async () => {
     const { adminClient } = await import('@/lib/supabase/admin')
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
@@ -46,6 +46,8 @@ describe('inventory concurrency integration', () => {
         p_idempotency_key: crypto.randomUUID(),
       })
       expect(count.error).toBeNull()
+      const { count: ledgerBefore } = await adminClient.from('inventory_ledger')
+        .select('id', { count: 'exact', head: true })
 
       const saleKeys = [crypto.randomUUID(), crypto.randomUUID()]
       const results = await Promise.all(
@@ -53,7 +55,7 @@ describe('inventory concurrency integration', () => {
           client.rpc('create_sale', {
             p_input: {
               kind: 'retail',
-              operatingDay: day,
+              occurredAt: `${day}T13:00:00.000Z`,
               shiftCode: `RACE_${index}`,
               lines: [{ quantityBags: 1, unitPriceVnd: 7000 }],
               paidNowVnd: 7000,
@@ -64,31 +66,28 @@ describe('inventory concurrency integration', () => {
         ),
       )
 
-      expect(results.filter((result) => result.error === null)).toHaveLength(1)
-      const failures = results.filter((result) => result.error !== null)
-      expect(failures).toHaveLength(1)
-      expect(failures[0].error?.message).toContain('INSUFFICIENT_STOCK')
+      expect(results.filter((result) => result.error === null)).toHaveLength(2)
 
       const { data: sales, error: salesError } = await adminClient
         .from('sales')
         .select('id')
         .in('idempotency_key', saleKeys)
       expect(salesError).toBeNull()
-      expect(sales).toHaveLength(1)
+      expect(sales).toHaveLength(2)
 
       const { count: movementCount, error: movementError } = await adminClient
         .from('inventory_ledger')
         .select('id', { count: 'exact', head: true })
         .eq('kind', 'sale')
-        .eq('source_id', sales![0].id)
+        .in('source_id', sales!.map((sale) => sale.id))
       expect(movementError).toBeNull()
-      expect(movementCount).toBe(1)
+      expect(movementCount).toBe(0)
 
-      const { data: movements, error: balanceError } = await adminClient
+      const { count: ledgerAfter, error: balanceError } = await adminClient
         .from('inventory_ledger')
-        .select('quantity_delta_bags')
+        .select('id', { count: 'exact', head: true })
       expect(balanceError).toBeNull()
-      expect(movements!.reduce((sum, row) => sum + Number(row.quantity_delta_bags), 0)).toBe(0)
+      expect(ledgerAfter).toBe(ledgerBefore)
     } finally {
       await Promise.all(clients.map((client) => client.auth.signOut()))
     }

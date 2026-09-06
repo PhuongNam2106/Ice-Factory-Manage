@@ -133,7 +133,7 @@ describe('expense workflow integration', () => {
       expect(afterSecondReview).toEqual(afterFirstReview)
     } finally {
       await Promise.all([employee.auth.signOut(), manager.auth.signOut()])
-      await adminClient.from('settings').update({ operating_day_cutover_at: null }).eq('id', true)
+      await adminClient.from('settings').update({ operating_day_cutover_at: '2026-09-05T13:00:00.000Z' }).eq('id', true)
     }
   }, 45_000)
 })
