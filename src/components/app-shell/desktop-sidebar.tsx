@@ -56,8 +56,8 @@ const items: NavItem[] = [
     ),
   },
   {
-    href: '/inventory',
-    label: 'Kiểm kho',
+    href: '/loss',
+    label: 'Hao hụt',
     icon: (
       <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -147,7 +147,7 @@ export function DesktopSidebar({ isManager }: { isManager: boolean }) {
             </p>
             <ul className="space-y-1">
               {items.map(({ href, label, icon }) => {
-                const isActive = pathname === href
+                const isActive = pathname === href || (href !== '/' && pathname.startsWith(href))
                 return (
                   <li key={href}>
                     <Link
@@ -174,7 +174,7 @@ export function DesktopSidebar({ isManager }: { isManager: boolean }) {
               </p>
               <ul className="space-y-1">
                 {managerItems.map(({ href, label, icon }) => {
-                  const isActive = pathname === href
+                  const isActive = pathname === href || pathname.startsWith(`${href}/`)
                   return (
                     <li key={href}>
                       <Link

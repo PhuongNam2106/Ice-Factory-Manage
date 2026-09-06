@@ -3,7 +3,7 @@ import Link from 'next/link'
 const actions = [
   ['/sales/new/wholesale', 'Bán sỉ', 'Giao cho đầu mối'], ['/sales/new/retail', 'Bán lẻ', 'Tổng theo ca'],
   ['/production', 'Sản xuất', 'Theo dõi từng máy'], ['/expenses/new', 'Chi phí', 'Kèm chứng từ'],
-  ['/receivables', 'Thu nợ', 'Phân bổ công nợ'], ['/inventory/count', 'Kiểm kho', 'Đếm bao thực tế'],
+  ['/receivables', 'Thu nợ', 'Phân bổ công nợ'], ['/loss', 'Hao hụt', 'Nhập tồn cuối'],
 ] as const
 
 export function QuickActions() {

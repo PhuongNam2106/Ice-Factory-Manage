@@ -770,7 +770,7 @@ git commit -m 'feat: add daily loss application module'
 - `/loss/[day]` displays a historical/current day; managers also receive version history.
 - `/inventory` and `/inventory/count` redirect to `/loss` and do not expose the legacy ledger UI.
 
-- [ ] **Step 1: Write failing component tests**
+- [x] **Step 1: Write failing component tests**
 
 Assert these visible states:
 
@@ -784,7 +784,7 @@ expect(screen.getByText('Số liệu đã thay đổi')).toBeVisible()
 
 Also assert status text is present independently from color and the submit button is disabled for a locked day.
 
-- [ ] **Step 2: Run component tests and verify they fail**
+- [x] **Step 2: Run component tests and verify they fail**
 
 ```powershell
 corepack pnpm vitest run src/components/loss/loss-summary.test.tsx src/components/forms/daily-loss-form.test.tsx
@@ -792,7 +792,7 @@ corepack pnpm vitest run src/components/loss/loss-summary.test.tsx src/component
 
 Expected: failure because the components do not exist.
 
-- [ ] **Step 3: Implement the calculation summary**
+- [x] **Step 3: Implement the calculation summary**
 
 Render the approved balance equation in this order:
 
@@ -805,7 +805,7 @@ Tồn đầu
 
 Below it render actual closing, signed status, absolute rate, warning threshold, pending-harvest count, prior-day readiness, and stale state. Use green for matched, amber for within-threshold difference, red for over-threshold/stale/incomplete, and explicit Vietnamese status text for accessibility.
 
-- [ ] **Step 4: Implement the closing-stock form**
+- [x] **Step 4: Implement the closing-stock form**
 
 Only show manual `openingBags` on the configured first cutover day when no previous inherited closing exists. Always show integer `closingBags` and optional `note`. Submit `expectedVersion` and a stable idempotency key; on success rotate the key and show one of:
 
@@ -818,19 +818,19 @@ Only show manual `openingBags` on the configured first cutover day when no previ
 
 Keep the entered closing value after a successful save so users can compare rather than facing an empty form.
 
-- [ ] **Step 5: Build responsive current/history pages**
+- [x] **Step 5: Build responsive current/history pages**
 
 Use cards on narrow screens and a table on `md` and wider. History columns are day, opening, produced, sold, closing, difference, rate, and status. The detail page calls `requireUser`; the version-history section additionally checks `requireManager` before querying sensitive audit detail.
 
-- [ ] **Step 6: Redirect legacy inventory routes and update navigation**
+- [x] **Step 6: Redirect legacy inventory routes and update navigation**
 
 Use `redirect('/loss')` in both legacy pages. Change desktop label to `Hao hụt`, quick action to `Hao hụt / Nhập tồn cuối`, and add a reachable mobile loss action without increasing the fixed mobile bar beyond five primary entries; link it from the dashboard quick actions and manager menu when it is not a primary tab.
 
-- [ ] **Step 7: Add the E2E happy path**
+- [x] **Step 7: Add the E2E happy path**
 
 Test employee login, current-day page, first-day opening when applicable, closing entry, computed loss, history appearance, manager version history, and legacy URL redirects.
 
-- [ ] **Step 8: Run UI tests and static checks**
+- [x] **Step 8: Run UI tests and static checks**
 
 ```powershell
 corepack pnpm vitest run src/components/loss src/components/forms/daily-loss-form.test.tsx
