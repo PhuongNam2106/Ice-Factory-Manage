@@ -1,6 +1,9 @@
 export type AlertCode =
-  | 'STOCK_VARIANCE'
-  | 'INSUFFICIENT_STOCK'
+  | 'MISSING_LOSS_REPORT'
+  | 'PENDING_HARVEST_QUANTITY'
+  | 'LOSS_REPORT_STALE'
+  | 'LOSS_REVIEW_REQUIRED'
+  | 'LOSS_SURPLUS'
   | 'OVERDUE_DEBT'
   | 'PENDING_EXPENSE'
   | 'UNLOCKED_PREVIOUS_DAY'
@@ -11,6 +14,7 @@ export interface OperationalAlert {
   severity: 'info' | 'warning' | 'danger'
   message: string
   blocking: false
+  href?: string
 }
 
 export interface DashboardRow {
@@ -23,18 +27,21 @@ export interface DashboardRow {
   totalDebtVnd: number
   productionBags: number
   soldBags: number
-  openingStockBags: number
-  stockBalanceBags: number
-  stockExpectedBags: number | null
-  stockActualBags: number | null
-  stockVarianceBags: number | null
-  stockVariancePct: number | null
-  stockWarningPct: number
+  openingBags: number | null
+  expectedClosingBags: number | null
+  closingBags: number | null
+  differenceBags: number | null
+  differencePct: number | null
+  lossClassification: import('@/modules/loss/types').LossClassification | null
+  lossRequiresReview: boolean
+  lossReportStale: boolean
+  lossReportExists: boolean
+  lossWarningPct: number
+  pendingHarvestCount: number
   approvedExpenseVnd: number
   pendingExpenseVnd: number
   pendingExpenseCount: number
   overdueDebtVnd: number
-  productionMismatchCount: number
   previousDayUnlocked: boolean
 }
 

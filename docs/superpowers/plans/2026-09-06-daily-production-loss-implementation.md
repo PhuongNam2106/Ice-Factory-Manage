@@ -34,7 +34,8 @@
 - `supabase/migrations/20260906101000_daily_loss_schema.sql`: loss report tables, immutable versions, indexes, grants, RLS, and mutation guards.
 - `supabase/migrations/20260906102000_daily_loss_rpcs.sql`: source snapshots, save/read/history/confirm RPCs, audit writes, and stale detection.
 - `supabase/migrations/20260906090030_daily_loss_closing.sql`: unified closing/reopening and synchronized production-day lock state.
-- `supabase/migrations/20260906104000_daily_loss_dashboard.sql`: dashboard view and report-facing loss fields.
+- `supabase/migrations/20260906091603_daily_loss_dashboard.sql`: dashboard view and report-facing loss fields.
+- `supabase/migrations/20260906092257_daily_loss_dashboard_confirmation.sql`: dashboard review-state correction after manager confirmation.
 
 ### New application units
 
@@ -968,7 +969,7 @@ corepack pnpm typecheck
 
 Expected: all commands exit `0`.
 
-- [ ] **Step 8: Commit Task 7**
+- [x] **Step 8: Commit Task 7**
 
 ```powershell
 git add supabase/migrations/20260906090030_daily_loss_closing.sql src/modules/closing src/components/closing 'src/app/(app)/closing/[day]/page.tsx' src/components/production src/modules/production
@@ -980,7 +981,8 @@ git commit -m 'feat: unify closing with daily loss'
 ### Task 8: Update dashboard, alerts, exports, and backup coverage
 
 **Files:**
-- Create: `supabase/migrations/20260906104000_daily_loss_dashboard.sql`
+- Create: `supabase/migrations/20260906091603_daily_loss_dashboard.sql`
+- Create: `supabase/migrations/20260906092257_daily_loss_dashboard_confirmation.sql`
 - Modify: `src/modules/reporting/types.ts:1-49`
 - Modify: `src/modules/reporting/repository.ts:8-36`
 - Modify: `src/modules/reporting/alerts.ts`
@@ -995,6 +997,7 @@ git commit -m 'feat: unify closing with daily loss'
 - Modify: `src/app/(app)/reports/page.tsx:1-24`
 - Modify: `src/app/(app)/page.tsx:1-24`
 - Modify: `src/app/(app)/alerts/page.tsx`
+- Modify: `src/modules/closing/closing.integration.test.ts`
 - Modify: `tests/e2e/dashboard.spec.ts`
 - Modify: `tests/e2e/reports.spec.ts`
 
@@ -1003,7 +1006,7 @@ git commit -m 'feat: unify closing with daily loss'
 - Alert codes add `MISSING_LOSS_REPORT`, `PENDING_HARVEST_QUANTITY`, `LOSS_REPORT_STALE`, `LOSS_REVIEW_REQUIRED`, and `LOSS_SURPLUS`; old stock-variance/negative-stock alerts are no longer shown.
 - Report kind adds `loss`; the old inventory export remains unlinked for archival access.
 
-- [ ] **Step 1: Write failing dashboard and alert tests**
+- [x] **Step 1: Write failing dashboard and alert tests**
 
 Assert dashboard mapping preserves a nullable rate and signed difference. Assert alerts produce these user messages:
 
@@ -1016,7 +1019,7 @@ Hao hụt hoặc dư kho vượt ngưỡng 5%.
 
 Assert a `-5` bag difference is described as `Dư kho 5 bao`, not negative loss.
 
-- [ ] **Step 2: Run reporting tests and verify they fail**
+- [x] **Step 2: Run reporting tests and verify they fail**
 
 ```powershell
 corepack pnpm vitest run src/modules/reporting/alerts.test.ts src/modules/reporting/dashboard.test.ts
@@ -1024,11 +1027,11 @@ corepack pnpm vitest run src/modules/reporting/alerts.test.ts src/modules/report
 
 Expected: failures because existing types still require stock ledger fields.
 
-- [ ] **Step 3: Replace stock fields in the daily dashboard view**
+- [x] **Step 3: Replace stock fields in the daily dashboard view**
 
 Create the Task 8 dashboard migration; do not edit the already committed Task 7 migration. Replace `public.daily_dashboard` by joining `daily_loss_reports` on operating day and expose report values plus a computed stale flag from `private.daily_loss_source_snapshot(day)`. Preserve revenue, collected money, debt, expense, and production metrics, but ensure every total groups by stored 20:00-based `operating_day`.
 
-- [ ] **Step 4: Update dashboard cards and alerts**
+- [x] **Step 4: Update dashboard cards and alerts**
 
 Replace `Tồn thành phẩm` with `Tồn cuối` and `Kiểm kho` with `Hao hụt`. Render:
 
@@ -1041,17 +1044,17 @@ Không phát sinh sản xuất
 
 The dashboard must link the loss card and related alerts to `/loss`.
 
-- [ ] **Step 5: Add the loss detail export**
+- [x] **Step 5: Add the loss detail export**
 
 Extend `ReportKind` with `loss` and query `daily_loss_reports` by `operating_day`. Export columns: day, opening, produced, sold, expected closing, actual closing, signed difference, classification, rate, warning threshold, review flag, confirmer, note, version, and updated time. Change the visible reports list from `Sổ kho thành phẩm` to `Hao hụt sản xuất`.
 
 Add `daily_loss_reports` and `daily_loss_report_versions` to `backupTables`. Keep legacy inventory/stock-count tables in backup because they are archived, not deleted.
 
-- [ ] **Step 6: Update daily/monthly Excel summaries**
+- [x] **Step 6: Update daily/monthly Excel summaries**
 
 Add loss bags and nullable loss rate to the daily report. Add monthly totals for produced/sold/loss bags and average rate calculated from aggregate absolute difference divided by aggregate production, not the arithmetic mean of daily percentages.
 
-- [ ] **Step 7: Run report and E2E tests**
+- [x] **Step 7: Run report and E2E tests**
 
 ```powershell
 corepack pnpm vitest run src/modules/reporting
@@ -1065,7 +1068,7 @@ Expected: all enabled tests pass; Excel generation accepts a null percentage on 
 - [ ] **Step 8: Commit Task 8**
 
 ```powershell
-git add supabase/migrations/20260906104000_daily_loss_dashboard.sql src/modules/reporting src/app/api/reports/loss 'src/app/(app)/reports/page.tsx' 'src/app/(app)/page.tsx' 'src/app/(app)/alerts/page.tsx' tests/e2e/dashboard.spec.ts tests/e2e/reports.spec.ts
+git add supabase/migrations/20260906091603_daily_loss_dashboard.sql supabase/migrations/20260906092257_daily_loss_dashboard_confirmation.sql src/modules/reporting src/modules/closing/closing.integration.test.ts src/app/api/reports/loss 'src/app/(app)/reports/page.tsx' 'src/app/(app)/page.tsx' 'src/app/(app)/alerts/page.tsx' src/components/dashboard/alert-list.tsx tests/e2e/dashboard.spec.ts tests/e2e/reports.spec.ts
 git commit -m 'feat: report daily production loss'
 ```
 

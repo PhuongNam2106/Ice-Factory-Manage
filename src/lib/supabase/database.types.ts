@@ -1434,25 +1434,30 @@ export type Database = {
       daily_dashboard: {
         Row: {
           approved_expense_vnd: number | null
+          closing_bags: number | null
           collected_vnd: number | null
           day: string | null
+          difference_bags: number | null
+          difference_pct: number | null
+          expected_closing_bags: number | null
+          loss_classification:
+            | Database["public"]["Enums"]["loss_classification"]
+            | null
+          loss_report_exists: boolean | null
+          loss_report_stale: boolean | null
+          loss_requires_review: boolean | null
+          loss_warning_pct: number | null
           new_debt_vnd: number | null
-          opening_stock_bags: number | null
+          opening_bags: number | null
           overdue_debt_vnd: number | null
           pending_expense_count: number | null
           pending_expense_vnd: number | null
+          pending_harvest_count: number | null
           previous_day_unlocked: boolean | null
           production_bags: number | null
-          production_mismatch_count: number | null
           retail_revenue_vnd: number | null
           sold_bags: number | null
           status: Database["public"]["Enums"]["operating_day_status"] | null
-          stock_actual_bags: number | null
-          stock_balance_bags: number | null
-          stock_expected_bags: number | null
-          stock_variance_bags: number | null
-          stock_variance_pct: number | null
-          stock_warning_pct: number | null
           total_debt_vnd: number | null
           wholesale_revenue_vnd: number | null
         }

@@ -22,6 +22,8 @@ function reportFixture(overrides: Partial<DailyReportInput['summary']> = {}): Da
       soldBags: 100,
       collectedVnd: 800_000,
       totalDebtVnd: 110_000,
+      differenceBags: 2,
+      differencePct: 1.667,
       ...overrides,
     },
   }
@@ -47,14 +49,21 @@ describe('Excel report reconciliation', () => {
   it('separates locked and open revenue in the monthly workbook', async () => {
     const metadata = reportFixture().metadata
     const buffer = await buildMonthlyWorkbook({ metadata: { ...metadata, lockStatus: 'mixed' }, days: [
-      { day: '2026-08-14', status: 'locked', wholesaleVnd: 700_000, retailVnd: 0, approvedExpenseVnd: 0, productionBags: 10, soldBags: 8 },
-      { day: '2026-08-15', status: 'open', wholesaleVnd: 0, retailVnd: 300_000, approvedExpenseVnd: 0, productionBags: 5, soldBags: 4 },
+      { day: '2026-08-14', status: 'locked', wholesaleVnd: 700_000, retailVnd: 0, approvedExpenseVnd: 0, productionBags: 10, soldBags: 8, differenceBags: 2, differencePct: 20 },
+      { day: '2026-08-15', status: 'open', wholesaleVnd: 0, retailVnd: 300_000, approvedExpenseVnd: 0, productionBags: 5, soldBags: 4, differenceBags: -1, differencePct: 20 },
     ] })
     const workbook = new ExcelJS.Workbook()
     await workbook.xlsx.load(buffer as unknown as ExcelJS.Buffer)
 
     expect(workbook.getWorksheet('Tổng hợp')?.getCell('B6').value).toBe(700_000)
     expect(workbook.getWorksheet('Tổng hợp')?.getCell('B7').value).toBe(300_000)
+  })
+
+  it('keeps a null percentage for a zero-production day', async () => {
+    const buffer = await buildDailyWorkbook(reportFixture({ productionBags: 0, differencePct: null }))
+    const workbook = new ExcelJS.Workbook()
+    await workbook.xlsx.load(buffer as unknown as ExcelJS.Buffer)
+    expect(workbook.getWorksheet('Tổng hợp')?.getCell('B15').value).toBeNull()
   })
 
   it('includes versioned JSON data and CSV copies in a backup', () => {

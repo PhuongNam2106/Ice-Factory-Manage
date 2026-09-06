@@ -109,6 +109,13 @@ describe('daily closing integration', () => {
       p_idempotency_key: crypto.randomUUID(),
     })
     expect(warning.data).toMatchObject({ differenceBags: 10, requiresReview: true, version: 2 })
+    const dashboardBeforeConfirmation = await manager
+      .from('daily_dashboard')
+      .select('loss_requires_review')
+      .eq('day', day)
+      .single()
+    expect(dashboardBeforeConfirmation.error).toBeNull()
+    expect(dashboardBeforeConfirmation.data?.loss_requires_review).toBe(true)
     expect((await manager.rpc('lock_operating_day', { p_day: day })).error?.message).toContain('CLOSING_BLOCKED')
 
     expect((await employee.rpc('confirm_daily_loss_warning', { p_report_id: reportId, p_expected_version: 2 })).error?.message).toContain('FORBIDDEN')
@@ -117,6 +124,13 @@ describe('daily closing integration', () => {
 
     const confirmed = await manager.rpc('confirm_daily_loss_warning', { p_report_id: reportId, p_expected_version: 2 })
     expect(confirmed.error).toBeNull()
+    const dashboardAfterConfirmation = await manager
+      .from('daily_dashboard')
+      .select('loss_requires_review')
+      .eq('day', day)
+      .single()
+    expect(dashboardAfterConfirmation.error).toBeNull()
+    expect(dashboardAfterConfirmation.data?.loss_requires_review).toBe(false)
     const locked = await manager.rpc('lock_operating_day', { p_day: day })
     expect(locked.error).toBeNull()
     expect(locked.data).toMatchObject({ status: 'locked', snapshotVersion: 1 })

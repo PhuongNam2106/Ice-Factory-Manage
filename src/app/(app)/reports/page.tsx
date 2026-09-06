@@ -8,7 +8,7 @@ const reports = [
   { path: 'production', title: 'Chi tiết sản xuất', note: 'Theo ngày, máy, lần xả và người thực hiện.' },
   { path: 'expenses', title: 'Chi tiết chi phí', note: 'Theo danh mục, trạng thái duyệt và người nhận.' },
   { path: 'receivables', title: 'Công nợ và thanh toán', note: 'Tuổi nợ, số còn nợ và lịch sử thu tiền.' },
-  { path: 'inventory', title: 'Sổ kho thành phẩm', note: 'Toàn bộ biến động nhập, xuất và điều chỉnh.' },
+  { path: 'loss', title: 'Hao hụt sản xuất', note: 'Tồn đầu, sản xuất, bán hàng, tồn cuối và chênh lệch theo ngày.' },
 ] as const
 
 export default async function ReportsPage() {
