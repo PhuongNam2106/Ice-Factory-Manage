@@ -74,6 +74,8 @@
 - Modify: `src/modules/production/production-day.ts:1-72`
 - Modify: `src/modules/production/production-day.test.ts:1-33`
 - Modify: `src/components/production/machine-production-card.tsx:1-32`
+- Modify: `src/modules/production/production.integration.test.ts`
+- Modify: `src/app/(app)/production/page.tsx`
 - Test: `src/modules/shared/operating-day.test.ts`
 - Test: `src/modules/production/production-day.test.ts`
 
@@ -83,7 +85,7 @@
 - Produces compatibility aliases `getProductionDate` and `getProductionWindow` backed by the shared implementation.
 - Removes business use of `canStartMachine`; machine-state rules, not clock time, decide whether Start is enabled.
 
-- [ ] **Step 1: Replace the calendar-day tests with boundary tests**
+- [x] **Step 1: Replace the calendar-day tests with boundary tests**
 
 ```ts
 it('maps Bangkok time before 20:00 to the previous operating day', () => {
@@ -102,7 +104,7 @@ it('creates a 24-hour operating window', () => {
 })
 ```
 
-- [ ] **Step 2: Run the focused tests and verify the old behavior fails**
+- [x] **Step 2: Run the focused tests and verify the old behavior fails**
 
 Run:
 
@@ -112,7 +114,7 @@ corepack pnpm vitest run src/modules/shared/operating-day.test.ts src/modules/pr
 
 Expected: failures at the pre-20:00 mapping and the old 18:00 production end.
 
-- [ ] **Step 3: Implement the shared day and window functions**
+- [x] **Step 3: Implement the shared day and window functions**
 
 Use Bangkok date/hour parts, subtract one UTC calendar day when the local hour is below 20, and return these exact window boundaries:
 
@@ -143,11 +145,11 @@ export {
 } from '@/modules/shared/operating-day'
 ```
 
-- [ ] **Step 4: Remove the UI-only 18:00–20:00 Start disablement**
+- [x] **Step 4: Remove the UI-only 18:00–20:00 Start disablement**
 
 Delete the `canStartMachine` import, `startWindow`, and the `Không thể bắt đầu máy trong khoảng 18:00–20:00` branch. Keep the existing machine-running, locked-day, and disconnected-state reasons.
 
-- [ ] **Step 5: Run unit tests, lint, and type checking**
+- [x] **Step 5: Run unit tests, lint, and type checking**
 
 Run:
 
@@ -159,7 +161,7 @@ corepack pnpm typecheck
 
 Expected: all commands exit `0`.
 
-- [ ] **Step 6: Commit Task 1**
+- [x] **Step 6: Commit Task 1**
 
 ```powershell
 git add src/modules/shared/operating-day.ts src/modules/shared/operating-day.test.ts src/modules/production/production-day.ts src/modules/production/production-day.test.ts src/components/production/machine-production-card.tsx

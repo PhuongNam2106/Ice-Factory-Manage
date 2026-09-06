@@ -4,7 +4,6 @@ import { createClient } from '@supabase/supabase-js'
 import { describe, expect, it } from 'vitest'
 import type { Database } from '@/lib/supabase/database.types'
 import { usernameToAuthEmail } from '@/modules/auth/schema'
-import { canStartMachine } from './production-day'
 
 function isLocalUrl(url?: string) {
   if (!url) return false
@@ -29,7 +28,7 @@ describe('realtime machine production RPC integration', () => {
     return
   }
 
-  it.skipIf(!canStartMachine(new Date()))(
+  it(
     'records an idempotent run and harvest without changing inventory',
     async () => {
       const { adminClient } = await import('@/lib/supabase/admin')
@@ -154,7 +153,7 @@ describe('realtime machine production RPC integration', () => {
     45_000,
   )
 
-  it.skipIf(!canStartMachine(new Date()))(
+  it(
     'lets a manager correct time, then lock and reopen the production day with audit',
     async () => {
       const { adminClient } = await import('@/lib/supabase/admin')
@@ -214,7 +213,7 @@ describe('realtime machine production RPC integration', () => {
     45_000,
   )
 
-  it.skipIf(!canStartMachine(new Date()))(
+  it(
     'lets only a manager delete machine actions from newest to oldest with audit',
     async () => {
       const { adminClient } = await import('@/lib/supabase/admin')

@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { recordHarvest, startMachine, stopMachine } from '@/modules/production/actions'
-import { canStartMachine } from '@/modules/production/production-day'
 import { getRunOvertimeLevel, isHarvestReminderDue } from '@/modules/production/presentation'
 import type { MachineProductionState } from '@/modules/production/types'
 import { HarvestQuantityForm } from './harvest-quantity-form'
@@ -18,10 +17,9 @@ export function MachineProductionCard({ machine, now, writable, managerWritable,
   const [message, setMessage] = useState<string | null>(null)
   const running = Boolean(machine.openRun)
   const hasPending = Boolean(machine.pendingHarvest)
-  const startWindow = canStartMachine(now)
   const commonReason = locked ? 'Ngày sản xuất đã khóa.' : !writable ? 'Chưa có kết nối đồng bộ an toàn.' : null
   const reasons = {
-    start: commonReason ?? (running ? 'Máy đang chạy; hãy tắt máy trước khi bắt đầu phiên mới.' : !startWindow ? 'Không thể bắt đầu máy trong khoảng 18:00–20:00.' : null),
+    start: commonReason ?? (running ? 'Máy đang chạy; hãy tắt máy trước khi bắt đầu phiên mới.' : null),
     harvest: commonReason ?? (!running ? 'Phải bắt đầu máy trước khi xả đá.' : hasPending ? 'Lần xả gần nhất chưa có số bao; hãy cập nhật trước khi xả tiếp.' : null),
     stop: commonReason ?? (!running ? 'Máy hiện đang dừng.' : null),
   }
