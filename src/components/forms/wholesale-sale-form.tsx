@@ -3,8 +3,10 @@
 import { useMemo, useRef, useState, useTransition } from 'react'
 import type { CustomerOption } from '@/modules/admin/catalog-service'
 import { createIdempotencyKey } from '@/modules/shared/idempotency'
+import { parseBangkokOccurredAt } from '@/modules/shared/occurred-at'
 import { createSale } from '@/modules/sales/actions'
 import { SaleLineEditor, type SaleLineDraft } from './sale-line-editor'
+import { OccurredAtField } from './occurred-at-field'
 
 const currency = new Intl.NumberFormat('vi-VN')
 
@@ -14,10 +16,8 @@ function emptyLine(): SaleLineDraft {
 
 export function WholesaleSaleForm({
   customers,
-  operatingDay,
 }: {
   customers: CustomerOption[]
-  operatingDay: string
 }) {
   const formRef = useRef<HTMLFormElement>(null)
   const idempotencyKey = useRef(createIdempotencyKey())
@@ -31,10 +31,17 @@ export function WholesaleSaleForm({
 
   function submit(formData: FormData) {
     setMessage(null)
+    let occurredAt: string | null
+    try {
+      occurredAt = parseBangkokOccurredAt(formData.get('occurredAt'))
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Thời gian phát sinh không hợp lệ')
+      return
+    }
     startTransition(async () => {
       const result = await createSale({
         kind: 'wholesale',
-        operatingDay,
+        occurredAt,
         customerId: String(formData.get('customerId') ?? '') || null,
         lines: lines.map(({ quantityBags, unitPriceVnd }) => ({ quantityBags, unitPriceVnd })),
         paidNowVnd: String(formData.get('paidNowVnd') ?? '0'),
@@ -76,6 +83,8 @@ export function WholesaleSaleForm({
       </div>
 
       <SaleLineEditor lines={lines} onChange={setLines} />
+
+      <OccurredAtField />
 
       {/* Calculated Total Bar */}
       <div className="flex items-center justify-between rounded-2xl bg-sky-50/80 p-4 ring-1 ring-sky-200/60">

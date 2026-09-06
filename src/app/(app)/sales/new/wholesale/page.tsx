@@ -27,7 +27,7 @@ export default async function NewWholesaleSalePage() {
         </p>
       </div>
 
-      <WholesaleSaleForm customers={customers} operatingDay={operatingDay} />
+      <WholesaleSaleForm customers={customers} />
     </section>
   )
 }

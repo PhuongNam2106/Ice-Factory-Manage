@@ -21,7 +21,7 @@ export const saleLineSchema = z.object({
 })
 
 const commonSaleFields = {
-  operatingDay: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Ngày vận hành không hợp lệ'),
+  occurredAt: z.iso.datetime({ offset: true }).optional().nullable().default(null),
   lines: z.array(saleLineSchema).min(1, 'Cần ít nhất một dòng bán hàng').max(50),
   paidNowVnd: vndSchema,
   paymentMethod: z.enum(['cash', 'bank_transfer']),

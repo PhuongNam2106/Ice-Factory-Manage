@@ -2,8 +2,10 @@
 
 import { useMemo, useRef, useState, useTransition } from 'react'
 import { createIdempotencyKey } from '@/modules/shared/idempotency'
+import { parseBangkokOccurredAt } from '@/modules/shared/occurred-at'
 import { recordReceipt } from '@/modules/receivables/actions'
 import type { ReceivableListItem } from '@/modules/receivables/types'
+import { OccurredAtField } from './occurred-at-field'
 
 const currency = new Intl.NumberFormat('vi-VN')
 
@@ -54,6 +56,13 @@ export function ReceiptForm({
 
   function submit(formData: FormData) {
     setMessage(null)
+    let occurredAt: string | null
+    try {
+      occurredAt = parseBangkokOccurredAt(formData.get('occurredAt'))
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Thời gian phát sinh không hợp lệ')
+      return
+    }
 
     const activeAllocations = Object.entries(allocations)
       .map(([receivableId, val]) => ({ receivableId, amountVnd: Number(val || 0) }))
@@ -62,7 +71,7 @@ export function ReceiptForm({
     startTransition(async () => {
       const result = await recordReceipt({
         customerId,
-        operatingDay,
+        occurredAt,
         amountVnd: totalReceiptAmount,
         paymentMethod: formData.get('paymentMethod') === 'bank_transfer' ? 'bank_transfer' : 'cash',
         note: String(formData.get('note') ?? ''),
@@ -126,6 +135,8 @@ export function ReceiptForm({
           </select>
         </div>
       </div>
+
+      <OccurredAtField />
 
       {/* Allocation Section */}
       <div className="space-y-4">

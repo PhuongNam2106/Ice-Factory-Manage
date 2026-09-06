@@ -32,19 +32,24 @@ describe('create_sale RPC integration', () => {
       () => {},
     )
   } else {
-    it('verifies idempotency, insufficient stock rollback, locked day, and duplicate retail shift with strict cleanup', async () => {
+    it('derives the 20h day, ignores legacy stock, rejects locked days, and stays idempotent', async () => {
       const { adminClient } = await import('@/lib/supabase/admin')
       const suffix = String(Date.now()).slice(-7)
       const username = `sale${suffix}`
       const email = usernameToAuthEmail(username)
       const password = process.env.SUPABASE_TEST_EMPLOYEE_PASSWORD!
       const day = `2192-${String((Date.now() % 12) + 1).padStart(2, '0')}-${String((Date.now() % 27) + 1).padStart(2, '0')}`
+      const previousDay = new Date(`${day}T00:00:00.000Z`)
+      previousDay.setUTCDate(previousDay.getUTCDate() - 1)
+      const previousDayString = previousDay.toISOString().slice(0, 10)
       const lockedDay = `2199-01-01`
       const key = crypto.randomUUID()
       const failedKey = crypto.randomUUID()
       const retailKey1 = crypto.randomUUID()
       const retailKey2 = crypto.randomUUID()
       const lockedDayKey = crypto.randomUUID()
+      const beforeBoundaryKey = crypto.randomUUID()
+      const beforeCutoverKey = crypto.randomUUID()
 
       let userId: string | null = null
       let customerId: string | null = null
@@ -72,7 +77,14 @@ describe('create_sale RPC integration', () => {
         })
         expect(profileError).toBeNull()
 
-        const operatingDays = await adminClient.from('operating_days').insert([{ day, status: 'open' }, { day: lockedDay, status: 'locked', locked_at: new Date().toISOString(), locked_by: userId }])
+        await adminClient.from('settings').update({
+          operating_day_cutover_at: '2026-09-05T13:00:00.000Z',
+        }).eq('id', true)
+        const operatingDays = await adminClient.from('operating_days').insert([
+          { day: previousDayString, status: 'open' },
+          { day, status: 'open' },
+          { day: lockedDay, status: 'locked', locked_at: new Date().toISOString(), locked_by: userId },
+        ])
         expect(operatingDays.error).toBeNull()
 
         const { data: customer } = await adminClient
@@ -82,22 +94,13 @@ describe('create_sale RPC integration', () => {
           .single()
         customerId = customer!.id
 
-        await adminClient.from('inventory_ledger').insert({
-          operating_day: day,
-          kind: 'opening',
-          quantity_delta_bags: 20,
-          source_type: 'integration_fixture',
-          source_id: crypto.randomUUID(),
-          created_by: userId,
-        })
-
         const { error: signInError } = await client.auth.signInWithPassword({ email, password })
         expect(signInError).toBeNull()
 
         // 1. Idempotency test
         const input = {
           kind: 'wholesale' as const,
-          operatingDay: day,
+          occurredAt: `${day}T13:00:00.000Z`,
           customerId,
           lines: [{ quantityBags: 10, unitPriceVnd: 7000 }],
           paidNowVnd: 0,
@@ -120,13 +123,21 @@ describe('create_sale RPC integration', () => {
           .eq('kind', 'sale')
           .eq('source_id', saleId)
         expect(salesCount).toBe(1)
-        expect(stockIssues).toHaveLength(1)
+        expect(stockIssues).toHaveLength(0)
 
-        // 2. Insufficient stock rollback test
+        const beforeBoundary = await client.rpc('create_sale', {
+          p_input: { ...input, occurredAt: `${day}T12:59:59.999Z` },
+          p_idempotency_key: beforeBoundaryKey,
+        })
+        expect(beforeBoundary.error).toBeNull()
+        const beforeBoundarySaleId = (beforeBoundary.data as { saleId: string }).saleId
+        expect((await adminClient.from('sales').select('operating_day').eq('id', beforeBoundarySaleId).single()).data?.operating_day).toBe(previousDayString)
+
+        // 2. Sales no longer depend on the legacy inventory ledger.
         const failed = await client.rpc('create_sale', {
           p_input: {
             kind: 'retail' as const,
-            operatingDay: day,
+            occurredAt: `${day}T13:05:00.000Z`,
             shiftCode: 'OVERSELL',
             lines: [{ quantityBags: 1000, unitPriceVnd: 7000 }],
             paidNowVnd: 7000000,
@@ -134,18 +145,18 @@ describe('create_sale RPC integration', () => {
           },
           p_idempotency_key: failedKey,
         })
-        expect(failed.error?.message).toContain('INSUFFICIENT_STOCK')
+        expect(failed.error).toBeNull()
         const { count: failedSales } = await adminClient
           .from('sales')
           .select('id', { count: 'exact', head: true })
           .eq('idempotency_key', failedKey)
-        expect(failedSales).toBe(0)
+        expect(failedSales).toBe(1)
 
         // 3. Locked day test
         const lockedRes = await client.rpc('create_sale', {
           p_input: {
             kind: 'wholesale' as const,
-            operatingDay: lockedDay,
+            occurredAt: `${lockedDay}T13:00:00.000Z`,
             customerId,
             lines: [{ quantityBags: 1, unitPriceVnd: 7000 }],
             paidNowVnd: 7000,
@@ -158,7 +169,7 @@ describe('create_sale RPC integration', () => {
         // 4. Duplicate retail shift test
         const retailInput1 = {
           kind: 'retail' as const,
-          operatingDay: day,
+          occurredAt: `${day}T13:10:00.000Z`,
           shiftCode: 'SHIFT_A',
           lines: [{ quantityBags: 2, unitPriceVnd: 10000 }],
           paidNowVnd: 20000,
@@ -169,6 +180,12 @@ describe('create_sale RPC integration', () => {
 
         const retail2 = await client.rpc('create_sale', { p_input: retailInput1, p_idempotency_key: retailKey2 })
         expect(retail2.error?.message).toContain('sales_active_retail_shift_key')
+
+        const beforeCutover = await client.rpc('create_sale', {
+          p_input: { ...input, occurredAt: '2026-09-05T12:59:59.999Z' },
+          p_idempotency_key: beforeCutoverKey,
+        })
+        expect(beforeCutover.error?.message).toContain('OCCURRED_AT_BEFORE_CUTOVER')
       } finally {
         await client.auth.signOut()
 
@@ -182,7 +199,8 @@ describe('create_sale RPC integration', () => {
           if (customerId) {
             await adminClient.from('customers').delete().eq('id', customerId)
           }
-          await adminClient.from('operating_days').delete().in('day', [day, lockedDay])
+          await adminClient.from('operating_days').delete().in('day', [previousDayString, day, lockedDay])
+          await adminClient.from('settings').update({ operating_day_cutover_at: null }).eq('id', true)
           await adminClient.from('profiles').delete().eq('id', userId)
           await adminClient.auth.admin.deleteUser(userId)
         }

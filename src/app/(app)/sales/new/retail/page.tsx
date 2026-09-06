@@ -25,7 +25,7 @@ export default function NewRetailSalePage() {
         </p>
       </div>
 
-      <RetailSaleForm operatingDay={operatingDay} />
+      <RetailSaleForm />
     </section>
   )
 }

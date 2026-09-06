@@ -3,7 +3,7 @@ import { recordReceiptSchema } from './schema'
 
 const base = {
   customerId: crypto.randomUUID(),
-  operatingDay: '2026-08-12',
+  occurredAt: '2026-09-06T12:50:00.000Z',
   amountVnd: 100000,
   paymentMethod: 'bank_transfer' as const,
   note: 'Thanh toán nợ',
@@ -11,6 +11,13 @@ const base = {
 }
 
 describe('recordReceiptSchema', () => {
+  it('derives the operating day later from an optional occurrence timestamp', () => {
+    const receipt = recordReceiptSchema.parse({ ...base, allocations: [] })
+
+    expect(receipt.occurredAt).toBe('2026-09-06T12:50:00.000Z')
+    expect(receipt).not.toHaveProperty('operatingDay')
+  })
+
   it('rejects allocation total above the receipt amount', () => {
     expect(() =>
       recordReceiptSchema.parse({

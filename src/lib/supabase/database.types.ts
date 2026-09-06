@@ -7,30 +7,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -209,6 +189,7 @@ export type Database = {
           id: string
           idempotency_key: string
           note: string | null
+          occurred_at: string
           operating_day: string
           payee: string
           review_reason: string | null
@@ -229,6 +210,7 @@ export type Database = {
           id?: string
           idempotency_key: string
           note?: string | null
+          occurred_at: string
           operating_day: string
           payee: string
           review_reason?: string | null
@@ -249,6 +231,7 @@ export type Database = {
           id?: string
           idempotency_key?: string
           note?: string | null
+          occurred_at?: string
           operating_day?: string
           payee?: string
           review_reason?: string | null
@@ -856,6 +839,7 @@ export type Database = {
           id: string
           idempotency_key: string | null
           note: string | null
+          occurred_at: string
           operating_day: string
           payment_method: Database["public"]["Enums"]["payment_method"]
           source_sale_id: string | null
@@ -874,6 +858,7 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           note?: string | null
+          occurred_at: string
           operating_day: string
           payment_method: Database["public"]["Enums"]["payment_method"]
           source_sale_id?: string | null
@@ -892,6 +877,7 @@ export type Database = {
           id?: string
           idempotency_key?: string | null
           note?: string | null
+          occurred_at?: string
           operating_day?: string
           payment_method?: Database["public"]["Enums"]["payment_method"]
           source_sale_id?: string | null
@@ -1065,6 +1051,7 @@ export type Database = {
           idempotency_key: string
           kind: Database["public"]["Enums"]["sale_kind"]
           note: string | null
+          occurred_at: string
           operating_day: string
           paid_now_vnd: number
           payment_method: Database["public"]["Enums"]["payment_method"]
@@ -1085,6 +1072,7 @@ export type Database = {
           idempotency_key: string
           kind: Database["public"]["Enums"]["sale_kind"]
           note?: string | null
+          occurred_at: string
           operating_day: string
           paid_now_vnd: number
           payment_method: Database["public"]["Enums"]["payment_method"]
@@ -1105,6 +1093,7 @@ export type Database = {
           idempotency_key?: string
           kind?: Database["public"]["Enums"]["sale_kind"]
           note?: string | null
+          occurred_at?: string
           operating_day?: string
           paid_now_vnd?: number
           payment_method?: Database["public"]["Enums"]["payment_method"]
@@ -1156,6 +1145,8 @@ export type Database = {
         Row: {
           allow_negative_stock: boolean
           id: boolean
+          loss_warning_pct: number
+          operating_day_cutover_at: string | null
           production_harvest_reminder_minutes: number
           stock_variance_warning_pct: number
           time_zone: string
@@ -1165,6 +1156,8 @@ export type Database = {
         Insert: {
           allow_negative_stock?: boolean
           id?: boolean
+          loss_warning_pct?: number
+          operating_day_cutover_at?: string | null
           production_harvest_reminder_minutes?: number
           stock_variance_warning_pct?: number
           time_zone?: string
@@ -1174,6 +1167,8 @@ export type Database = {
         Update: {
           allow_negative_stock?: boolean
           id?: boolean
+          loss_warning_pct?: number
+          operating_day_cutover_at?: string | null
           production_harvest_reminder_minutes?: number
           stock_variance_warning_pct?: number
           time_zone?: string
@@ -1304,6 +1299,16 @@ export type Database = {
           p_entity_type: string
           p_expected_version: number
           p_reason: string
+        }
+        Returns: Json
+      }
+      correct_document_occurred_at: {
+        Args: {
+          p_entity_id: string
+          p_entity_type: string
+          p_expected_version: number
+          p_idempotency_key: string
+          p_occurred_at: string
         }
         Returns: Json
       }
@@ -1447,12 +1452,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1476,11 +1481,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1501,11 +1506,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1526,11 +1531,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1543,11 +1548,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1557,9 +1562,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       app_role: ["employee", "manager"],

@@ -4,7 +4,6 @@ import { z } from 'zod'
 import { actionFailure, actionSuccess, type ActionResult } from '@/lib/result'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { getFieldErrors } from '@/lib/validation'
-import { ensureOperatingDay } from '@/modules/closing/ensure-day'
 import { recordReceiptRecord, type ReceivablesClient } from './repository'
 import { recordReceiptSchema, type RecordReceiptInput } from './schema'
 import type { RecordReceiptResult } from './types'
@@ -12,6 +11,12 @@ import type { RecordReceiptResult } from './types'
 const recordReceiptResultSchema = z.object({ receiptId: z.string().uuid() })
 
 function mapReceiptError(message: string): ActionResult<never> {
+  if (message.includes('CUTOVER_NOT_CONFIGURED')) {
+    return actionFailure('CUTOVER_NOT_CONFIGURED', 'Hệ thống chưa được cấu hình thời điểm bắt đầu vận hành. Vui lòng báo quản lý.')
+  }
+  if (message.includes('OCCURRED_AT_BEFORE_CUTOVER')) {
+    return actionFailure('OCCURRED_AT_BEFORE_CUTOVER', 'Thời gian thu tiền phải từ thời điểm bắt đầu vận hành hệ thống trở đi.')
+  }
   if (message.includes('ALLOCATIONS_EXCEED_RECEIPT_AMOUNT')) {
     return actionFailure('ALLOCATIONS_EXCEED_RECEIPT_AMOUNT', 'Tổng số tiền phân bổ vượt quá số tiền phiếu thu.')
   }
@@ -44,12 +49,6 @@ export async function recordReceiptWithClient(
   }
 
   const supabase = client ?? (await createServerSupabaseClient())
-
-  try {
-    await ensureOperatingDay(parsed.data.operatingDay, supabase)
-  } catch {
-    return actionFailure('OPERATING_DAY_FAILED', 'Không thể khởi tạo ngày vận hành.')
-  }
 
   const { data, error } = await recordReceiptRecord(supabase, parsed.data)
   if (error) return mapReceiptError(error.message)

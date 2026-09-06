@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { CancelDocumentDialog } from '@/components/forms/cancel-document-dialog'
+import { CorrectOccurredAtDialog } from '@/components/forms/correct-occurred-at-dialog'
 import { ReceiptForm } from '@/components/forms/receipt-form'
 import { getCustomerById } from '@/modules/admin/catalog-service'
 import { requireUser } from '@/modules/auth/service'
@@ -83,7 +84,7 @@ export default async function CustomerReceivablesPage({
                 </div>
                 <div className="space-y-2 text-right">
                   <p className={`text-lg font-extrabold ${receipt.status === 'active' ? 'text-emerald-700' : 'text-slate-400 line-through'}`}>+{currency.format(receipt.amountVnd)} đ</p>
-                  {receipt.status === 'active' && !receipt.sourceSaleId && (user.role === 'manager' || receipt.createdBy === user.id) ? <CancelDocumentDialog entityId={receipt.id} entityType="receipt" label="phiếu thu" version={receipt.version} /> : null}
+                  {receipt.status === 'active' && !receipt.sourceSaleId && (user.role === 'manager' || receipt.createdBy === user.id) ? <div className="flex flex-wrap justify-end gap-2"><CorrectOccurredAtDialog entityId={receipt.id} entityType="receipt" label="phiếu thu" occurredAt={receipt.occurredAt} version={receipt.version} /><CancelDocumentDialog entityId={receipt.id} entityType="receipt" label="phiếu thu" version={receipt.version} /></div> : null}
                 </div>
               </li>
             ))}

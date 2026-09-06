@@ -173,7 +173,7 @@ git commit -m 'feat: unify operating day at 20h'
 ### Task 2: Persist actual occurrence time for business transactions
 
 **Files:**
-- Create: `supabase/migrations/20260906100000_unified_20h_operating_day.sql`
+- Create: `supabase/migrations/20260906055800_unified_20h_operating_day.sql`
 - Create: `src/modules/shared/occurred-at.ts`
 - Create: `src/modules/shared/occurred-at.test.ts`
 - Create: `src/modules/shared/document-time.ts`
@@ -214,7 +214,7 @@ git commit -m 'feat: unify operating day at 20h'
 - Adds `occurredAt?: string | null` to create-sale, record-receipt, and create-expense inputs; removes trust in client-supplied `operatingDay` for new writes.
 - Removes new-sale stock checks and `inventory_ledger` writes; the archived ledger remains available only for legacy records and legacy cancellation reversal.
 
-- [ ] **Step 1: Write failing timestamp conversion tests**
+- [x] **Step 1: Write failing timestamp conversion tests**
 
 ```ts
 it('uses server current time when the optional field is empty', () => {
@@ -230,7 +230,7 @@ it('rejects an invalid local timestamp', () => {
 })
 ```
 
-- [ ] **Step 2: Run the conversion test and verify it fails**
+- [x] **Step 2: Run the conversion test and verify it fails**
 
 ```powershell
 corepack pnpm vitest run src/modules/shared/occurred-at.test.ts
@@ -238,7 +238,7 @@ corepack pnpm vitest run src/modules/shared/occurred-at.test.ts
 
 Expected: failure because the module does not exist.
 
-- [ ] **Step 3: Create the occurrence-time migration**
+- [x] **Step 3: Create the occurrence-time migration**
 
 The migration must include these structural operations before replacing the three write RPCs:
 
@@ -298,7 +298,7 @@ Replace `create_sale` without its `pg_advisory_xact_lock` stock-balance query, `
 
 Also replace production-day SQL boundaries from next-day `18:00` to next-day `20:00`, remove both `START_OUTSIDE_PRODUCTION_HOURS` guards, and make `private.production_date_at` delegate to `private.operating_day_at`. Harden `correct_production_action`: a change to run/harvest time must derive its original and destination days, lock both day rows in sorted order, and reject when either day is locked. Harvest corrections may cross a 20:00 boundary without changing the run's start-day ownership because loss aggregation uses `harvested_at` directly.
 
-- [ ] **Step 4: Implement the collapsed time control**
+- [x] **Step 4: Implement the collapsed time control**
 
 `OccurredAtField` renders a checked `Dùng giờ hiện tại` control by default. When unchecked, it renders a required `datetime-local` input named `occurredAt`. Implement `parseBangkokOccurredAt` with the exact accepted pattern `YYYY-MM-DDTHH:mm` and append `:00+07:00` before converting to ISO.
 
@@ -310,7 +310,7 @@ occurredAt: parseBangkokOccurredAt(formData.get('occurredAt')),
 
 Do not send `operatingDay` as an authority for new transactions; the database derives it from `occurredAt` or server time.
 
-- [ ] **Step 5: Add audited corrections for saved transaction times**
+- [x] **Step 5: Add audited corrections for saved transaction times**
 
 Implement `correct_document_occurred_at` for `sale`, `receipt`, and `expense`. It must lock the target row, require the creator or a manager, require matching `expectedVersion`, require both the original and destination operating days to be open, reject timestamps before cutover, update `occurred_at`, derive the destination day in SQL, increment the document version, and write the full before/after image to `audit_log`. Reusing an idempotency key returns the first result.
 
@@ -320,13 +320,13 @@ Add `CorrectOccurredAtDialog` beside the existing cancel control on sales, custo
 
 `document-time-actions.ts` requires an active user, calls the typed service, and revalidates `/`, `/sales`, `/receivables`, `/expenses`, `/loss`, `/closing`, `/alerts`, and `/admin/audit` after success. Update repository selects and list-item mappers to return `occurred_at`. Update the generated database types in the same task so the new RPC and columns compile before later regeneration verifies them against Supabase Dev.
 
-- [ ] **Step 6: Add integration assertions at the 20:00 boundary and stock-ledger cutover**
+- [x] **Step 6: Add integration assertions at the 20:00 boundary and stock-ledger cutover**
 
 Set the test cutover to `2026-09-05T13:00:00Z`. For each transaction RPC, create one fixture at `2026-09-06T12:59:59.999Z` and one at `2026-09-06T13:00:00.000Z`. Assert `operating_day` is `2026-09-05` for the first and `2026-09-06` for the second. Assert a timestamp targeting a locked day returns `DAY_LOCKED` and a timestamp before cutover returns `OCCURRED_AT_BEFORE_CUTOVER`.
 
 Assert post-cutover sales succeed with zero legacy ledger balance, create no `inventory_ledger` row, still create receivable/source receipt records correctly, and can be cancelled without a ledger reversal. Assert correcting each document moves it to the derived open day, writes an audit entry, rejects a stale version, and refuses to move into or out of a locked day.
 
-- [ ] **Step 7: Run focused unit/integration tests**
+- [x] **Step 7: Run focused unit/integration tests**
 
 ```powershell
 corepack pnpm vitest run src/modules/shared/occurred-at.test.ts src/modules/shared/document-time.test.ts src/components/forms/occurred-at-field.test.tsx src/components/forms/correct-occurred-at-dialog.test.tsx src/modules/sales/schema.test.ts src/modules/sales/create-sale.integration.test.ts src/modules/receivables/record-receipt.integration.test.ts src/modules/expenses/expense.integration.test.ts
@@ -336,10 +336,10 @@ corepack pnpm typecheck
 
 Expected: all enabled tests pass; integration suites skip only when their documented Supabase test variables are absent.
 
-- [ ] **Step 8: Commit Task 2**
+- [x] **Step 8: Commit Task 2**
 
 ```powershell
-git add supabase/migrations/20260906100000_unified_20h_operating_day.sql src/modules/shared/occurred-at.ts src/modules/shared/occurred-at.test.ts src/modules/shared/document-time.ts src/modules/shared/document-time.test.ts src/modules/shared/document-time-actions.ts src/components/forms/occurred-at-field.tsx src/components/forms/occurred-at-field.test.tsx src/components/forms/correct-occurred-at-dialog.tsx src/components/forms/correct-occurred-at-dialog.test.tsx src/modules/sales src/modules/receivables src/modules/expenses src/components/forms/wholesale-sale-form.tsx src/components/forms/retail-sale-form.tsx src/components/forms/receipt-form.tsx src/components/forms/expense-form.tsx 'src/app/(app)/sales/page.tsx' 'src/app/(app)/receivables/[customerId]/page.tsx' 'src/app/(app)/expenses/page.tsx' src/lib/supabase/database.types.ts
+git add supabase/migrations/20260906055800_unified_20h_operating_day.sql src/modules/shared/occurred-at.ts src/modules/shared/occurred-at.test.ts src/modules/shared/document-time.ts src/modules/shared/document-time.test.ts src/modules/shared/document-time-actions.ts src/components/forms/occurred-at-field.tsx src/components/forms/occurred-at-field.test.tsx src/components/forms/correct-occurred-at-dialog.tsx src/components/forms/correct-occurred-at-dialog.test.tsx src/modules/sales src/modules/receivables src/modules/expenses src/modules/production/service.ts src/components/forms/wholesale-sale-form.tsx src/components/forms/retail-sale-form.tsx src/components/forms/receipt-form.tsx src/components/forms/expense-form.tsx 'src/app/(app)/sales/page.tsx' 'src/app/(app)/sales/new/retail/page.tsx' 'src/app/(app)/sales/new/wholesale/page.tsx' 'src/app/(app)/receivables/[customerId]/page.tsx' 'src/app/(app)/expenses/page.tsx' 'src/app/(app)/expenses/new/page.tsx' src/lib/supabase/database.types.ts
 git commit -m 'feat: record actual transaction time'
 ```
 

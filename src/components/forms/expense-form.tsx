@@ -9,14 +9,14 @@ import {
 } from '@/modules/expenses/actions'
 import type { ExpenseCategoryItem } from '@/modules/expenses/types'
 import { createIdempotencyKey } from '@/modules/shared/idempotency'
+import { parseBangkokOccurredAt } from '@/modules/shared/occurred-at'
 import { button, control, Field } from './form-primitives'
+import { OccurredAtField } from './occurred-at-field'
 
 export function ExpenseForm({
   categories,
-  operatingDay,
 }: {
   categories: ExpenseCategoryItem[]
-  operatingDay: string
 }) {
   const formRef = useRef<HTMLFormElement>(null)
   const idempotencyKey = useRef(createIdempotencyKey())
@@ -25,9 +25,16 @@ export function ExpenseForm({
 
   function submit(formData: FormData) {
     setMessage(null)
+    let occurredAt: string | null
+    try {
+      occurredAt = parseBangkokOccurredAt(formData.get('occurredAt'))
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Thời gian phát sinh không hợp lệ')
+      return
+    }
     startTransition(async () => {
       const result = await createExpense({
-        operatingDay,
+        occurredAt,
         categoryId: String(formData.get('categoryId') ?? ''),
         amountVnd: String(formData.get('amountVnd') ?? ''),
         payee: String(formData.get('payee') ?? ''),
@@ -94,6 +101,7 @@ export function ExpenseForm({
       <Field label="Ghi chú">
         <textarea className={`${control} min-h-24`} maxLength={1000} name="note" />
       </Field>
+      <OccurredAtField />
       <Field label="Ảnh/PDF chứng từ (tùy chọn, tối đa 10 MB)">
         <input accept="image/jpeg,image/png,application/pdf" className={control} name="attachment" type="file" />
       </Field>

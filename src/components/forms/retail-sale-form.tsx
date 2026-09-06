@@ -2,8 +2,10 @@
 
 import { useMemo, useRef, useState, useTransition } from 'react'
 import { createIdempotencyKey } from '@/modules/shared/idempotency'
+import { parseBangkokOccurredAt } from '@/modules/shared/occurred-at'
 import { createSale } from '@/modules/sales/actions'
 import { SaleLineEditor, type SaleLineDraft } from './sale-line-editor'
+import { OccurredAtField } from './occurred-at-field'
 
 const currency = new Intl.NumberFormat('vi-VN')
 
@@ -11,7 +13,7 @@ function emptyLine(): SaleLineDraft {
   return { id: crypto.randomUUID(), quantityBags: '', unitPriceVnd: '' }
 }
 
-export function RetailSaleForm({ operatingDay }: { operatingDay: string }) {
+export function RetailSaleForm() {
   const formRef = useRef<HTMLFormElement>(null)
   const idempotencyKey = useRef(createIdempotencyKey())
   const [lines, setLines] = useState<SaleLineDraft[]>([emptyLine()])
@@ -24,10 +26,17 @@ export function RetailSaleForm({ operatingDay }: { operatingDay: string }) {
 
   function submit(formData: FormData) {
     setMessage(null)
+    let occurredAt: string | null
+    try {
+      occurredAt = parseBangkokOccurredAt(formData.get('occurredAt'))
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Thời gian phát sinh không hợp lệ')
+      return
+    }
     startTransition(async () => {
       const result = await createSale({
         kind: 'retail',
-        operatingDay,
+        occurredAt,
         shiftCode: String(formData.get('shiftCode') ?? ''),
         lines: lines.map(({ quantityBags, unitPriceVnd }) => ({ quantityBags, unitPriceVnd })),
         paidNowVnd: String(formData.get('paidNowVnd') ?? '0'),
@@ -66,6 +75,8 @@ export function RetailSaleForm({ operatingDay }: { operatingDay: string }) {
       </div>
 
       <SaleLineEditor lines={lines} onChange={setLines} />
+
+      <OccurredAtField />
 
       {/* Calculated Total Bar */}
       <div className="flex items-center justify-between rounded-2xl bg-emerald-50/80 p-4 ring-1 ring-emerald-200/60">

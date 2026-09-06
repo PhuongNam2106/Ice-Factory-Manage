@@ -1,9 +1,7 @@
 import { z } from 'zod'
 
-const operatingDaySchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Ngày vận hành không hợp lệ')
-
 export const createExpenseSchema = z.object({
-  operatingDay: operatingDaySchema,
+  occurredAt: z.iso.datetime({ offset: true }).optional().nullable().default(null),
   categoryId: z.string().uuid('Loại chi phí không hợp lệ'),
   amountVnd: z.coerce
     .number()

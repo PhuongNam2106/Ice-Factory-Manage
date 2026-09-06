@@ -12,6 +12,7 @@ export interface ExpenseItem {
   version: number
   reviewReason: string | null
   createdBy: string
+  occurredAt: string
   createdAt: string
   reviewedBy: string | null
   reviewedAt: string | null

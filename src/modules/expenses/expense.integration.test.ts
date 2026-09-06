@@ -50,6 +50,9 @@ describe('expense workflow integration', () => {
     })).error).toBeNull()
 
     try {
+      await adminClient.from('settings').update({
+        operating_day_cutover_at: '2026-09-05T13:00:00.000Z',
+      }).eq('id', true)
       await adminClient.from('operating_days').upsert({ day }, { onConflict: 'day' })
       const { data: category, error: categoryError } = await adminClient
         .from('expense_categories')
@@ -59,7 +62,7 @@ describe('expense workflow integration', () => {
       expect(categoryError).toBeNull()
 
       const input = {
-        operatingDay: day,
+        occurredAt: `${day}T13:00:00.000Z`,
         categoryId: category!.id,
         amountVnd: 250_000,
         payee: 'Điện lực',
@@ -130,6 +133,7 @@ describe('expense workflow integration', () => {
       expect(afterSecondReview).toEqual(afterFirstReview)
     } finally {
       await Promise.all([employee.auth.signOut(), manager.auth.signOut()])
+      await adminClient.from('settings').update({ operating_day_cutover_at: null }).eq('id', true)
     }
   }, 45_000)
 })

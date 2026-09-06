@@ -72,6 +72,10 @@ describe('record_receipt RPC integration', () => {
           role: 'employee',
         })
 
+        await adminClient.from('settings').update({
+          operating_day_cutover_at: '2026-09-05T13:00:00.000Z',
+        }).eq('id', true)
+
         await adminClient.from('operating_days').insert({ day })
 
         const { data: customer } = await adminClient
@@ -97,7 +101,7 @@ describe('record_receipt RPC integration', () => {
         const saleRes = await client.rpc('create_sale', {
           p_input: {
             kind: 'wholesale' as const,
-            operatingDay: day,
+            occurredAt: `${day}T13:00:00.000Z`,
             customerId,
             lines: [{ quantityBags: 10, unitPriceVnd: 10000 }],
             paidNowVnd: 0,
@@ -124,7 +128,7 @@ describe('record_receipt RPC integration', () => {
         const receiptRes1 = await client.rpc('record_receipt', {
           p_input: {
             customerId,
-            operatingDay: day,
+            occurredAt: `${day}T13:10:00.000Z`,
             amountVnd: 60000,
             paymentMethod: 'bank_transfer' as const,
             note: 'Trả bớt 60k',
@@ -147,7 +151,7 @@ describe('record_receipt RPC integration', () => {
         const rejectedReceipt = await client.rpc('record_receipt', {
           p_input: {
             customerId,
-            operatingDay: day,
+            occurredAt: `${day}T13:15:00.000Z`,
             amountVnd: 50000,
             paymentMethod: 'cash' as const,
             allocations: [{ receivableId, amountVnd: 50000 }],
@@ -168,7 +172,7 @@ describe('record_receipt RPC integration', () => {
         const receiptRes1Repeat = await client.rpc('record_receipt', {
           p_input: {
             customerId,
-            operatingDay: day,
+            occurredAt: `${day}T13:10:00.000Z`,
             amountVnd: 60000,
             paymentMethod: 'bank_transfer' as const,
             note: 'Trả bớt 60k',
@@ -182,7 +186,7 @@ describe('record_receipt RPC integration', () => {
         const receiptRes2 = await client.rpc('record_receipt', {
           p_input: {
             customerId,
-            operatingDay: day,
+            occurredAt: `${day}T13:20:00.000Z`,
             amountVnd: 40000,
             paymentMethod: 'cash' as const,
             allocations: [{ receivableId, amountVnd: 40000 }],
@@ -218,6 +222,7 @@ describe('record_receipt RPC integration', () => {
             await adminClient.from('customers').delete().eq('id', customerId)
           }
           await adminClient.from('operating_days').delete().eq('day', day)
+          await adminClient.from('settings').update({ operating_day_cutover_at: null }).eq('id', true)
           await adminClient.from('profiles').delete().eq('id', userId)
           await adminClient.auth.admin.deleteUser(userId)
         }

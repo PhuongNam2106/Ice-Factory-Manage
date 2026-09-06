@@ -37,6 +37,7 @@ export type ReceiptListItem = {
   version: number
   createdBy: string
   sourceSaleId: string | null
+  occurredAt: string
   createdAt: string
 }
 

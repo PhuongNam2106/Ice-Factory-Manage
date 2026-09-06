@@ -21,10 +21,10 @@ export async function listSalesByDay(
   const { data, error } = await client
     .from('sales')
     .select(
-      'id, kind, operating_day, shift_code, total_vnd, paid_now_vnd, status, version, created_by, created_at, customers(name)',
+      'id, kind, operating_day, shift_code, total_vnd, paid_now_vnd, status, version, created_by, occurred_at, created_at, customers(name)',
     )
     .eq('operating_day', operatingDay)
-    .order('created_at', { ascending: false })
+    .order('occurred_at', { ascending: false })
 
   if (error) throw new Error('Không thể tải danh sách bán hàng.')
 
@@ -39,6 +39,7 @@ export async function listSalesByDay(
     status: sale.status,
     version: sale.version,
     createdBy: sale.created_by,
+    occurredAt: sale.occurred_at,
     createdAt: sale.created_at,
   }))
 }

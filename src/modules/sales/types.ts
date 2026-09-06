@@ -13,6 +13,7 @@ export type SaleListItem = {
   status: 'active' | 'cancelled'
   version: number
   createdBy: string
+  occurredAt: string
   createdAt: string
 }
 
