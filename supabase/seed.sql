@@ -1,6 +1,12 @@
 insert into public.settings (id) values (true)
 on conflict (id) do nothing;
 
+update public.settings
+set operating_day_cutover_at = (
+  ((now() at time zone 'Asia/Bangkok')::date - 1)::timestamp + time '20:00'
+) at time zone 'Asia/Bangkok'
+where id = true and operating_day_cutover_at is null;
+
 -- Local-only E2E accounts. Their six-digit password is not stored as plaintext.
 -- Both accounts authenticate with password 123456 used in tests/e2e/auth.spec.ts.
 insert into auth.users (

@@ -102,6 +102,153 @@ export type Database = {
           },
         ]
       }
+      daily_loss_report_versions: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          report_id: string
+          snapshot: Json
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          report_id: string
+          snapshot: Json
+          version: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          report_id?: string
+          snapshot?: Json
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_loss_report_versions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_loss_report_versions_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "daily_loss_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      daily_loss_reports: {
+        Row: {
+          classification: Database["public"]["Enums"]["loss_classification"]
+          closing_bags: number
+          created_at: string
+          created_by: string
+          difference_bags: number
+          difference_pct: number | null
+          id: string
+          note: string | null
+          opening_bags: number
+          operating_day: string
+          produced_bags: number
+          requires_review: boolean
+          sold_bags: number
+          source_snapshot: Json
+          updated_at: string
+          updated_by: string
+          version: number
+          warning_confirmed_at: string | null
+          warning_confirmed_by: string | null
+          warning_pct: number
+        }
+        Insert: {
+          classification: Database["public"]["Enums"]["loss_classification"]
+          closing_bags: number
+          created_at?: string
+          created_by: string
+          difference_bags: number
+          difference_pct?: number | null
+          id?: string
+          note?: string | null
+          opening_bags: number
+          operating_day: string
+          produced_bags: number
+          requires_review: boolean
+          sold_bags: number
+          source_snapshot: Json
+          updated_at?: string
+          updated_by: string
+          version?: number
+          warning_confirmed_at?: string | null
+          warning_confirmed_by?: string | null
+          warning_pct: number
+        }
+        Update: {
+          classification?: Database["public"]["Enums"]["loss_classification"]
+          closing_bags?: number
+          created_at?: string
+          created_by?: string
+          difference_bags?: number
+          difference_pct?: number | null
+          id?: string
+          note?: string | null
+          opening_bags?: number
+          operating_day?: string
+          produced_bags?: number
+          requires_review?: boolean
+          sold_bags?: number
+          source_snapshot?: Json
+          updated_at?: string
+          updated_by?: string
+          version?: number
+          warning_confirmed_at?: string | null
+          warning_confirmed_by?: string | null
+          warning_pct?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "daily_loss_reports_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_loss_reports_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: true
+            referencedRelation: "daily_dashboard"
+            referencedColumns: ["day"]
+          },
+          {
+            foreignKeyName: "daily_loss_reports_operating_day_fkey"
+            columns: ["operating_day"]
+            isOneToOne: true
+            referencedRelation: "operating_days"
+            referencedColumns: ["day"]
+          },
+          {
+            foreignKeyName: "daily_loss_reports_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "daily_loss_reports_warning_confirmed_by_fkey"
+            columns: ["warning_confirmed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expense_attachments: {
         Row: {
           bucket_id: string
@@ -1302,6 +1449,10 @@ export type Database = {
         }
         Returns: Json
       }
+      confirm_daily_loss_warning: {
+        Args: { p_expected_version: number; p_report_id: string }
+        Returns: Json
+      }
       correct_document_occurred_at: {
         Args: {
           p_entity_id: string
@@ -1344,6 +1495,7 @@ export type Database = {
         }
         Returns: Json
       }
+      get_daily_loss_report: { Args: { p_day: string }; Returns: Json }
       get_daily_reconciliation: { Args: { p_day: string }; Returns: Json }
       get_production_board: {
         Args: { p_production_date: string }
@@ -1383,6 +1535,10 @@ export type Database = {
       }
       review_expense: {
         Args: { p_decision: string; p_expense_id: string; p_reason?: string }
+        Returns: Json
+      }
+      save_daily_loss_report: {
+        Args: { p_idempotency_key: string; p_input: Json }
         Returns: Json
       }
       set_customer_active: {
@@ -1434,6 +1590,7 @@ export type Database = {
         | "sale"
         | "adjustment"
         | "reversal"
+      loss_classification: "matched" | "loss" | "surplus" | "no_production"
       operating_day_status: "open" | "locked"
       payment_method: "cash" | "bank_transfer"
       sale_kind: "wholesale" | "retail"
@@ -1574,6 +1731,7 @@ export const Constants = {
         "adjustment",
         "reversal",
       ],
+      loss_classification: ["matched", "loss", "surplus", "no_production"],
       operating_day_status: ["open", "locked"],
       payment_method: ["cash", "bank_transfer"],
       sale_kind: ["wholesale", "retail"],

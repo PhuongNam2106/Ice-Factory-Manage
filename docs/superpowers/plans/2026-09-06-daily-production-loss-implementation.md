@@ -492,7 +492,7 @@ git commit -m 'feat: define daily loss reports'
 ### Task 4: Implement transactional loss reconciliation RPCs
 
 **Files:**
-- Create: `supabase/migrations/20260906102000_daily_loss_rpcs.sql`
+- Create: `supabase/migrations/20260906081150_daily_loss_rpcs.sql`
 - Create: `src/modules/loss/daily-loss.integration.test.ts`
 - Create: `src/modules/loss/concurrency.integration.test.ts`
 - Modify: `supabase/seed.sql`
@@ -505,7 +505,7 @@ git commit -m 'feat: define daily loss reports'
 - Source snapshot keys are `producedBags`, `soldBags`, `pendingHarvestCount`, `productionFingerprint`, and `salesFingerprint`.
 - Save response includes report fields plus `isStale`, `pendingHarvestCount`, `canFinalize`, and `versions` only when requested from the manager history query.
 
-- [ ] **Step 1: Write a failing end-to-end database fixture**
+- [x] **Step 1: Write a failing end-to-end database fixture**
 
 Create one open operating day, a previous locked report with `closing_bags = 100`, two harvests totalling `500`, and active sale lines totalling `450`. Save closing stock `140` and assert:
 
@@ -526,7 +526,7 @@ expect(result).toMatchObject({
 
 Add cases for first-day manual opening, cancelled sales, a pending harvest quantity, zero production, a `6%` loss, and a second save with `expectedVersion`.
 
-- [ ] **Step 2: Run the database integration test and verify it fails**
+- [x] **Step 2: Run the database integration test and verify it fails**
 
 ```powershell
 $env:RUN_SUPABASE_INTEGRATION='true'
@@ -536,7 +536,7 @@ Remove-Item Env:RUN_SUPABASE_INTEGRATION
 
 Expected: failure because the RPCs are absent.
 
-- [ ] **Step 3: Build an authoritative source snapshot**
+- [x] **Step 3: Build an authoritative source snapshot**
 
 The private function must aggregate harvest quantity by the harvest operating day and active sales by stored `operating_day`. Use ordered JSON fingerprints so edits that preserve the same total are still detectable:
 
@@ -563,7 +563,7 @@ where s.operating_day = p_day
 
 Return all five documented keys. Do not read `inventory_ledger` or `stock_counts`.
 
-- [ ] **Step 4: Implement the save RPC as one transaction**
+- [x] **Step 4: Implement the save RPC as one transaction**
 
 The function must perform these checks in order:
 
@@ -581,7 +581,7 @@ The function must perform these checks in order:
 
 Return `VERSION_CONFLICT` with SQLSTATE `PT409` when the expected version is stale. A pending harvest does not prevent saving a draft; it sets `canFinalize` to false.
 
-- [ ] **Step 5: Implement read-time stale detection**
+- [x] **Step 5: Implement read-time stale detection**
 
 `get_daily_loss_report` must recompute the current source snapshot and compare it with `daily_loss_reports.source_snapshot`:
 
@@ -591,15 +591,15 @@ v_is_stale := v_report.source_snapshot is distinct from v_current_source;
 
 Return an empty draft with inherited opening/current source totals when no report exists. Return `previousDayReady = false` when the prior report/day is not locked.
 
-- [ ] **Step 6: Implement manager warning confirmation**
+- [x] **Step 6: Implement manager warning confirmation**
 
 Require `private.is_manager()`, an open day, matching `expectedVersion`, `requires_review = true`, no stale source snapshot, and no pending harvest. Set `warning_confirmed_by`, `warning_confirmed_at`, increment the report version, append a version snapshot, and write `daily_loss.warning_confirmed` to `audit_log`. Do not request or store a reason.
 
-- [ ] **Step 7: Prove idempotency and concurrent-edit safety**
+- [x] **Step 7: Prove idempotency and concurrent-edit safety**
 
 Run two saves with the same idempotency key and assert one report version. Then run two different saves with the same `expectedVersion`; assert exactly one succeeds and the other returns `VERSION_CONFLICT`.
 
-- [ ] **Step 8: Run integration tests**
+- [x] **Step 8: Run integration tests**
 
 ```powershell
 $env:RUN_SUPABASE_INTEGRATION='true'
@@ -609,10 +609,10 @@ Remove-Item Env:RUN_SUPABASE_INTEGRATION
 
 Expected: all test cases pass and clean up only their UUID-scoped fixtures.
 
-- [ ] **Step 9: Commit Task 4**
+- [x] **Step 9: Commit Task 4**
 
 ```powershell
-git add supabase/migrations/20260906102000_daily_loss_rpcs.sql supabase/seed.sql src/modules/loss/daily-loss.integration.test.ts src/modules/loss/concurrency.integration.test.ts
+git add supabase/migrations/20260906081150_daily_loss_rpcs.sql supabase/seed.sql src/modules/loss/daily-loss.integration.test.ts src/modules/loss/concurrency.integration.test.ts src/lib/supabase/database.types.ts
 git commit -m 'feat: reconcile daily production loss'
 ```
 
