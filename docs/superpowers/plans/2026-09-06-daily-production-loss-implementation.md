@@ -1163,7 +1163,7 @@ git add docs/runbooks/daily-loss-cutover.md supabase/seed.sql tests/e2e/full-day
 git commit -m 'test: verify daily loss cutover'
 ```
 
-- [ ] **Step 9: Push only the Dev branch for Preview review**
+- [x] **Step 9: Push only the Dev branch for Preview review**
 
 ```powershell
 git status --short
