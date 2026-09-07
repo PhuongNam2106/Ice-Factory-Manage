@@ -1,8 +1,9 @@
 'use client'
 
 import { useRef, useState, useTransition } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { CircleNotch, CheckCircle, Warning } from '@phosphor-icons/react'
+import { ArrowRight, CircleNotch, CheckCircle, Warning } from '@phosphor-icons/react'
 import { saveDailyLossAction } from '@/modules/loss/actions'
 import { createIdempotencyKey } from '@/modules/shared/idempotency'
 import type { DailyLossReport } from '@/modules/loss/types'
@@ -18,6 +19,11 @@ function successMessage(report: DailyLossReport) {
   return 'Đã lưu chênh lệch; không thể tính tỷ lệ vì chưa có sản lượng.'
 }
 
+function getPreviousOperatingDay(operatingDay: string) {
+  const [year, month, day] = operatingDay.split('-').map(Number)
+  return new Date(Date.UTC(year, month - 1, day - 1)).toISOString().slice(0, 10)
+}
+
 export function DailyLossForm({ report }: { report: DailyLossReport }) {
   const router = useRouter()
   const idempotencyKey = useRef(createIdempotencyKey())
@@ -25,6 +31,7 @@ export function DailyLossForm({ report }: { report: DailyLossReport }) {
   const [pending, startTransition] = useTransition()
   const needsOpening = report.openingBags == null && report.previousDayReady
   const missingPreviousDay = report.openingBags == null && !report.previousDayReady
+  const previousOperatingDay = getPreviousOperatingDay(report.operatingDay)
   const locked = report.status === 'locked'
   const blocked = missingPreviousDay || report.pendingHarvestCount > 0
   const disabled = pending || locked || blocked
@@ -89,7 +96,26 @@ export function DailyLossForm({ report }: { report: DailyLossReport }) {
       </Field>
 
       {locked ? <p className="rounded-xl bg-slate-100 p-4 text-xs font-semibold text-slate-700">Ngày vận hành đã khóa nên không thể chỉnh sửa.</p> : null}
-      {missingPreviousDay ? <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs font-semibold text-amber-950">Ngày trước chưa được chốt nên chưa xác định được tồn đầu. Hãy hoàn tất ngày trước trước.</p> : null}
+      {missingPreviousDay ? (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-950" role="status">
+          <div className="flex items-start gap-2.5">
+            <Warning className="mt-0.5 shrink-0 text-amber-700" size={18} weight="fill" />
+            <div>
+              <p className="text-sm font-extrabold">Ngày {previousOperatingDay} chưa được chốt</p>
+              <p className="mt-1 text-xs font-semibold leading-relaxed">
+                Hãy nhập tồn đầu, tồn cuối và hoàn tất ngày này để hệ thống xác định tồn đầu kế thừa.
+              </p>
+            </div>
+          </div>
+          <Link
+            className="mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-amber-300 bg-white px-4 py-2.5 text-center text-xs font-extrabold text-amber-950 shadow-2xs transition hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2"
+            href={`/loss/${previousOperatingDay}`}
+          >
+            <span>Mở ngày {previousOperatingDay} để hoàn tất</span>
+            <ArrowRight aria-hidden="true" size={15} weight="bold" />
+          </Link>
+        </div>
+      ) : null}
       {report.pendingHarvestCount > 0 ? <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs font-semibold text-amber-950">Còn {report.pendingHarvestCount} lần xả đá chưa nhập số bao.</p> : null}
       {message ? (
         <div

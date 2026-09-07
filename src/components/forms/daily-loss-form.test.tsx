@@ -49,4 +49,21 @@ describe('DailyLossForm', () => {
     expect(screen.getByRole('button', { name: 'Chưa thể lưu đối soát' })).toBeDisabled()
     expect(screen.getByText('Còn 2 lần xả đá chưa nhập số bao.')).toBeInTheDocument()
   })
+
+  it('links to the previous operating day when opening stock is blocked', () => {
+    render(
+      <DailyLossForm
+        report={{
+          ...report,
+          operatingDay: '2026-09-06',
+          previousDayReady: false,
+          canFinalize: false,
+        }}
+      />,
+    )
+
+    const link = screen.getByRole('link', { name: 'Mở ngày 2026-09-05 để hoàn tất' })
+    expect(link).toHaveAttribute('href', '/loss/2026-09-05')
+    expect(screen.getByRole('button', { name: 'Chưa thể lưu đối soát' })).toBeDisabled()
+  })
 })
