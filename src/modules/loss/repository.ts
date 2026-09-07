@@ -2,6 +2,7 @@ import 'server-only'
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database, Json } from '@/lib/supabase/database.types'
+import { getOperatingDay } from '@/modules/shared/operating-day'
 import type {
   ConfirmDailyLossWarning,
   DailyLoss,
@@ -9,6 +10,7 @@ import type {
 import type {
   DailyLossHistoryItem,
   DailyLossVersionItem,
+  IncompleteLossDayWorkspace,
 } from './types'
 
 export type LossClient = SupabaseClient<Database>
@@ -66,6 +68,57 @@ export async function listDailyLossReports(
     version: row.version,
     updatedAt: row.updated_at,
   }))
+}
+
+export async function listIncompleteLossDays(
+  client: LossClient,
+  currentDay: string,
+  limit = 60,
+): Promise<IncompleteLossDayWorkspace> {
+  const { data: settings, error: settingsError } = await client
+    .from('settings')
+    .select('operating_day_cutover_at')
+    .eq('id', true)
+    .single()
+  if (settingsError || !settings.operating_day_cutover_at) {
+    throw new Error('Không thể xác định ngày bắt đầu đối soát hao hụt.')
+  }
+
+  const firstOperatingDay = getOperatingDay(new Date(settings.operating_day_cutover_at))
+  const { data, error } = await client
+    .from('daily_dashboard')
+    .select('day, status, loss_report_exists, loss_report_stale, loss_requires_review, pending_harvest_count')
+    .gte('day', firstOperatingDay)
+    .lte('day', currentDay)
+    .order('day', { ascending: true })
+    .limit(Math.max(limit, 366))
+  if (error) throw new Error('Không thể tải các ngày đối soát chưa hoàn tất.')
+
+  const rows = data.some((row) => row.day === currentDay)
+    ? data
+    : [...data, {
+        day: currentDay,
+        status: 'open' as const,
+        loss_report_exists: false,
+        loss_report_stale: false,
+        loss_requires_review: false,
+        pending_harvest_count: 0,
+      }]
+
+  return {
+    firstOperatingDay,
+    days: rows
+      .filter((row) => row.day && row.status === 'open')
+      .sort((left, right) => left.day!.localeCompare(right.day!))
+      .slice(0, limit)
+      .map((row) => ({
+        operatingDay: row.day!,
+        hasReport: Boolean(row.loss_report_exists),
+        isStale: Boolean(row.loss_report_stale),
+        requiresReview: Boolean(row.loss_requires_review),
+        pendingHarvestCount: Number(row.pending_harvest_count),
+      })),
+  }
 }
 
 export async function listDailyLossReportVersions(

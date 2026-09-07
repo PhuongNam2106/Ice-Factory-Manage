@@ -54,6 +54,19 @@ export type DailyLossHistoryItem = {
   updatedAt: string
 }
 
+export type IncompleteLossDay = {
+  operatingDay: string
+  hasReport: boolean
+  isStale: boolean
+  requiresReview: boolean
+  pendingHarvestCount: number
+}
+
+export type IncompleteLossDayWorkspace = {
+  firstOperatingDay: string
+  days: IncompleteLossDay[]
+}
+
 export type DailyLossVersionItem = {
   version: number
   snapshot: import('@/lib/supabase/database.types').Json

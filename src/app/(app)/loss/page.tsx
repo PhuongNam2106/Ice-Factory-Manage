@@ -1,21 +1,28 @@
 import { DailyLossForm } from '@/components/forms/daily-loss-form'
+import { LossDayNavigator } from '@/components/loss/loss-day-navigator'
 import { LossHistory } from '@/components/loss/loss-history'
 import { LossSummary } from '@/components/loss/loss-summary'
 import { PageHeader } from '@/components/ui/page-header'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { requireUser } from '@/modules/auth/service'
-import { listDailyLossReports } from '@/modules/loss/repository'
+import { ensureOperatingDay } from '@/modules/closing/ensure-day'
+import { listDailyLossReports, listIncompleteLossDays } from '@/modules/loss/repository'
+import { resolveSelectableLossDay } from '@/modules/loss/schema'
 import { getDailyLossReport } from '@/modules/loss/service'
 import { getOperatingDay } from '@/modules/shared/operating-day'
 
-export default async function LossPage() {
+export default async function LossPage({ searchParams }: { searchParams: Promise<{ day?: string }> }) {
   await requireUser()
-  const operatingDay = getOperatingDay(new Date())
+  const currentDay = getOperatingDay(new Date())
+  const params = await searchParams
   const client = await createServerSupabaseClient()
-  const [report, history] = await Promise.all([
-    getDailyLossReport(operatingDay, client),
+  const [workspace, history] = await Promise.all([
+    listIncompleteLossDays(client, currentDay),
     listDailyLossReports(client),
   ])
+  const operatingDay = resolveSelectableLossDay(params.day, workspace.firstOperatingDay, currentDay)
+  await ensureOperatingDay(operatingDay, client)
+  const report = await getDailyLossReport(operatingDay, client)
 
   return (
     <section className="space-y-6">
@@ -23,6 +30,13 @@ export default async function LossPage() {
         badge={`Ngày vận hành ${operatingDay}`}
         description="Đối chiếu tồn đầu, sản lượng máy, tổng bán sỉ/lẻ và tồn cuối thực tế theo chu kỳ [20:00 - 20:00)"
         title="Theo Dõi Hao Hụt Sản Xuất"
+      />
+
+      <LossDayNavigator
+        currentDay={currentDay}
+        days={workspace.days}
+        firstOperatingDay={workspace.firstOperatingDay}
+        selectedDay={operatingDay}
       />
 
       {report.ok ? (

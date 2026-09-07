@@ -38,6 +38,19 @@ export type DailyLoss = z.output<typeof dailyLossInputSchema>
 export type ConfirmDailyLossWarningInput = z.input<typeof confirmDailyLossWarningSchema>
 export type ConfirmDailyLossWarning = z.output<typeof confirmDailyLossWarningSchema>
 
+export function resolveSelectableLossDay(
+  requestedDay: string | undefined,
+  firstOperatingDay: string,
+  currentDay: string,
+) {
+  const parsed = dailyLossDaySchema.safeParse(requestedDay)
+  return parsed.success
+    && parsed.data >= firstOperatingDay
+    && parsed.data <= currentDay
+    ? parsed.data
+    : currentDay
+}
+
 export function calculateDailyLoss(
   input: DailyLossCalculationInput,
 ): DailyLossCalculation {

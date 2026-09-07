@@ -25,11 +25,11 @@ function status(item: DailyLossHistoryItem) {
   return { label: labels[item.classification], tone, requiresReview: item.requiresReview && !item.warningConfirmedAt, matched: item.classification === 'matched' }
 }
 
-export function LossHistory({ items }: { items: DailyLossHistoryItem[] }) {
-  if (items.length === 0) {
-    return <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm font-semibold text-slate-500">Chưa có ngày nào được đối soát.</p>
-  }
+type LossHistoryProps = {
+  items: DailyLossHistoryItem[]
+}
 
+export function LossHistory({ items }: LossHistoryProps) {
   return (
     <section aria-labelledby="loss-history-title" className="space-y-3">
       <div className="flex items-center justify-between">
@@ -37,7 +37,10 @@ export function LossHistory({ items }: { items: DailyLossHistoryItem[] }) {
         <span className="text-xs font-semibold text-slate-500">{items.length} ngày gần nhất</span>
       </div>
 
-      <div className="space-y-3 md:hidden">
+      {items.length === 0 ? (
+        <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm font-semibold text-slate-500">Chưa có ngày nào được đối soát.</p>
+      ) : <>
+        <div className="space-y-3 md:hidden">
         {items.map((item) => {
           const currentStatus = status(item)
           return (
@@ -66,9 +69,9 @@ export function LossHistory({ items }: { items: DailyLossHistoryItem[] }) {
             </Link>
           )
         })}
-      </div>
+        </div>
 
-      <div className="hidden overflow-x-auto rounded-2xl border border-slate-200/80 bg-white shadow-2xs md:block">
+        <div className="hidden overflow-x-auto rounded-2xl border border-slate-200/80 bg-white shadow-2xs md:block">
         <table className="min-w-full text-left text-sm">
           <thead className="bg-slate-50/80 text-xs uppercase tracking-wide text-slate-500 border-b border-slate-100">
             <tr>
@@ -115,7 +118,8 @@ export function LossHistory({ items }: { items: DailyLossHistoryItem[] }) {
             })}
           </tbody>
         </table>
-      </div>
+        </div>
+      </>}
     </section>
   )
 }

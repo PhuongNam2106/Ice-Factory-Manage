@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { calculateDailyLoss, dailyLossInputSchema } from './schema'
+import * as lossSchema from './schema'
 
 describe('calculateDailyLoss', () => {
   it('calculates a positive loss against production', () => {
@@ -72,5 +73,23 @@ describe('dailyLossInputSchema', () => {
     expect(dailyLossInputSchema.safeParse({ ...validInput, closingBags: undefined }).success).toBe(false)
     expect(dailyLossInputSchema.safeParse({ ...validInput, closingBags: -1 }).success).toBe(false)
     expect(dailyLossInputSchema.safeParse({ ...validInput, closingBags: 1.5 }).success).toBe(false)
+  })
+})
+
+describe('resolveSelectableLossDay', () => {
+  it('keeps dates inside the configured range and falls back to today otherwise', () => {
+    const resolveSelectableLossDay = (
+      lossSchema as typeof lossSchema & {
+        resolveSelectableLossDay?: (requested: string | undefined, firstDay: string, currentDay: string) => string
+      }
+    ).resolveSelectableLossDay
+
+    expect(resolveSelectableLossDay).toBeTypeOf('function')
+    if (!resolveSelectableLossDay) return
+
+    expect(resolveSelectableLossDay('2026-09-05', '2026-09-05', '2026-09-06')).toBe('2026-09-05')
+    expect(resolveSelectableLossDay('2026-09-07', '2026-09-05', '2026-09-06')).toBe('2026-09-06')
+    expect(resolveSelectableLossDay('2026-09-04', '2026-09-05', '2026-09-06')).toBe('2026-09-06')
+    expect(resolveSelectableLossDay('05/09/2026', '2026-09-05', '2026-09-06')).toBe('2026-09-06')
   })
 })
