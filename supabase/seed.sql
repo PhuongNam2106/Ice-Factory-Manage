@@ -1,6 +1,11 @@
 insert into public.settings (id) values (true)
 on conflict (id) do nothing;
 
+update public.settings
+set operating_day_cutover_at = '2026-09-05T13:00:00Z',
+    loss_warning_pct = 5
+where id = true;
+
 -- Local-only E2E accounts. Their six-digit password is not stored as plaintext.
 -- Both accounts authenticate with password 123456 used in tests/e2e/auth.spec.ts.
 insert into auth.users (
@@ -44,14 +49,14 @@ insert into public.machines (id, name, code, created_by) values (
 
 insert into public.operating_days (day, status)
 values
-  (((now() at time zone 'Asia/Bangkok')::date - 1), 'open'),
-  (((now() at time zone 'Asia/Bangkok')::date), 'open')
+  ('2026-09-05', 'open'),
+  ('2026-09-06', 'open')
 on conflict (day) do nothing;
 
 insert into public.inventory_ledger (
   operating_day, kind, quantity_delta_bags, source_type, source_id, note, created_by
 ) values (
-  ((now() at time zone 'Asia/Bangkok')::date - 1),
+  '2026-09-05',
   'opening',
   100,
   'local_seed',

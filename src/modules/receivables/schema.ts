@@ -17,7 +17,7 @@ export const receiptAllocationSchema = z.object({
 export const recordReceiptSchema = z
   .object({
     customerId: z.string().uuid('ID khách hàng không hợp lệ'),
-    operatingDay: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Ngày vận hành không hợp lệ'),
+    occurredAt: z.iso.datetime({ offset: true }).optional().nullable().default(null),
     amountVnd: positiveVndSchema,
     paymentMethod: z.enum(['cash', 'bank_transfer']),
     note: z

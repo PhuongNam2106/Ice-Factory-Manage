@@ -19,7 +19,7 @@ class ReportAuthorizationError extends Error {
 
 const reportNames: Record<ReportKind, string> = {
   sales: 'ban-hang', production: 'san-xuat', expenses: 'chi-phi',
-  receivables: 'cong-no', inventory: 'so-kho', audit: 'nhat-ky-audit',
+  receivables: 'cong-no', inventory: 'so-kho', loss: 'hao-hut', audit: 'nhat-ky-audit',
 }
 
 function validDay(value: string | null): value is string {

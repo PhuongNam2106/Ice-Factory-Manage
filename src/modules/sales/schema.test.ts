@@ -2,13 +2,26 @@ import { describe, expect, it } from 'vitest'
 import { createSaleSchema } from './schema'
 
 const base = {
-  operatingDay: '2026-08-12',
+  occurredAt: null,
   paymentMethod: 'cash' as const,
   note: '',
   idempotencyKey: crypto.randomUUID(),
 }
 
 describe('createSaleSchema', () => {
+  it('accepts server-time entry without a client-selected operating day', () => {
+    const sale = createSaleSchema.parse({
+      ...base,
+      kind: 'retail',
+      shiftCode: 'DAY',
+      lines: [{ quantityBags: 2, unitPriceVnd: 10000 }],
+      paidNowVnd: 20000,
+    })
+
+    expect(sale.occurredAt).toBeNull()
+    expect(sale).not.toHaveProperty('operatingDay')
+  })
+
   it('requires a customer when wholesale credit remains', () => {
     expect(() =>
       createSaleSchema.parse({

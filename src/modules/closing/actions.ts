@@ -9,9 +9,9 @@ export async function refreshDailyReconciliation(day: string) {
   return getDailyReconciliation(day)
 }
 
-export async function lockDay(day: string, reason?: string | null) {
+export async function lockDay(day: string) {
   await requireManager()
-  const result = await lockOperatingDay(day, reason)
+  const result = await lockOperatingDay(day)
   if (result.ok) { revalidatePath('/closing'); revalidatePath(`/closing/${day}`) }
   return result
 }

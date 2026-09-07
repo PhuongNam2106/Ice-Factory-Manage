@@ -21,6 +21,12 @@ describe('MachineProductionCard', () => {
     expect(screen.getByText('Phải bắt đầu máy trước khi xả đá.')).toBeInTheDocument()
   })
 
+  it('allows starting a stopped machine between 18:00 and 20:00', () => {
+    render(<MachineProductionCard isManager={false} locked={false} machine={stopped} managerWritable now={new Date('2026-09-05T12:00:00Z')} productionDate="2026-09-04" productionEndsAt="2026-09-05T13:00:00Z" reminderMinutes={30} writable />)
+    expect(screen.getByRole('button', { name: 'Bắt đầu chạy' })).toBeEnabled()
+    expect(screen.queryByText(/18:00–20:00/)).not.toBeInTheDocument()
+  })
+
   it('shows a zero-bag harvest and explains pending harvest blocking', () => {
     const machine: MachineProductionState = {
       ...stopped,

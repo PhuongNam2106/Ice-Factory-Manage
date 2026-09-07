@@ -1,10 +1,60 @@
 import Link from 'next/link'
+import { CaretRight, Lock, LockOpen } from '@phosphor-icons/react/dist/ssr'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { PageHeader } from '@/components/ui/page-header'
 import { requireManager } from '@/modules/auth/service'
 import { listOperatingDays } from '@/modules/closing/repository'
 
 export default async function ClosingPage() {
   await requireManager()
   const days = await listOperatingDays(await createServerSupabaseClient())
-  return <section className="space-y-6"><header><p className="text-xs font-bold uppercase tracking-wide text-sky-700">Quản lý</p><h1 className="mt-1 text-2xl font-extrabold text-slate-950 sm:text-3xl">Đối Chiếu & Khóa Sổ</h1><p className="mt-1 text-sm text-slate-600">Kiểm tra chứng từ, tồn kho và lưu snapshot bất biến trước khi khóa.</p></header><div className="overflow-hidden rounded-3xl border border-slate-200 bg-white">{days.map((item) => <Link className="flex min-h-16 items-center justify-between border-b border-slate-100 px-5 py-4 last:border-0" href={`/closing/${item.day}`} key={item.day}><div><p className="font-bold text-slate-950">{item.day}</p><p className="text-xs text-slate-500">Snapshot phiên bản {item.snapshot_version}</p></div><span className={`rounded-full px-3 py-1 text-xs font-bold ${item.status === 'locked' ? 'bg-slate-200 text-slate-800' : 'bg-emerald-100 text-emerald-800'}`}>{item.status === 'locked' ? 'Đã khóa' : 'Đang mở'}</span></Link>)}</div></section>
+
+  return (
+    <section className="space-y-6">
+      <PageHeader
+        badge="Quản lý chốt ca & đối soát"
+        description="Kiểm tra chứng từ, báo cáo hao hụt và lưu snapshot bất biến trước khi khóa đồng thời mọi nghiệp vụ trong ngày"
+        title="Đối Chiếu & Khóa Sổ"
+      />
+
+      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xs divide-y divide-slate-100">
+        {days.map((item) => {
+          const isLocked = item.status === 'locked'
+          return (
+            <Link
+              className="flex min-h-16 items-center justify-between px-5 py-4 transition hover:bg-slate-50/80 active:bg-slate-100/60"
+              href={`/closing/${item.day}`}
+              key={item.day}
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                    isLocked ? 'bg-slate-100 text-slate-600' : 'bg-emerald-50 text-emerald-600'
+                  }`}
+                >
+                  {isLocked ? <Lock size={20} weight="fill" /> : <LockOpen size={20} weight="fill" />}
+                </div>
+                <div>
+                  <p className="font-bold text-slate-950">Ngày vận hành {item.day}</p>
+                  <p className="text-xs text-slate-500">Snapshot phiên bản v{item.snapshot_version}</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <span
+                  className={`inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-bold ${
+                    isLocked ? 'bg-slate-100 text-slate-700' : 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
+                  }`}
+                >
+                  {isLocked ? 'Đã khóa sổ' : 'Đang mở'}
+                </span>
+                <CaretRight size={16} weight="bold" className="text-slate-400" />
+              </div>
+            </Link>
+          )
+        })}
+      </div>
+    </section>
+  )
 }
+

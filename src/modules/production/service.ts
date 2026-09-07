@@ -6,15 +6,14 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { getFieldErrors } from '@/lib/validation'
 import {
   correctProductionActionRecord, deleteProductionActionRecord, getProductionBoardRecord, getProductionSummaryRecord,
-  lockProductionDayRecord, recordHarvestRecord, reopenProductionDayRecord,
-  setHarvestQuantityRecord, startMachineRecord, stopMachineRecord, type ProductionClient,
+  recordHarvestRecord, setHarvestQuantityRecord, startMachineRecord, stopMachineRecord, type ProductionClient,
 } from './repository'
 import {
   deleteProductionActionSchema, harvestQuantitySchema, machineActionSchema, productionCorrectionSchema,
-  productionDateSchema, productionRangeSchema,
-  type DeleteProductionActionInput, type HarvestQuantityInput, type MachineActionInput, type ProductionCorrectionInput, type ProductionDateInput,
+  productionRangeSchema,
+  type DeleteProductionActionInput, type HarvestQuantityInput, type MachineActionInput, type ProductionCorrectionInput,
 } from './schema'
-import type { MachineActionResult, MachineProductivitySummary, ProductionBoardSnapshot, ProductionDayResult } from './types'
+import type { MachineActionResult, MachineProductivitySummary, ProductionBoardSnapshot } from './types'
 
 const logSchema = z.object({
   id: z.string(), type: z.enum(['start', 'harvest', 'stop']), occurredAt: z.string(), actorName: z.string(),
@@ -42,15 +41,16 @@ const actionResultSchema: z.ZodType<MachineActionResult> = z.object({
   productionDate: z.string().optional(), startedAt: z.string().optional(), harvestedAt: z.string().optional(),
   stoppedAt: z.string().optional(), quantity: z.number().optional(), quantityUpdatedAt: z.string().optional(),
 })
-const dayResultSchema: z.ZodType<ProductionDayResult> = z.object({ productionDate: z.string(), status: z.enum(['open', 'locked']) })
 
 export function mapProductionError(message: string): ActionResult<never> {
   const mappings: Array<[string, string, string]> = [
     ['MACHINE_ALREADY_RUNNING', 'MACHINE_ALREADY_RUNNING', 'Máy đang chạy nên không thể bắt đầu thêm lần nữa.'],
     ['MACHINE_NOT_RUNNING', 'MACHINE_NOT_RUNNING', 'Máy chưa chạy nên không thể thực hiện thao tác này.'],
     ['PENDING_HARVEST_EXISTS', 'PENDING_HARVEST_EXISTS', 'Lần xả gần nhất chưa nhập số bao. Hãy cập nhật số bao trước khi xả tiếp.'],
-    ['START_OUTSIDE_PRODUCTION_HOURS', 'START_OUTSIDE_PRODUCTION_HOURS', 'Không thể bắt đầu máy trong khoảng 18:00–20:00.'],
+    ['CUTOVER_NOT_CONFIGURED', 'CUTOVER_NOT_CONFIGURED', 'Hệ thống chưa được cấu hình thời điểm bắt đầu vận hành. Vui lòng báo quản lý.'],
+    ['OCCURRED_AT_BEFORE_CUTOVER', 'OCCURRED_AT_BEFORE_CUTOVER', 'Thời gian hành động phải từ thời điểm bắt đầu vận hành hệ thống trở đi.'],
     ['PRODUCTION_DAY_LOCKED', 'PRODUCTION_DAY_LOCKED', 'Ngày sản xuất đã khóa nên không thể chỉnh sửa.'],
+    ['DAY_LOCKED', 'DAY_LOCKED', 'Ngày vận hành đã khóa nên không thể chỉnh sửa sản xuất.'],
     ['FORBIDDEN_QUANTITY_EDIT', 'FORBIDDEN_QUANTITY_EDIT', 'Bạn chỉ có thể sửa số bao do chính mình nhập.'],
     ['OPEN_MACHINE_RUNS', 'OPEN_MACHINE_RUNS', 'Còn máy đang chạy. Hãy tắt toàn bộ máy trước khi khóa ngày.'],
     ['PENDING_HARVESTS', 'PENDING_HARVESTS', 'Còn lần xả chưa nhập số bao. Hãy hoàn tất trước khi khóa ngày.'],
@@ -112,12 +112,4 @@ export async function correctProductionActionWithClient(input: ProductionCorrect
 export async function deleteProductionActionWithClient(input: DeleteProductionActionInput, client?: ProductionClient) {
   const value = validate(deleteProductionActionSchema, input); if (!value.ok) return value
   return parsedRpc(deleteProductionActionRecord(await clientOrDefault(client), value.data), actionResultSchema)
-}
-export async function lockProductionDayWithClient(input: ProductionDateInput, client?: ProductionClient) {
-  const value = validate(productionDateSchema, input); if (!value.ok) return value
-  return parsedRpc(lockProductionDayRecord(await clientOrDefault(client), value.data.productionDate), dayResultSchema)
-}
-export async function reopenProductionDayWithClient(input: ProductionDateInput, client?: ProductionClient) {
-  const value = validate(productionDateSchema, input); if (!value.ok) return value
-  return parsedRpc(reopenProductionDayRecord(await clientOrDefault(client), value.data.productionDate), dayResultSchema)
 }

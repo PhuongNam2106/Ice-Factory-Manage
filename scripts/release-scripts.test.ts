@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 // @ts-expect-error Node release scripts are intentionally plain ESM.
 import { validateEnvironment } from './verify-env.mjs'
 // @ts-expect-error Node release scripts are intentionally plain ESM.
-import { normalizeTargetUrl } from './smoke-production.mjs'
+import { assertExpectedBackendHost, normalizeTargetUrl } from './smoke-production.mjs'
 // @ts-expect-error Node release scripts are intentionally plain ESM.
 import { normalizeGeneratedTypes } from './generate-db-types.mjs'
 
@@ -33,6 +33,17 @@ describe('release scripts', () => {
   it('normalizes only HTTP(S) smoke targets', () => {
     expect(normalizeTargetUrl('https://preview.example.com/')).toBe('https://preview.example.com')
     expect(() => normalizeTargetUrl('file:///tmp/app')).toThrow('HTTP')
+  })
+
+  it('rejects a deployment connected to the wrong Supabase project', () => {
+    expect(() => assertExpectedBackendHost(
+      'mqclrhhatdkghvdebbyq.supabase.co',
+      'ycjzkesuvkyuuyptpzhb.supabase.co',
+    )).toThrow('không đúng Supabase')
+    expect(() => assertExpectedBackendHost(
+      'ycjzkesuvkyuuyptpzhb.supabase.co',
+      'ycjzkesuvkyuuyptpzhb.supabase.co',
+    )).not.toThrow()
   })
 
   it('keeps exactly one newline in generated database types', () => {

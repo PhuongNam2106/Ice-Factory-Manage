@@ -7,7 +7,7 @@ import type { DetailCell, DetailColumn } from './excel/detail-reports'
 import type { MonthlyReportDay } from './excel/monthly-report'
 
 export type ReportClient = SupabaseClient<Database>
-export type ReportKind = 'sales' | 'production' | 'expenses' | 'receivables' | 'inventory' | 'audit'
+export type ReportKind = 'sales' | 'production' | 'expenses' | 'receivables' | 'inventory' | 'loss' | 'audit'
 export type ReportDataset = {
   title: string
   sheetName: string
@@ -50,6 +50,8 @@ export async function getDailyReportInput(client: ReportClient, day: string): Pr
     soldBags: Number(data?.sold_bags ?? 0),
     collectedVnd: Number(data?.collected_vnd ?? 0),
     totalDebtVnd: Number(data?.total_debt_vnd ?? 0),
+    differenceBags: data?.difference_bags == null ? null : Number(data.difference_bags),
+    differencePct: data?.difference_pct == null ? null : Number(data.difference_pct),
   }
 }
 
@@ -61,6 +63,8 @@ export async function getMonthlyReportDays(client: ReportClient, from: string, t
     wholesaleVnd: Number(row.wholesale_revenue_vnd ?? 0), retailVnd: Number(row.retail_revenue_vnd ?? 0),
     approvedExpenseVnd: Number(row.approved_expense_vnd ?? 0), productionBags: Number(row.production_bags ?? 0),
     soldBags: Number(row.sold_bags ?? 0),
+    differenceBags: row.difference_bags == null ? null : Number(row.difference_bags),
+    differencePct: row.difference_pct == null ? null : Number(row.difference_pct),
   }))
 }
 
@@ -84,7 +88,7 @@ export async function getDetailReport(client: ReportClient, kind: ReportKind, fr
   }
 
   if (kind === 'production') {
-    const { data, error } = await client.from('machine_harvests').select('id, harvested_at, bag_quantity, quantity_updated_at, machines(name), machine_runs(started_at, stopped_at, production_days(production_date)), harvester:profiles!machine_harvests_harvested_by_fkey(full_name), updater:profiles!machine_harvests_quantity_updated_by_fkey(full_name)').gte('harvested_at', `${from}T20:00:00+07:00`).lte('harvested_at', `${addDays(to, 1)}T18:00:00+07:00`).order('harvested_at')
+    const { data, error } = await client.from('machine_harvests').select('id, harvested_at, bag_quantity, quantity_updated_at, machines(name), machine_runs(started_at, stopped_at, production_days(production_date)), harvester:profiles!machine_harvests_harvested_by_fkey(full_name), updater:profiles!machine_harvests_quantity_updated_by_fkey(full_name)').gte('harvested_at', `${from}T20:00:00+07:00`).lt('harvested_at', `${addDays(to, 1)}T20:00:00+07:00`).order('harvested_at')
     fail(error, 'năng suất máy')
     const rows = (data ?? []).map((row) => ({
       day: asDate(row.machine_runs.production_days.production_date), code: row.id,
@@ -130,6 +134,30 @@ export async function getDetailReport(client: ReportClient, kind: ReportKind, fr
     ], rows: [...debtRows, ...receiptRows] }
   }
 
+  if (kind === 'loss') {
+    const { data, error } = await client.from('daily_loss_reports')
+      .select('id, operating_day, opening_bags, produced_bags, sold_bags, closing_bags, difference_bags, classification, difference_pct, warning_pct, requires_review, warning_confirmed_at, note, version, updated_at, confirmer:profiles!daily_loss_reports_warning_confirmed_by_fkey(full_name)')
+      .gte('operating_day', from).lte('operating_day', to).order('operating_day')
+    fail(error, 'hao hụt sản xuất')
+    return { title: 'HAO HỤT SẢN XUẤT THEO NGÀY', sheetName: 'Hao hụt', columns: [
+      { key: 'day', label: 'Ngày', kind: 'date' }, { key: 'opening', label: 'Tồn đầu', kind: 'quantity' },
+      { key: 'produced', label: 'Sản xuất', kind: 'quantity' }, { key: 'sold', label: 'Đã bán', kind: 'quantity' },
+      { key: 'expected', label: 'Tồn cuối dự kiến', kind: 'quantity' }, { key: 'closing', label: 'Tồn cuối thực tế', kind: 'quantity' },
+      { key: 'difference', label: 'Chênh lệch có dấu', kind: 'quantity' }, { key: 'classification', label: 'Phân loại' },
+      { key: 'rate', label: 'Tỷ lệ (%)' }, { key: 'warning', label: 'Ngưỡng cảnh báo (%)' },
+      { key: 'review', label: 'Cần xác nhận' }, { key: 'confirmer', label: 'Người xác nhận' },
+      { key: 'note', label: 'Ghi chú' }, { key: 'version', label: 'Phiên bản' }, { key: 'updated', label: 'Cập nhật lúc', kind: 'date' },
+    ], rows: (data ?? []).map((row) => ({
+      day: asDate(row.operating_day), opening: Number(row.opening_bags), produced: Number(row.produced_bags),
+      sold: Number(row.sold_bags), expected: Number(row.opening_bags) + Number(row.produced_bags) - Number(row.sold_bags),
+      closing: Number(row.closing_bags), difference: Number(row.difference_bags), classification: row.classification,
+      rate: row.difference_pct == null ? null : Number(row.difference_pct), warning: Number(row.warning_pct),
+      review: row.requires_review && row.warning_confirmed_at == null,
+      confirmer: row.confirmer?.full_name ?? null, note: row.note,
+      version: row.version, updated: asDate(row.updated_at),
+    })) }
+  }
+
   if (kind === 'inventory') {
     const { data, error } = await client.from('inventory_ledger').select('id, operating_day, kind, quantity_delta_bags, source_type, source_id, reversal_of_id, note, created_at').gte('operating_day', from).lte('operating_day', to).order('created_at')
     fail(error, 'sổ kho')
@@ -149,7 +177,7 @@ export async function getDetailReport(client: ReportClient, kind: ReportKind, fr
   ], rows: (data ?? []).map((row) => ({ created: asDate(row.created_at), code: row.id, actor: row.actor_id, entityType: row.entity_type, entityId: row.entity_id, action: row.action, reason: row.reason, before: JSON.stringify(row.before_data), after: JSON.stringify(row.after_data) })) }
 }
 
-const backupTables = ['profiles', 'customers', 'machines', 'settings', 'operating_days', 'sales', 'sale_lines', 'receivables', 'receipts', 'receipt_allocations', 'production_days', 'machine_runs', 'machine_harvests', 'machine_harvest_revisions', 'production_action_requests', 'inventory_ledger', 'stock_counts', 'expense_categories', 'expenses', 'expense_attachments', 'audit_log'] as const
+const backupTables = ['profiles', 'customers', 'machines', 'settings', 'operating_days', 'sales', 'sale_lines', 'receivables', 'receipts', 'receipt_allocations', 'production_days', 'machine_runs', 'machine_harvests', 'machine_harvest_revisions', 'production_action_requests', 'daily_loss_reports', 'daily_loss_report_versions', 'inventory_ledger', 'stock_counts', 'expense_categories', 'expenses', 'expense_attachments', 'audit_log'] as const
 
 export async function getBackupTables(client: ReportClient) {
   const tables = []

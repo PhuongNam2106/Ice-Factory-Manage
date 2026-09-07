@@ -1,19 +1,25 @@
 export type ClosingCheckCode =
-  | 'MISSING_STOCK_COUNT'
+  | 'MISSING_LOSS_REPORT'
+  | 'PREVIOUS_DAY_NOT_READY'
+  | 'PENDING_HARVEST_QUANTITY'
+  | 'LOSS_REPORT_STALE'
+  | 'LOSS_REVIEW_REQUIRED'
+  | 'OPEN_MACHINE_RUNS'
   | 'PENDING_EXPENSES'
   | 'UNNAMED_CREDIT_SALES'
-  | 'INVALID_PRODUCTION_SOURCE'
   | 'INVALID_DOCUMENTS'
-  | 'STOCK_VARIANCE'
 
 export interface ClosingCheckInput {
-  stockCountExists: boolean
+  lossReportExists: boolean
+  previousDayReady: boolean
+  pendingHarvestCount: number
+  lossReportStale: boolean
+  lossRequiresReview: boolean
+  lossWarningConfirmed: boolean
+  openMachineRunCount?: number
   pendingExpenseCount: number
   unnamedCreditSaleCount: number
-  invalidProductionSourceCount: number
   invalidDocumentCount: number
-  stockVariancePct: number | null
-  stockWarningPct: number
 }
 
 export interface ClosingCheck {
@@ -33,17 +39,20 @@ export interface DailyTotals {
   productionBags: number
   approvedExpenseVnd: number
   pendingExpenseVnd: number
-  stockExpectedBags: number | null
-  stockActualBags: number | null
-  stockVarianceBags: number | null
-  stockVariancePct: number | null
+  openingBags: number | null
+  expectedClosingBags: number | null
+  closingBags: number | null
+  differenceBags: number | null
+  differencePct: number | null
 }
 
 export interface DailyReconciliation {
   day: string
   status: 'open' | 'locked'
   snapshotVersion: number
-  stockWarningPct: number
+  lossWarningPct: number
+  lossReportId: string | null
+  lossReportVersion: number | null
   totals: DailyTotals
   checks: ClosingCheck[]
   overrideReason?: string | null

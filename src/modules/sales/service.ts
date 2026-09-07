@@ -4,7 +4,6 @@ import { z } from 'zod'
 import { actionFailure, actionSuccess, type ActionResult } from '@/lib/result'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { getFieldErrors } from '@/lib/validation'
-import { ensureOperatingDay } from '@/modules/closing/ensure-day'
 import { createSaleRecord, type SalesClient } from './repository'
 import { createSaleSchema, type CreateSaleInput } from './schema'
 import type { CreateSaleResult } from './types'
@@ -12,8 +11,11 @@ import type { CreateSaleResult } from './types'
 const createSaleResultSchema = z.object({ saleId: z.string().uuid() })
 
 function mapSaleError(message: string): ActionResult<never> {
-  if (message.includes('INSUFFICIENT_STOCK')) {
-    return actionFailure('INSUFFICIENT_STOCK', 'Không đủ tồn kho thành phẩm để bán số bao này.')
+  if (message.includes('CUTOVER_NOT_CONFIGURED')) {
+    return actionFailure('CUTOVER_NOT_CONFIGURED', 'Hệ thống chưa được cấu hình thời điểm bắt đầu vận hành. Vui lòng báo quản lý.')
+  }
+  if (message.includes('OCCURRED_AT_BEFORE_CUTOVER')) {
+    return actionFailure('OCCURRED_AT_BEFORE_CUTOVER', 'Thời gian bán hàng phải từ thời điểm bắt đầu vận hành hệ thống trở đi.')
   }
   if (message.includes('DAY_LOCKED')) {
     return actionFailure('DAY_LOCKED', 'Ngày vận hành đã khóa, không thể ghi thêm bán hàng.')
@@ -44,12 +46,6 @@ export async function createSaleWithClient(
   }
 
   const supabase = client ?? (await createServerSupabaseClient())
-
-  try {
-    await ensureOperatingDay(parsed.data.operatingDay, supabase)
-  } catch {
-    return actionFailure('OPERATING_DAY_FAILED', 'Không thể khởi tạo ngày vận hành.')
-  }
 
   const { data, error } = await createSaleRecord(supabase, parsed.data)
   if (error) return mapSaleError(error.message)

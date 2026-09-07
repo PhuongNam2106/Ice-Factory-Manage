@@ -12,6 +12,8 @@ export type DailyReportInput = {
     soldBags: number
     collectedVnd: number
     totalDebtVnd: number
+    differenceBags: number | null
+    differencePct: number | null
   }
   expectedRevenueVnd?: number
 }
@@ -20,7 +22,7 @@ export async function buildDailyWorkbook(input: DailyReportInput): Promise<Buffe
   const revenueVnd = input.summary.wholesaleVnd + input.summary.retailVnd
   assertReconciled(revenueVnd, input.expectedRevenueVnd ?? revenueVnd, 'Doanh thu')
   const { workbook, sheet } = createWorkbook('BÁO CÁO VẬN HÀNH NGÀY', input.metadata)
-  const rows: Array<[string, number, string]> = [
+  const rows: Array<[string, number | null, string]> = [
     ['Tổng doanh thu', revenueVnd, currencyFormat],
     ['Doanh thu sỉ', input.summary.wholesaleVnd, currencyFormat],
     ['Doanh thu lẻ', input.summary.retailVnd, currencyFormat],
@@ -30,6 +32,8 @@ export async function buildDailyWorkbook(input: DailyReportInput): Promise<Buffe
     ['Tổng công nợ cuối ngày', input.summary.totalDebtVnd, currencyFormat],
     ['Sản xuất', input.summary.productionBags, quantityFormat],
     ['Đã bán', input.summary.soldBags, quantityFormat],
+    ['Chênh lệch hao hụt/dư kho', input.summary.differenceBags, quantityFormat],
+    ['Tỷ lệ hao hụt/dư kho', input.summary.differencePct, '0.000"%"'],
   ]
   rows.forEach(([label, value, format]) => {
     const row = sheet.addRow([label, value])

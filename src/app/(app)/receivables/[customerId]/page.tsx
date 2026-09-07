@@ -1,6 +1,8 @@
 import Link from 'next/link'
+import { ArrowLeft, Phone } from '@phosphor-icons/react/dist/ssr'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { CancelDocumentDialog } from '@/components/forms/cancel-document-dialog'
+import { CorrectOccurredAtDialog } from '@/components/forms/correct-occurred-at-dialog'
 import { ReceiptForm } from '@/components/forms/receipt-form'
 import { getCustomerById } from '@/modules/admin/catalog-service'
 import { requireUser } from '@/modules/auth/service'
@@ -36,10 +38,11 @@ export default async function CustomerReceivablesPage({
     <section className="mx-auto max-w-4xl space-y-6">
       <div>
         <Link
-          className="inline-flex items-center gap-1 text-xs font-bold text-sky-700 transition hover:text-sky-900"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-700 transition hover:text-sky-900"
           href="/receivables"
         >
-          <span>← Quay lại Danh sách Công nợ</span>
+          <ArrowLeft size={14} weight="bold" />
+          <span>Quay lại Danh sách Công nợ</span>
         </Link>
         <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -47,12 +50,15 @@ export default async function CustomerReceivablesPage({
               {customer?.name ?? 'Khách Hàng'}
             </h1>
             {customer?.phone ? (
-              <p className="text-xs text-slate-500">SĐT liên hệ: {customer.phone}</p>
+              <p className="mt-0.5 flex items-center gap-1 text-xs text-slate-500">
+                <Phone size={13} />
+                <span>SĐT liên hệ: {customer.phone}</span>
+              </p>
             ) : null}
           </div>
-          <div className="rounded-2xl bg-sky-50 px-4 py-2 text-right border border-sky-100">
+          <div className="rounded-2xl bg-sky-50 px-4 py-2.5 text-right border border-sky-100/80">
             <span className="text-[10px] font-bold uppercase tracking-wider text-sky-800">Tổng Dư Nợ Khách Hàng</span>
-            <p className="text-xl font-black text-sky-950">{currency.format(totalOutstanding)} VNĐ</p>
+            <p className="text-xl font-black text-sky-950 tabular-nums">{currency.format(totalOutstanding)} VNĐ</p>
           </div>
         </div>
       </div>
@@ -65,7 +71,7 @@ export default async function CustomerReceivablesPage({
       />
 
       {/* Receipts History */}
-      <div className="overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-2xs">
+      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xs">
         <div className="border-b border-slate-100 px-6 py-4">
           <h2 className="text-base font-bold text-slate-900">Lịch Sử Phiếu Thu Tiền</h2>
         </div>
@@ -82,8 +88,8 @@ export default async function CustomerReceivablesPage({
                   ) : null}
                 </div>
                 <div className="space-y-2 text-right">
-                  <p className={`text-lg font-extrabold ${receipt.status === 'active' ? 'text-emerald-700' : 'text-slate-400 line-through'}`}>+{currency.format(receipt.amountVnd)} đ</p>
-                  {receipt.status === 'active' && !receipt.sourceSaleId && (user.role === 'manager' || receipt.createdBy === user.id) ? <CancelDocumentDialog entityId={receipt.id} entityType="receipt" label="phiếu thu" version={receipt.version} /> : null}
+                  <p className={`text-lg font-extrabold tabular-nums ${receipt.status === 'active' ? 'text-emerald-700' : 'text-slate-400 line-through'}`}>+{currency.format(receipt.amountVnd)} đ</p>
+                  {receipt.status === 'active' && !receipt.sourceSaleId && (user.role === 'manager' || receipt.createdBy === user.id) ? <div className="flex flex-wrap justify-end gap-2"><CorrectOccurredAtDialog entityId={receipt.id} entityType="receipt" label="phiếu thu" occurredAt={receipt.occurredAt} version={receipt.version} /><CancelDocumentDialog entityId={receipt.id} entityType="receipt" label="phiếu thu" version={receipt.version} /></div> : null}
                 </div>
               </li>
             ))}

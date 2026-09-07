@@ -5,6 +5,7 @@ import { requireUser } from '@/modules/auth/service'
 import { ensureOperatingDay } from '@/modules/closing/ensure-day'
 import { listExpenseCategories } from '@/modules/expenses/repository'
 import { getOperatingDay } from '@/modules/shared/operating-day'
+import { ArrowLeft } from '@phosphor-icons/react/dist/ssr'
 
 export default async function NewExpensePage() {
   await requireUser()
@@ -13,5 +14,26 @@ export default async function NewExpensePage() {
   await ensureOperatingDay(day, client)
   const categories = await listExpenseCategories(client)
 
-  return <section className="mx-auto max-w-3xl space-y-5"><header><Link className="text-sm font-bold text-sky-700" href="/expenses">← Quay lại chi phí</Link><h1 className="mt-2 text-2xl font-extrabold text-slate-950">Nhập Chi Phí</h1><p className="text-sm text-slate-600">Ngày {day}. Khoản chi được lưu ở trạng thái Chờ duyệt.</p></header><ExpenseForm categories={categories} operatingDay={day} /></section>
+  return (
+    <section className="mx-auto max-w-3xl space-y-6">
+      <header>
+        <Link
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-sky-700 transition hover:text-sky-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+          href="/expenses"
+        >
+          <ArrowLeft className="h-4 w-4" weight="bold" />
+          <span>Quay lại Chi phí</span>
+        </Link>
+        <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">
+          Nhập Khoản Chi Mới
+        </h1>
+        <p className="mt-1 text-xs text-slate-500 sm:text-sm">
+          Ngày vận hành: <strong className="text-slate-700">{day}</strong>. Khoản chi sẽ
+          được lưu ở trạng thái Chờ duyệt.
+        </p>
+      </header>
+
+      <ExpenseForm categories={categories} />
+    </section>
+  )
 }

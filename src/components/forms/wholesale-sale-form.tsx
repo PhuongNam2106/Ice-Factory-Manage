@@ -3,8 +3,10 @@
 import { useMemo, useRef, useState, useTransition } from 'react'
 import type { CustomerOption } from '@/modules/admin/catalog-service'
 import { createIdempotencyKey } from '@/modules/shared/idempotency'
+import { parseBangkokOccurredAt } from '@/modules/shared/occurred-at'
 import { createSale } from '@/modules/sales/actions'
 import { SaleLineEditor, type SaleLineDraft } from './sale-line-editor'
+import { OccurredAtField } from './occurred-at-field'
 
 const currency = new Intl.NumberFormat('vi-VN')
 
@@ -14,10 +16,8 @@ function emptyLine(): SaleLineDraft {
 
 export function WholesaleSaleForm({
   customers,
-  operatingDay,
 }: {
   customers: CustomerOption[]
-  operatingDay: string
 }) {
   const formRef = useRef<HTMLFormElement>(null)
   const idempotencyKey = useRef(createIdempotencyKey())
@@ -31,10 +31,17 @@ export function WholesaleSaleForm({
 
   function submit(formData: FormData) {
     setMessage(null)
+    let occurredAt: string | null
+    try {
+      occurredAt = parseBangkokOccurredAt(formData.get('occurredAt'))
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Thời gian phát sinh không hợp lệ')
+      return
+    }
     startTransition(async () => {
       const result = await createSale({
         kind: 'wholesale',
-        operatingDay,
+        occurredAt,
         customerId: String(formData.get('customerId') ?? '') || null,
         lines: lines.map(({ quantityBags, unitPriceVnd }) => ({ quantityBags, unitPriceVnd })),
         paidNowVnd: String(formData.get('paidNowVnd') ?? '0'),
@@ -77,6 +84,8 @@ export function WholesaleSaleForm({
 
       <SaleLineEditor lines={lines} onChange={setLines} />
 
+      <OccurredAtField />
+
       {/* Calculated Total Bar */}
       <div className="flex items-center justify-between rounded-2xl bg-sky-50/80 p-4 ring-1 ring-sky-200/60">
         <span className="text-xs font-bold uppercase tracking-wider text-sky-900">Tổng Giá Trị Đơn Bán Sỉ</span>
@@ -108,8 +117,8 @@ export function WholesaleSaleForm({
             defaultValue="cash"
             name="paymentMethod"
           >
-            <option value="cash">💵 Tiền mặt</option>
-            <option value="bank_transfer">🏦 Chuyển khoản ngân hàng</option>
+            <option value="cash">Tiền mặt</option>
+            <option value="bank_transfer">Chuyển khoản ngân hàng</option>
           </select>
         </div>
       </div>
@@ -141,7 +150,7 @@ export function WholesaleSaleForm({
       ) : null}
 
       <button
-        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-sky-600 px-5 py-4 font-bold text-white shadow-lg shadow-sky-600/20 transition-all hover:bg-sky-700 active:scale-[0.99] disabled:cursor-wait disabled:opacity-60"
+        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-sky-700 px-5 py-3.5 text-sm font-bold text-white shadow-sm shadow-sky-700/20 transition-all hover:bg-sky-800 active:scale-[0.99] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
         disabled={isPending}
         type="submit"
       >

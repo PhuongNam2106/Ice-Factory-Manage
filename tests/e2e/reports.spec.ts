@@ -15,6 +15,11 @@ test('xuất Excel hợp lệ và chặn employee khỏi audit/backup', async ({
   const download = await downloadPromise
   expect(download.suggestedFilename()).toMatch(/^(Báo cáo ngày |bao-cao-ngay-)\d{4}-\d{2}-\d{2}\.xlsx$/)
 
+  const lossDownloadPromise = page.waitForEvent('download')
+  await page.getByRole('button', { name: 'Tải Excel Hao hụt sản xuất' }).click()
+  const lossDownload = await lossDownloadPromise
+  expect(lossDownload.suggestedFilename()).toMatch(/^(Hao hụt |hao-hut-)\d{4}-\d{2}-\d{2}/)
+
   expect((await page.request.get('/api/reports/audit?from=2026-08-01&to=2026-08-31')).status()).toBe(403)
   expect((await page.request.get('/api/reports/backup')).status()).toBe(403)
 })

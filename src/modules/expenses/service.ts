@@ -4,7 +4,6 @@ import { z } from 'zod'
 import { actionFailure, actionSuccess, type ActionResult } from '@/lib/result'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { getFieldErrors } from '@/lib/validation'
-import { ensureOperatingDay } from '@/modules/closing/ensure-day'
 import {
   createExpenseRecord,
   finalizeAttachmentRecord,
@@ -34,6 +33,12 @@ const reviewResultSchema = z.object({
 const finalizeResultSchema = z.object({ attachmentId: z.string().uuid() })
 
 function mapExpenseError(message: string): ActionResult<never> {
+  if (message.includes('CUTOVER_NOT_CONFIGURED')) {
+    return actionFailure('CUTOVER_NOT_CONFIGURED', 'Hệ thống chưa được cấu hình thời điểm bắt đầu vận hành. Vui lòng báo quản lý.')
+  }
+  if (message.includes('OCCURRED_AT_BEFORE_CUTOVER')) {
+    return actionFailure('OCCURRED_AT_BEFORE_CUTOVER', 'Thời gian chi phí phải từ thời điểm bắt đầu vận hành hệ thống trở đi.')
+  }
   if (message.includes('DAY_LOCKED')) {
     return actionFailure('DAY_LOCKED', 'Ngày vận hành đã khóa.')
   }
@@ -58,11 +63,6 @@ export async function createExpenseWithClient(
     return actionFailure('VALIDATION_ERROR', 'Thông tin chi phí không hợp lệ.', getFieldErrors(parsed.error))
   }
   const db = client ?? (await createServerSupabaseClient())
-  try {
-    await ensureOperatingDay(parsed.data.operatingDay, db)
-  } catch {
-    return actionFailure('OPERATING_DAY_FAILED', 'Không thể khởi tạo ngày vận hành.')
-  }
   const { data, error } = await createExpenseRecord(db, parsed.data)
   if (error) return mapExpenseError(error.message)
   const result = createResultSchema.safeParse(data)

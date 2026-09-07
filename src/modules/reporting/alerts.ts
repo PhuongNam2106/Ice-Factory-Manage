@@ -9,18 +9,24 @@ export function detectOutlier(current: number, previous: number[]): boolean {
 }
 
 export function getOperationalAlerts(input: {
-  stockVariancePct: number | null
-  stockWarningPct: number
-  stockBalanceBags: number
+  lossReportExists: boolean
+  pendingHarvestCount: number
+  lossReportStale: boolean
+  lossRequiresReview: boolean
+  lossDifferenceBags: number | null
+  lossDifferencePct: string | number | null
+  lossWarningPct: number
   overdueDebtVnd: number
   pendingExpenseCount: number
-  productionMismatchCount: number
   previousDayUnlocked: boolean
   hasOutlier: boolean
 }): OperationalAlert[] {
   const alerts: OperationalAlert[] = []
-  if (input.stockVariancePct === null || input.stockVariancePct > input.stockWarningPct) alerts.push({ code: 'STOCK_VARIANCE', severity: 'danger', message: 'Chênh lệch tồn vượt ngưỡng cảnh báo.', blocking: false })
-  if (input.stockBalanceBags < 0) alerts.push({ code: 'INSUFFICIENT_STOCK', severity: 'danger', message: 'Tồn kho đang âm.', blocking: false })
+  if (!input.lossReportExists) alerts.push({ code: 'MISSING_LOSS_REPORT', severity: 'danger', message: 'Chưa nhập tồn cuối ngày.', blocking: false, href: '/loss' })
+  if (input.pendingHarvestCount > 0) alerts.push({ code: 'PENDING_HARVEST_QUANTITY', severity: 'danger', message: 'Còn lần xả đá chưa nhập số bao.', blocking: false, href: '/loss' })
+  if (input.lossReportStale) alerts.push({ code: 'LOSS_REPORT_STALE', severity: 'danger', message: 'Số liệu hao hụt đã thay đổi; cần kiểm tra và lưu lại.', blocking: false, href: '/loss' })
+  if (input.lossRequiresReview) alerts.push({ code: 'LOSS_REVIEW_REQUIRED', severity: 'danger', message: `Hao hụt hoặc dư kho vượt ngưỡng ${input.lossWarningPct.toLocaleString('vi-VN', { maximumFractionDigits: 2 })}%.`, blocking: false, href: '/loss' })
+  if (input.lossDifferenceBags != null && input.lossDifferenceBags < 0) alerts.push({ code: 'LOSS_SURPLUS', severity: 'warning', message: `Dư kho ${Math.abs(input.lossDifferenceBags).toLocaleString('vi-VN')} bao.`, blocking: false, href: '/loss' })
   if (input.overdueDebtVnd > 0) alerts.push({ code: 'OVERDUE_DEBT', severity: 'warning', message: `Có ${input.overdueDebtVnd.toLocaleString('vi-VN')} đ công nợ quá hạn.`, blocking: false })
   if (input.pendingExpenseCount > 0) alerts.push({ code: 'PENDING_EXPENSE', severity: 'warning', message: `${input.pendingExpenseCount} khoản chi đang chờ duyệt.`, blocking: false })
   if (input.previousDayUnlocked) alerts.push({ code: 'UNLOCKED_PREVIOUS_DAY', severity: 'warning', message: 'Ngày vận hành trước đó chưa khóa sổ.', blocking: false })

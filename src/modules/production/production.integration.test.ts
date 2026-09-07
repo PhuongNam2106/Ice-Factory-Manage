@@ -2,9 +2,8 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { describe, expect, it } from 'vitest'
-import type { Database } from '@/lib/supabase/database.types'
+import type { Database, Json } from '@/lib/supabase/database.types'
 import { usernameToAuthEmail } from '@/modules/auth/schema'
-import { canStartMachine } from './production-day'
 
 function isLocalUrl(url?: string) {
   if (!url) return false
@@ -13,6 +12,12 @@ function isLocalUrl(url?: string) {
   } catch {
     return false
   }
+}
+
+function addDays(day: string, amount: number) {
+  const value = new Date(`${day}T00:00:00.000Z`)
+  value.setUTCDate(value.getUTCDate() + amount)
+  return value.toISOString().slice(0, 10)
 }
 
 const canRun = Boolean(
@@ -29,7 +34,7 @@ describe('realtime machine production RPC integration', () => {
     return
   }
 
-  it.skipIf(!canStartMachine(new Date()))(
+  it(
     'records an idempotent run and harvest without changing inventory',
     async () => {
       const { adminClient } = await import('@/lib/supabase/admin')
@@ -154,8 +159,8 @@ describe('realtime machine production RPC integration', () => {
     45_000,
   )
 
-  it.skipIf(!canStartMachine(new Date()))(
-    'lets a manager correct time, then lock and reopen the production day with audit',
+  it(
+    'lets a manager correct time, then lock and reopen the unified operating day with audit',
     async () => {
       const { adminClient } = await import('@/lib/supabase/admin')
       const password = process.env.SUPABASE_TEST_EMPLOYEE_PASSWORD!
@@ -176,6 +181,28 @@ describe('realtime machine production RPC integration', () => {
       expect(started.error).toBeNull()
       const runId = (started.data as { runId: string; productionDate: string }).runId
       const productionDate = (started.data as { productionDate: string }).productionDate
+      const previousDay = addDays(productionDate, -1)
+      await adminClient.from('operating_days').upsert({
+        day: previousDay,
+        status: 'locked',
+        locked_at: new Date().toISOString(),
+        locked_by: '22222222-2222-2222-2222-222222222222',
+      }, { onConflict: 'day' })
+      await adminClient.from('daily_loss_reports').upsert({
+        operating_day: previousDay,
+        opening_bags: 0,
+        produced_bags: 0,
+        sold_bags: 0,
+        closing_bags: 0,
+        difference_bags: 0,
+        difference_pct: null,
+        classification: 'no_production',
+        warning_pct: 5,
+        requires_review: false,
+        source_snapshot: {} as Json,
+        created_by: '22222222-2222-2222-2222-222222222222',
+        updated_by: '22222222-2222-2222-2222-222222222222',
+      }, { onConflict: 'operating_day' })
       expect((await manager.rpc('stop_machine', {
         p_machine_id: machineId,
         p_idempotency_key: crypto.randomUUID(),
@@ -189,18 +216,32 @@ describe('realtime machine production RPC integration', () => {
       })
       expect(correction.error).toBeNull()
 
-      const locked = await manager.rpc('lock_production_day', { p_production_date: productionDate })
+      const lossDraft = await manager.rpc('get_daily_loss_report', { p_day: productionDate })
+      expect(lossDraft.error).toBeNull()
+      const openingBags = (lossDraft.data as { openingBags: number | null }).openingBags
+      const savedLoss = await manager.rpc('save_daily_loss_report', {
+        p_input: {
+          operatingDay: productionDate,
+          closingBags: openingBags ?? 0,
+          ...(openingBags == null ? { openingBags: 0 } : {}),
+        },
+        p_idempotency_key: crypto.randomUUID(),
+      })
+      expect(savedLoss.error).toBeNull()
+
+      const locked = await manager.rpc('lock_operating_day', { p_day: productionDate })
       expect(locked.error).toBeNull()
-      expect(locked.data).toMatchObject({ productionDate, status: 'locked' })
+      expect(locked.data).toMatchObject({ day: productionDate, status: 'locked' })
 
       const blockedCorrection = await manager.rpc('correct_production_action', {
         p_input: { actionType: 'change_run_start', runId, occurredAt: new Date().toISOString() },
         p_idempotency_key: crypto.randomUUID(),
       })
-      expect(blockedCorrection.error?.message).toContain('PRODUCTION_DAY_LOCKED')
+      expect(blockedCorrection.error?.message).toContain('DAY_LOCKED')
 
-      expect((await manager.rpc('reopen_production_day', {
-        p_production_date: productionDate,
+      expect((await manager.rpc('reopen_operating_day', {
+        p_day: productionDate,
+        p_reason: 'Tiếp tục hiệu chỉnh sản xuất',
       })).error).toBeNull()
       const audit = await adminClient.from('audit_log')
         .select('action, before_data, after_data')
@@ -214,7 +255,7 @@ describe('realtime machine production RPC integration', () => {
     45_000,
   )
 
-  it.skipIf(!canStartMachine(new Date()))(
+  it(
     'lets only a manager delete machine actions from newest to oldest with audit',
     async () => {
       const { adminClient } = await import('@/lib/supabase/admin')

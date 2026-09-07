@@ -2,8 +2,10 @@
 
 import { useMemo, useRef, useState, useTransition } from 'react'
 import { createIdempotencyKey } from '@/modules/shared/idempotency'
+import { parseBangkokOccurredAt } from '@/modules/shared/occurred-at'
 import { createSale } from '@/modules/sales/actions'
 import { SaleLineEditor, type SaleLineDraft } from './sale-line-editor'
+import { OccurredAtField } from './occurred-at-field'
 
 const currency = new Intl.NumberFormat('vi-VN')
 
@@ -11,7 +13,7 @@ function emptyLine(): SaleLineDraft {
   return { id: crypto.randomUUID(), quantityBags: '', unitPriceVnd: '' }
 }
 
-export function RetailSaleForm({ operatingDay }: { operatingDay: string }) {
+export function RetailSaleForm() {
   const formRef = useRef<HTMLFormElement>(null)
   const idempotencyKey = useRef(createIdempotencyKey())
   const [lines, setLines] = useState<SaleLineDraft[]>([emptyLine()])
@@ -24,10 +26,17 @@ export function RetailSaleForm({ operatingDay }: { operatingDay: string }) {
 
   function submit(formData: FormData) {
     setMessage(null)
+    let occurredAt: string | null
+    try {
+      occurredAt = parseBangkokOccurredAt(formData.get('occurredAt'))
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Thời gian phát sinh không hợp lệ')
+      return
+    }
     startTransition(async () => {
       const result = await createSale({
         kind: 'retail',
-        operatingDay,
+        occurredAt,
         shiftCode: String(formData.get('shiftCode') ?? ''),
         lines: lines.map(({ quantityBags, unitPriceVnd }) => ({ quantityBags, unitPriceVnd })),
         paidNowVnd: String(formData.get('paidNowVnd') ?? '0'),
@@ -67,6 +76,8 @@ export function RetailSaleForm({ operatingDay }: { operatingDay: string }) {
 
       <SaleLineEditor lines={lines} onChange={setLines} />
 
+      <OccurredAtField />
+
       {/* Calculated Total Bar */}
       <div className="flex items-center justify-between rounded-2xl bg-emerald-50/80 p-4 ring-1 ring-emerald-200/60">
         <span className="text-xs font-bold uppercase tracking-wider text-emerald-900">Tổng Doanh Thu Ca Bán Lẻ</span>
@@ -100,8 +111,8 @@ export function RetailSaleForm({ operatingDay }: { operatingDay: string }) {
             defaultValue="cash"
             name="paymentMethod"
           >
-            <option value="cash">💵 Tiền mặt</option>
-            <option value="bank_transfer">🏦 Chuyển khoản ngân hàng</option>
+            <option value="cash">Tiền mặt</option>
+            <option value="bank_transfer">Chuyển khoản ngân hàng</option>
           </select>
         </div>
       </div>
@@ -134,7 +145,7 @@ export function RetailSaleForm({ operatingDay }: { operatingDay: string }) {
       ) : null}
 
       <button
-        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-5 py-4 font-bold text-white shadow-lg shadow-emerald-600/20 transition-all hover:bg-emerald-700 active:scale-[0.99] disabled:cursor-wait disabled:opacity-60"
+        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-bold text-white shadow-sm shadow-emerald-600/20 transition-all hover:bg-emerald-700 active:scale-[0.99] disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2"
         disabled={isPending}
         type="submit"
       >
