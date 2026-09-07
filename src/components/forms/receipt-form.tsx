@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useRef, useState, useTransition } from 'react'
+import { Lightning, Warning, CircleNotch, CheckCircle } from '@phosphor-icons/react'
 import { createIdempotencyKey } from '@/modules/shared/idempotency'
 import { parseBangkokOccurredAt } from '@/modules/shared/occurred-at'
 import { recordReceipt } from '@/modules/receivables/actions'
@@ -93,7 +94,7 @@ export function ReceiptForm({
   }
 
   return (
-    <form action={submit} className="space-y-6 rounded-3xl border border-slate-200/80 bg-white p-6 shadow-2xs sm:p-8" noValidate ref={formRef}>
+    <form action={submit} className="space-y-6 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-2xs sm:p-8" noValidate ref={formRef}>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-4">
         <div>
           <h2 className="text-lg font-bold text-slate-950">Lập Phiếu Thu Tiền</h2>
@@ -110,7 +111,7 @@ export function ReceiptForm({
             Số tiền thu (VNĐ)
           </label>
           <input
-            className="min-h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base font-bold text-slate-900 shadow-2xs outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
+            className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-base font-bold text-slate-900 shadow-2xs outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
             inputMode="numeric"
             min="1"
             onChange={(e) => setAmountVnd(e.target.value)}
@@ -126,12 +127,12 @@ export function ReceiptForm({
             Phương thức thanh toán
           </label>
           <select
-            className="min-h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
+            className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 shadow-2xs outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
             defaultValue="cash"
             name="paymentMethod"
           >
-            <option value="cash">💵 Tiền mặt</option>
-            <option value="bank_transfer">🏦 Chuyển khoản ngân hàng</option>
+            <option value="cash">Tiền mặt</option>
+            <option value="bank_transfer">Chuyển khoản ngân hàng</option>
           </select>
         </div>
       </div>
@@ -146,11 +147,12 @@ export function ReceiptForm({
           </label>
           {openReceivables.length > 0 && totalReceiptAmount > 0 ? (
             <button
-              className="text-xs font-bold text-sky-700 hover:text-sky-900 underline"
+              className="inline-flex items-center gap-1 text-xs font-bold text-sky-700 hover:text-sky-900"
               onClick={autoDistribute}
               type="button"
             >
-              ⚡ Phân bổ tự động từ cũ nhất
+              <Lightning size={14} weight="fill" />
+              <span>Phân bổ tự động từ cũ nhất</span>
             </button>
           ) : null}
         </div>
@@ -206,8 +208,9 @@ export function ReceiptForm({
         </div>
 
         {unallocatedAmount < 0 ? (
-          <div className="rounded-2xl border border-rose-300 bg-rose-50 p-3 text-xs font-bold text-rose-800">
-            ⚠️ Tổng số tiền phân bổ ({currency.format(totalAllocatedAmount)}đ) vượt quá số tiền thực thu ({currency.format(totalReceiptAmount)}đ).
+          <div className="flex items-center gap-2 rounded-xl border border-rose-300 bg-rose-50 p-3 text-xs font-bold text-rose-800">
+            <Warning size={16} weight="fill" />
+            <span>Tổng số tiền phân bổ ({currency.format(totalAllocatedAmount)}đ) vượt quá số tiền thực thu ({currency.format(totalReceiptAmount)}đ).</span>
           </div>
         ) : null}
       </div>
@@ -217,7 +220,7 @@ export function ReceiptForm({
           Ghi chú phiếu thu
         </label>
         <textarea
-          className="min-h-20 w-full rounded-2xl border border-slate-300 bg-white p-4 text-sm text-slate-900 shadow-2xs outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
+          className="min-h-20 w-full rounded-xl border border-slate-300 bg-white p-4 text-sm text-slate-900 shadow-2xs outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
           maxLength={1000}
           name="note"
           placeholder="Nhập ghi chú thu tiền (nếu có)…"
@@ -227,23 +230,35 @@ export function ReceiptForm({
       {message ? (
         <div
           aria-live="polite"
-          className={`flex items-center gap-2.5 rounded-2xl p-4 text-sm font-semibold ${
+          className={`flex items-center gap-2.5 rounded-xl p-4 text-sm font-semibold ${
             message.includes('thành công')
               ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200'
               : 'bg-rose-50 text-rose-800 ring-1 ring-rose-200'
           }`}
           role="status"
         >
+          {message.includes('thành công') ? (
+            <CheckCircle size={18} weight="fill" className="text-emerald-600 shrink-0" />
+          ) : (
+            <Warning size={18} weight="fill" className="text-rose-600 shrink-0" />
+          )}
           <span>{message}</span>
         </div>
       ) : null}
 
       <button
-        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-sky-600 px-5 py-4 font-bold text-white shadow-lg shadow-sky-600/20 transition-all hover:bg-sky-700 active:scale-[0.99] disabled:cursor-wait disabled:opacity-60"
+        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-sky-600 px-5 py-4 font-bold text-white shadow-lg shadow-sky-600/20 transition-all hover:bg-sky-700 active:scale-[0.99] disabled:cursor-wait disabled:opacity-60"
         disabled={isPending || unallocatedAmount < 0}
         type="submit"
       >
-        {isPending ? 'Đang lưu phiếu thu…' : 'Lưu Phiếu Thu Tiền'}
+        {isPending ? (
+          <>
+            <CircleNotch size={18} className="animate-spin" />
+            <span>Đang lưu phiếu thu…</span>
+          </>
+        ) : (
+          'Lưu Phiếu Thu Tiền'
+        )}
       </button>
     </form>
   )

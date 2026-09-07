@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { CircleNotch, CheckCircle, Warning } from '@phosphor-icons/react'
 import { saveDailyLossAction } from '@/modules/loss/actions'
 import { createIdempotencyKey } from '@/modules/shared/idempotency'
 import type { DailyLossReport } from '@/modules/loss/types'
@@ -62,11 +63,11 @@ export function DailyLossForm({ report }: { report: DailyLossReport }) {
           : 'Lưu đối soát'
 
   return (
-    <form action={submit} className="space-y-5 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <form action={submit} className="space-y-5 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-2xs sm:p-6">
       <div>
         <p className="text-xs font-bold uppercase tracking-wider text-sky-700">Chốt tồn thực tế</p>
         <h2 className="mt-1 text-xl font-extrabold text-slate-950">Nhập số bao lúc 20:00</h2>
-        <p className="mt-1 text-sm text-slate-600">Có thể nhập nhanh ở giờ hiện tại; hệ thống vẫn ghi nhận cho ngày vận hành đang chọn.</p>
+        <p className="mt-1 text-xs text-slate-600">Có thể nhập nhanh ở giờ hiện tại; hệ thống vẫn ghi nhận cho ngày vận hành đang chọn.</p>
       </div>
 
       {needsOpening ? (
@@ -74,9 +75,9 @@ export function DailyLossForm({ report }: { report: DailyLossReport }) {
           <input className={control} defaultValue="" disabled={locked} inputMode="numeric" min="0" name="openingBags" required step="1" type="number" />
         </Field>
       ) : (
-        <div className="rounded-2xl bg-slate-50 p-4">
+        <div className="rounded-xl bg-slate-50 p-4 border border-slate-100">
           <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Tồn đầu kế thừa</p>
-          <p className="mt-1 text-xl font-extrabold text-slate-950">{report.openingBags == null ? 'Chưa xác định' : `${report.openingBags.toLocaleString('vi-VN')} bao`}</p>
+          <p className="mt-1 text-xl font-black text-slate-950 tabular-nums">{report.openingBags == null ? 'Chưa xác định' : `${report.openingBags.toLocaleString('vi-VN')} bao`}</p>
         </div>
       )}
 
@@ -87,12 +88,29 @@ export function DailyLossForm({ report }: { report: DailyLossReport }) {
         <textarea className={`${control} min-h-24 py-3`} defaultValue={report.note ?? ''} disabled={locked} maxLength={1000} name="note" />
       </Field>
 
-      {locked ? <p className="rounded-2xl bg-slate-100 p-4 text-sm font-semibold text-slate-700">Ngày vận hành đã khóa nên không thể chỉnh sửa.</p> : null}
-      {missingPreviousDay ? <p className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-950">Ngày trước chưa được chốt nên chưa xác định được tồn đầu. Hãy hoàn tất ngày trước trước.</p> : null}
-      {report.pendingHarvestCount > 0 ? <p className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-950">Còn {report.pendingHarvestCount} lần xả đá chưa nhập số bao.</p> : null}
-      {message ? <p aria-live="polite" className={`rounded-2xl p-4 text-sm font-semibold ${message.tone === 'success' ? 'bg-emerald-50 text-emerald-900' : 'bg-rose-50 text-rose-900'}`}>{message.text}</p> : null}
+      {locked ? <p className="rounded-xl bg-slate-100 p-4 text-xs font-semibold text-slate-700">Ngày vận hành đã khóa nên không thể chỉnh sửa.</p> : null}
+      {missingPreviousDay ? <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs font-semibold text-amber-950">Ngày trước chưa được chốt nên chưa xác định được tồn đầu. Hãy hoàn tất ngày trước trước.</p> : null}
+      {report.pendingHarvestCount > 0 ? <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs font-semibold text-amber-950">Còn {report.pendingHarvestCount} lần xả đá chưa nhập số bao.</p> : null}
+      {message ? (
+        <div
+          aria-live="polite"
+          className={`flex items-center gap-2 rounded-xl p-4 text-xs font-semibold ${
+            message.tone === 'success' ? 'bg-emerald-50 text-emerald-900 border border-emerald-200' : 'bg-rose-50 text-rose-900 border border-rose-200'
+          }`}
+        >
+          {message.tone === 'success' ? (
+            <CheckCircle size={16} weight="fill" className="text-emerald-600 shrink-0" />
+          ) : (
+            <Warning size={16} weight="fill" className="text-rose-600 shrink-0" />
+          )}
+          <span>{message.text}</span>
+        </div>
+      ) : null}
 
-      <button className={button} disabled={disabled} type="submit">{buttonLabel}</button>
+      <button className={`${button} flex items-center justify-center gap-2`} disabled={disabled} type="submit">
+        {pending ? <CircleNotch size={16} className="animate-spin" /> : null}
+        <span>{buttonLabel}</span>
+      </button>
     </form>
   )
 }

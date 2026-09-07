@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { ArrowLeft } from '@phosphor-icons/react/dist/ssr'
 import { MachineForm } from '@/components/forms/machine-form'
+import { PageHeader } from '@/components/ui/page-header'
 import { listMachines } from '@/modules/admin/catalog-service'
 import { AuthorizationError, requireManager } from '@/modules/auth/service'
 
@@ -16,23 +18,20 @@ export default async function MachineAdministrationPage() {
 
   return (
     <section className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-700">
-            <span className="h-2 w-2 rounded-full bg-sky-500" />
-            Danh mục hệ thống
-          </div>
-          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">
-            Máy Sản Xuất Đá
-          </h1>
-        </div>
-        <Link
-          className="inline-flex items-center gap-1 text-xs font-bold text-sky-700 hover:text-sky-900"
-          href="/admin/customers"
-        >
-          <span>← Quản lý khách hàng</span>
-        </Link>
-      </div>
+      <PageHeader
+        actions={
+          <Link
+            className="inline-flex items-center gap-1 text-xs font-bold text-sky-700 hover:text-sky-900 transition"
+            href="/admin/customers"
+          >
+            <ArrowLeft size={14} weight="bold" />
+            <span>Quản lý khách hàng</span>
+          </Link>
+        }
+        badge="Danh mục hệ thống"
+        description="Quản lý danh sách máy sản xuất đá và trạng thái hoạt động"
+        title="Máy Sản Xuất Đá"
+      />
 
       <MachineForm />
 
@@ -40,7 +39,7 @@ export default async function MachineAdministrationPage() {
         {machines.length ? (
           machines.map((machine) => <MachineForm key={machine.id} machine={machine} />)
         ) : (
-          <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-xs font-medium text-slate-500">
             Chưa có máy sản xuất nào trong danh mục.
           </div>
         )}
@@ -48,3 +47,4 @@ export default async function MachineAdministrationPage() {
     </section>
   )
 }
+

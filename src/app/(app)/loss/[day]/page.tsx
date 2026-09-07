@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ArrowLeft } from '@phosphor-icons/react/dist/ssr'
 import { DailyLossForm } from '@/components/forms/daily-loss-form'
 import { LossSummary } from '@/components/loss/loss-summary'
 import { LossVersionHistory } from '@/components/loss/loss-version-history'
@@ -20,11 +21,14 @@ export default async function LossDetailPage({ params }: { params: Promise<{ day
   }
 
   return (
-    <section className="space-y-7">
+    <section className="space-y-6">
       <header>
-        <Link className="inline-flex min-h-11 items-center rounded-xl pr-3 text-sm font-bold text-sky-800 hover:underline" href="/loss">← Lịch sử hao hụt</Link>
+        <Link className="inline-flex min-h-11 items-center gap-1.5 rounded-xl pr-3 text-xs font-bold text-sky-700 hover:text-sky-900 transition" href="/loss">
+          <ArrowLeft size={14} weight="bold" />
+          <span>Lịch sử hao hụt</span>
+        </Link>
         <p className="mt-2 text-xs font-bold uppercase tracking-wider text-sky-700">Ngày vận hành {day}</p>
-        <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">Chi tiết đối soát hao hụt</h1>
+        <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-slate-950 sm:text-3xl">Chi Tiết Đối Soát Hao Hụt</h1>
       </header>
 
       {report.ok ? (
@@ -36,7 +40,7 @@ export default async function LossDetailPage({ params }: { params: Promise<{ day
           {user.role === 'manager' ? <LossVersionHistory items={versions} /> : null}
         </>
       ) : (
-        <div className="rounded-3xl border border-rose-200 bg-rose-50 p-6 text-rose-950" role="alert">
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-rose-950" role="alert">
           <h2 className="font-extrabold">Không thể tải ngày đã chọn</h2>
           <p className="mt-1 text-sm">{report.error.message}</p>
         </div>

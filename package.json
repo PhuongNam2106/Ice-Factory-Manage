@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.7.1",
+    "@phosphor-icons/react": "^2.1.10",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.3",
     "clsx": "^2.1.1",
