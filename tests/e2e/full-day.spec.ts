@@ -159,7 +159,7 @@ test('records and closes daily production loss', async ({ page, context }) => {
   await page.goto(`/closing/${firstDay}`)
   await expect(page.getByText(/đã đủ điều kiện khóa sổ/)).toBeVisible()
   await page.getByRole('button', { name: 'Khóa sổ ngày' }).click()
-  await expect(page.getByText(/Trạng thái: Đã khóa · snapshot/)).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Mở lại ngày' })).toBeVisible()
 
   await context.clearCookies()
   await login(page, 'nhanvien')
