@@ -2,9 +2,10 @@
 
 import { useState } from 'react'
 import { deleteProductionAction } from '@/modules/production/actions'
-import type { DeleteProductionActionInput } from '@/modules/production/schema'
+import type { DeleteProductionActionInput, ProductionCorrectionInput } from '@/modules/production/schema'
 import type { MachineLogItem, MachineProductionState } from '@/modules/production/types'
 import { HarvestQuantityForm } from './harvest-quantity-form'
+import { HistoricalMachineRunDialog } from './historical-machine-run-dialog'
 import { ProductionCorrectionDialog } from './production-correction-dialog'
 import { ProductionDeleteDialog } from './production-delete-dialog'
 
@@ -15,11 +16,12 @@ const time = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Bangkok', hour: 
 const dateTime = new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })
 
 type CorrectionTarget = {
-  actionType: 'change_run_start' | 'change_run_stop' | 'change_harvest_time'
+  actionType: ProductionCorrectionInput['actionType']
+  machineId?: string
   runId?: string
   harvestId?: string
   label: string
-  initialTime: string
+  initialTime?: string
 }
 
 function deleteInput(machineId: string, item: MachineLogItem): DeleteProductionActionInput {
@@ -29,8 +31,9 @@ function deleteInput(machineId: string, item: MachineLogItem): DeleteProductionA
     : { ...common, actionType: item.type, runId: item.runId }
 }
 
-export function MachineProductionLog({ machine, isManager, locked, writable }: { machine: MachineProductionState; isManager: boolean; locked: boolean; writable: boolean }) {
+export function MachineProductionLog({ machine, productionDate, isManager, locked, writable, allowBackfill = false }: { machine: MachineProductionState; productionDate: string; isManager: boolean; locked: boolean; writable: boolean; allowBackfill?: boolean }) {
   const [correction, setCorrection] = useState<CorrectionTarget | null>(null)
+  const [addingHistoricalRun, setAddingHistoricalRun] = useState(false)
   const [deleting, setDeleting] = useState<MachineLogItem | null>(null)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -57,6 +60,14 @@ export function MachineProductionLog({ machine, isManager, locked, writable }: {
     {locked ? <p className="m-4 rounded-xl bg-slate-100 p-3 text-sm font-semibold text-slate-700">Ngày sản xuất đã khóa. Nhật ký chỉ có thể xem.</p> : null}
     {isManager && !locked && machine.logs.length > 1 ? <p className="mx-4 mt-4 rounded-xl bg-amber-50 p-3 text-sm font-semibold text-amber-900">Để giữ đúng trình tự máy, hãy xóa lần lượt từ hành động mới nhất.</p> : null}
     {message ? <p aria-live="polite" className="mx-4 mt-4 rounded-xl bg-sky-50 p-3 text-sm font-semibold text-sky-900">{message}</p> : null}
+    {isManager && allowBackfill && !locked ? <section aria-label="Nhập bù từ sổ tay" className="mx-4 mt-4 rounded-2xl border border-sky-200 bg-sky-50/70 p-4">
+      <p className="font-extrabold text-slate-950">Nhập bù từ sổ tay</p>
+      <p className="mt-1 text-sm text-slate-600">Tạo phiên với đầy đủ giờ bắt đầu và giờ tắt máy, sau đó thêm các lần xả đá. Mọi thay đổi đều được ghi vào lịch sử audit.</p>
+      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+        <button className="min-h-11 rounded-xl border border-emerald-300 bg-white px-3 text-sm font-bold text-emerald-700 disabled:border-slate-200 disabled:text-slate-400" disabled={!writable} onClick={() => setAddingHistoricalRun(true)} type="button">Thêm phiên chạy cũ</button>
+        <button className="min-h-11 rounded-xl border border-sky-300 bg-white px-3 text-sm font-bold text-sky-700 disabled:border-slate-200 disabled:text-slate-400" disabled={!writable || !machine.logs.some((item) => item.type === 'start')} onClick={() => setCorrection({ actionType: 'add_harvest', machineId: machine.id, initialTime: `${productionDate}T20:00:00+07:00`, label: `Nhập bù xả đá · ${machine.name} · Ngày ${productionDate}` })} title={!machine.logs.some((item) => item.type === 'start') ? 'Hãy thêm thời gian bắt đầu trước.' : undefined} type="button">Thêm xả đá</button>
+      </div>
+    </section> : null}
     <ol className="space-y-3 p-4">
       {machine.logs.map((item, index) => {
         const isLatest = index === 0
@@ -76,6 +87,7 @@ export function MachineProductionLog({ machine, isManager, locked, writable }: {
       {!machine.logs.length ? <li className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">Chưa có hoạt động trong ngày này.</li> : null}
     </ol>
     {deleting ? <ProductionDeleteDialog busy={busy} item={deleting} machineName={machine.name} onCancel={() => setDeleting(null)} onConfirm={executeDelete} /> : null}
+    {addingHistoricalRun ? <HistoricalMachineRunDialog machineId={machine.id} machineName={machine.name} onClose={() => setAddingHistoricalRun(false)} productionDate={productionDate} /> : null}
     {correction ? <ProductionCorrectionDialog onClose={() => setCorrection(null)} target={correction} /> : null}
   </section>
 }

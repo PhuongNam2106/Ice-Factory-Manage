@@ -2,9 +2,9 @@
 
 import { revalidatePath } from 'next/cache'
 import { requireManager, requireUser } from '@/modules/auth/service'
-import type { DeleteProductionActionInput, HarvestQuantityInput, MachineActionInput, ProductionCorrectionInput } from './schema'
+import type { DeleteProductionActionInput, HarvestQuantityInput, HistoricalMachineRunInput, MachineActionInput, ProductionCorrectionInput } from './schema'
 import {
-  correctProductionActionWithClient, deleteProductionActionWithClient, recordHarvestWithClient,
+  addHistoricalMachineRunWithClient, correctProductionActionWithClient, deleteProductionActionWithClient, recordHarvestWithClient,
   setHarvestQuantityWithClient, startMachineWithClient, stopMachineWithClient,
 } from './service'
 
@@ -15,5 +15,6 @@ export async function startMachine(input: MachineActionInput) { await requireUse
 export async function recordHarvest(input: MachineActionInput) { await requireUser(); return refreshOnSuccess(recordHarvestWithClient(input)) }
 export async function stopMachine(input: MachineActionInput) { await requireUser(); return refreshOnSuccess(stopMachineWithClient(input)) }
 export async function setHarvestQuantity(input: HarvestQuantityInput) { await requireUser(); return refreshOnSuccess(setHarvestQuantityWithClient(input)) }
+export async function addHistoricalMachineRun(input: HistoricalMachineRunInput) { await requireManager(); return refreshOnSuccess(addHistoricalMachineRunWithClient(input)) }
 export async function correctProductionAction(input: ProductionCorrectionInput) { await requireManager(); return refreshOnSuccess(correctProductionActionWithClient(input)) }
 export async function deleteProductionAction(input: DeleteProductionActionInput) { await requireManager(); return refreshOnSuccess(deleteProductionActionWithClient(input)) }
