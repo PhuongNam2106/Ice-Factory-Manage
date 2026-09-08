@@ -160,6 +160,97 @@ describe('realtime machine production RPC integration', () => {
   )
 
   it(
+    'adds a complete historical run before a later run without creating a temporary overlap',
+    async () => {
+      const { adminClient } = await import('@/lib/supabase/admin')
+      const password = process.env.SUPABASE_TEST_EMPLOYEE_PASSWORD!
+      const manager = createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!)
+      const employee = createClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!)
+      expect((await manager.auth.signInWithPassword({ email: usernameToAuthEmail('quanly'), password })).error).toBeNull()
+      expect((await employee.auth.signInWithPassword({ email: usernameToAuthEmail('nhanvien'), password })).error).toBeNull()
+
+      const previousSettings = await adminClient.from('settings').select('operating_day_cutover_at').eq('id', true).single()
+      const suffix = String(Date.now()).slice(-7)
+      const created = await adminClient.from('machines').insert({
+        name: `Historical run machine ${suffix}`,
+        code: `HR${suffix}`,
+        created_by: '22222222-2222-2222-2222-222222222222',
+      }).select('id').single()
+      expect(created.error).toBeNull()
+      const machineId = created.data!.id
+
+      try {
+        expect((await adminClient.from('settings').update({ operating_day_cutover_at: '2026-09-01T13:00:00.000Z' }).eq('id', true)).error).toBeNull()
+        const future = await manager.rpc('add_historical_machine_run', {
+          p_machine_id: machineId,
+          p_production_date: '2026-09-05',
+          p_started_at: '2026-09-05T15:00:00.000Z',
+          p_stopped_at: '2026-09-05T16:00:00.000Z',
+          p_idempotency_key: crypto.randomUUID(),
+        })
+        expect(future.error).toBeNull()
+
+        const requestId = crypto.randomUUID()
+        const historical = await manager.rpc('add_historical_machine_run', {
+          p_machine_id: machineId,
+          p_production_date: '2026-09-01',
+          p_started_at: '2026-09-01T13:00:00.000Z',
+          p_stopped_at: '2026-09-01T14:00:00.000Z',
+          p_idempotency_key: requestId,
+        })
+        expect(historical.error).toBeNull()
+        expect(historical.data).toMatchObject({ machineId, productionDate: '2026-09-01' })
+
+        const repeated = await manager.rpc('add_historical_machine_run', {
+          p_machine_id: machineId,
+          p_production_date: '2026-09-01',
+          p_started_at: '2026-09-01T13:00:00.000Z',
+          p_stopped_at: '2026-09-01T14:00:00.000Z',
+          p_idempotency_key: requestId,
+        })
+        expect(repeated.data).toEqual(historical.data)
+
+        const overlap = await manager.rpc('add_historical_machine_run', {
+          p_machine_id: machineId,
+          p_production_date: '2026-09-01',
+          p_started_at: '2026-09-01T13:30:00.000Z',
+          p_stopped_at: '2026-09-01T14:30:00.000Z',
+          p_idempotency_key: crypto.randomUUID(),
+        })
+        expect(overlap.error?.message).toContain('MACHINE_RUN_OVERLAP')
+
+        const forbidden = await employee.rpc('add_historical_machine_run', {
+          p_machine_id: machineId,
+          p_production_date: '2026-09-01',
+          p_started_at: '2026-09-01T15:00:00.000Z',
+          p_stopped_at: '2026-09-01T16:00:00.000Z',
+          p_idempotency_key: crypto.randomUUID(),
+        })
+        expect(forbidden.error?.message).toContain('FORBIDDEN')
+
+        const runs = await adminClient.from('machine_runs').select('id, started_at, stopped_at').eq('machine_id', machineId).order('started_at')
+        expect(runs.data).toHaveLength(2)
+        expect(runs.data?.map((run) => [run.started_at, run.stopped_at])).toEqual([
+          ['2026-09-01T13:00:00+00:00', '2026-09-01T14:00:00+00:00'],
+          ['2026-09-05T15:00:00+00:00', '2026-09-05T16:00:00+00:00'],
+        ])
+        const historicalRunId = (historical.data as { runId: string }).runId
+        const audit = await adminClient.from('audit_log').select('id').eq('entity_id', historicalRunId).eq('action', 'machine_run.historical_run_added')
+        expect(audit.data).toHaveLength(1)
+      } finally {
+        const runIds = (await adminClient.from('machine_runs').select('id').eq('machine_id', machineId)).data?.map((run) => run.id) ?? []
+        if (runIds.length) await adminClient.from('audit_log').delete().in('entity_id', runIds)
+        await adminClient.from('production_action_requests').delete().eq('machine_id', machineId)
+        await adminClient.from('machine_runs').delete().eq('machine_id', machineId)
+        await adminClient.from('machines').delete().eq('id', machineId)
+        await adminClient.from('settings').update({ operating_day_cutover_at: previousSettings.data?.operating_day_cutover_at ?? null }).eq('id', true)
+        await manager.auth.signOut(); await employee.auth.signOut()
+      }
+    },
+    45_000,
+  )
+
+  it(
     'lets a manager correct time, then lock and reopen the unified operating day with audit',
     async () => {
       const { adminClient } = await import('@/lib/supabase/admin')

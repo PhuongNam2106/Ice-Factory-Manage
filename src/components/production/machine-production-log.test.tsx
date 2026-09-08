@@ -1,13 +1,14 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import type { MachineProductionState } from '@/modules/production/types'
-import { correctProductionAction, deleteProductionAction } from '@/modules/production/actions'
+import { addHistoricalMachineRun, correctProductionAction, deleteProductionAction } from '@/modules/production/actions'
 import { MachineProductionLog } from './machine-production-log'
 
 vi.mock('@/modules/production/actions', () => ({
   deleteProductionAction: vi.fn(),
   setHarvestQuantity: vi.fn(),
   correctProductionAction: vi.fn(),
+  addHistoricalMachineRun: vi.fn(),
 }))
 
 afterEach(() => {
@@ -120,5 +121,44 @@ describe('MachineProductionLog', () => {
       occurredAt: '2026-09-05T21:30:00+07:00',
       bagQuantity: '30',
     })))
+  })
+
+  it('creates a historical machine run with its start and stop time in one action', async () => {
+    vi.mocked(addHistoricalMachineRun).mockResolvedValue({
+      ok: true,
+      data: {
+        machineId: machine.id,
+        runId: '55555555-5555-4555-8555-555555555555',
+        productionDate: '2026-09-05',
+      },
+    })
+    render(
+      <MachineProductionLog
+        allowBackfill
+        isManager
+        locked={false}
+        machine={machine}
+        productionDate="2026-09-05"
+        writable
+      />,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: 'Thêm phiên chạy cũ' }))
+    expect(screen.getByRole('dialog')).toHaveTextContent('Thêm phiên chạy cũ · Máy 1 · Ngày 2026-09-05')
+    fireEvent.change(screen.getByLabelText('Giờ bắt đầu (giờ Việt Nam)'), {
+      target: { value: '2026-09-05T23:00' },
+    })
+    fireEvent.change(screen.getByLabelText('Giờ tắt máy (giờ Việt Nam)'), {
+      target: { value: '2026-09-05T23:30' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Lưu phiên chạy' }))
+
+    await waitFor(() => expect(addHistoricalMachineRun).toHaveBeenCalledWith({
+      machineId: machine.id,
+      productionDate: '2026-09-05',
+      startedAt: '2026-09-05T23:00:00+07:00',
+      stoppedAt: '2026-09-05T23:30:00+07:00',
+      idempotencyKey: expect.any(String),
+    }))
   })
 })

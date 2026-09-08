@@ -1465,6 +1465,16 @@ export type Database = {
       }
     }
     Functions: {
+      add_historical_machine_run: {
+        Args: {
+          p_idempotency_key: string
+          p_machine_id: string
+          p_production_date: string
+          p_started_at: string
+          p_stopped_at: string
+        }
+        Returns: Json
+      }
       cancel_document: {
         Args: {
           p_entity_id: string

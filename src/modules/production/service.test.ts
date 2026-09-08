@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
+  addHistoricalMachineRunWithClient,
   deleteProductionActionWithClient,
   mapProductionError,
   setHarvestQuantityWithClient,
@@ -10,6 +11,50 @@ const machineId = '11111111-1111-4111-8111-111111111111'
 const key = '22222222-2222-4222-8222-222222222222'
 
 describe('production service', () => {
+  it('creates a complete historical run through one protected RPC call', async () => {
+    const rpc = vi.fn().mockResolvedValue({
+      data: {
+        machineId,
+        runId: key,
+        productionDate: '2026-09-01',
+        startedAt: '2026-09-01T13:00:00.000Z',
+        stoppedAt: '2026-09-01T14:00:00.000Z',
+      },
+      error: null,
+    })
+
+    const result = await addHistoricalMachineRunWithClient({
+      machineId,
+      productionDate: '2026-09-01',
+      startedAt: '2026-09-01T20:00:00+07:00',
+      stoppedAt: '2026-09-01T21:00:00+07:00',
+      idempotencyKey: key,
+    }, { rpc } as never)
+
+    expect(result.ok).toBe(true)
+    expect(rpc).toHaveBeenCalledWith('add_historical_machine_run', {
+      p_machine_id: machineId,
+      p_production_date: '2026-09-01',
+      p_started_at: '2026-09-01T20:00:00+07:00',
+      p_stopped_at: '2026-09-01T21:00:00+07:00',
+      p_idempotency_key: key,
+    })
+  })
+
+  it('rejects a historical run that stops before it starts', async () => {
+    const rpc = vi.fn()
+    const result = await addHistoricalMachineRunWithClient({
+      machineId,
+      productionDate: '2026-09-01',
+      startedAt: '2026-09-01T21:00:00+07:00',
+      stoppedAt: '2026-09-01T20:00:00+07:00',
+      idempotencyKey: key,
+    }, { rpc } as never)
+
+    expect(result).toMatchObject({ ok: false, error: { code: 'VALIDATION_ERROR' } })
+    expect(rpc).not.toHaveBeenCalled()
+  })
+
   it('rejects an invalid machine id before calling Supabase', async () => {
     const rpc = vi.fn()
     const result = await startMachineWithClient({ machineId: 'bad', idempotencyKey: key }, { rpc } as never)

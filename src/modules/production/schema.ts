@@ -18,6 +18,17 @@ export const productionDateSchema = z.object({ productionDate: dateSchema })
 export const productionRangeSchema = z.object({ from: dateSchema, to: dateSchema })
   .refine(({ from, to }) => from <= to, { path: ['to'], message: 'Ngày kết thúc phải từ ngày bắt đầu trở đi' })
 
+export const historicalMachineRunSchema = z.object({
+  machineId: z.string().uuid('Máy không hợp lệ'),
+  productionDate: dateSchema,
+  startedAt: z.string().datetime({ offset: true, message: 'Giờ bắt đầu không hợp lệ' }),
+  stoppedAt: z.string().datetime({ offset: true, message: 'Giờ tắt máy không hợp lệ' }),
+  idempotencyKey: idempotencyKeySchema,
+}).refine(({ startedAt, stoppedAt }) => new Date(stoppedAt) > new Date(startedAt), {
+  path: ['stoppedAt'],
+  message: 'Giờ tắt máy phải sau giờ bắt đầu',
+})
+
 const correctionBase = {
   occurredAt: z.string().datetime({ offset: true, message: 'Thời gian không hợp lệ' }),
   idempotencyKey: idempotencyKeySchema,
@@ -44,6 +55,7 @@ export const deleteProductionActionSchema = z.discriminatedUnion('actionType', [
 ])
 
 export type MachineActionInput = z.input<typeof machineActionSchema>
+export type HistoricalMachineRunInput = z.input<typeof historicalMachineRunSchema>
 export type HarvestQuantityInput = z.input<typeof harvestQuantitySchema>
 export type ProductionCorrectionInput = z.input<typeof productionCorrectionSchema>
 export type DeleteProductionActionInput = z.input<typeof deleteProductionActionSchema>

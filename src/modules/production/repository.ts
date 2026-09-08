@@ -2,7 +2,7 @@ import 'server-only'
 
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database, Json } from '@/lib/supabase/database.types'
-import type { DeleteProductionActionInput, ProductionCorrectionInput } from './schema'
+import type { DeleteProductionActionInput, HistoricalMachineRunInput, ProductionCorrectionInput } from './schema'
 
 export type ProductionClient = Pick<SupabaseClient<Database>, 'rpc'>
 
@@ -18,6 +18,14 @@ export const stopMachineRecord = (client: ProductionClient, machineId: string, i
   client.rpc('stop_machine', { p_machine_id: machineId, p_idempotency_key: idempotencyKey })
 export const setHarvestQuantityRecord = (client: ProductionClient, harvestId: string, quantity: number, idempotencyKey: string) =>
   client.rpc('set_harvest_quantity', { p_harvest_id: harvestId, p_quantity: quantity, p_idempotency_key: idempotencyKey })
+export const addHistoricalMachineRunRecord = (client: ProductionClient, input: HistoricalMachineRunInput) =>
+  client.rpc('add_historical_machine_run', {
+    p_machine_id: input.machineId,
+    p_production_date: input.productionDate,
+    p_started_at: input.startedAt,
+    p_stopped_at: input.stoppedAt,
+    p_idempotency_key: input.idempotencyKey,
+  })
 export const correctProductionActionRecord = (client: ProductionClient, input: ProductionCorrectionInput, idempotencyKey: string) => {
   const { idempotencyKey: _ignored, ...payload } = input
   void _ignored

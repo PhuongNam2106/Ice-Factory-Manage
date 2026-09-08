@@ -5,13 +5,13 @@ import { actionFailure, actionSuccess, type ActionResult } from '@/lib/result'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { getFieldErrors } from '@/lib/validation'
 import {
-  correctProductionActionRecord, deleteProductionActionRecord, getProductionBoardRecord, getProductionSummaryRecord,
+  addHistoricalMachineRunRecord, correctProductionActionRecord, deleteProductionActionRecord, getProductionBoardRecord, getProductionSummaryRecord,
   recordHarvestRecord, setHarvestQuantityRecord, startMachineRecord, stopMachineRecord, type ProductionClient,
 } from './repository'
 import {
-  deleteProductionActionSchema, harvestQuantitySchema, machineActionSchema, productionCorrectionSchema,
+  deleteProductionActionSchema, harvestQuantitySchema, historicalMachineRunSchema, machineActionSchema, productionCorrectionSchema,
   productionRangeSchema,
-  type DeleteProductionActionInput, type HarvestQuantityInput, type MachineActionInput, type ProductionCorrectionInput,
+  type DeleteProductionActionInput, type HarvestQuantityInput, type HistoricalMachineRunInput, type MachineActionInput, type ProductionCorrectionInput,
 } from './schema'
 import type { MachineActionResult, MachineProductivitySummary, ProductionBoardSnapshot } from './types'
 
@@ -60,6 +60,8 @@ export function mapProductionError(message: string): ActionResult<never> {
     ['MACHINE_RUN_OVERLAP', 'INVALID_TIMELINE', 'Thời gian chỉnh sửa làm các phiên chạy bị chồng lấn.'],
     ['HARVEST_OUTSIDE_RUN', 'INVALID_TIMELINE', 'Thời gian xả phải nằm trong thời gian máy chạy.'],
     ['RUN_NOT_FOUND_FOR_TIME', 'RUN_NOT_FOUND_FOR_TIME', 'Không tìm thấy phiên chạy chứa thời gian này. Hãy nhập giờ bắt đầu và giờ tắt máy đúng trước khi thêm lần xả.'],
+    ['HISTORICAL_RUN_DAY_MISMATCH', 'HISTORICAL_RUN_DAY_MISMATCH', 'Giờ bắt đầu không thuộc ngày sản xuất đang xem.'],
+    ['INVALID_HISTORICAL_RUN_RANGE', 'INVALID_HISTORICAL_RUN_RANGE', 'Giờ tắt máy phải sau giờ bắt đầu.'],
     ['RUN_OUTSIDE_PRODUCTION_DAY', 'INVALID_TIMELINE', 'Giờ bắt đầu phải nằm trong ngày sản xuất của phiên này.'],
     ['machine_runs_check', 'INVALID_TIMELINE', 'Giờ tắt máy phải sau giờ bắt đầu.'],
     ['ACTIVE_MACHINE_NOT_FOUND', 'MACHINE_NOT_FOUND', 'Máy không tồn tại hoặc đã ngừng hoạt động.'],
@@ -105,6 +107,10 @@ export async function stopMachineWithClient(input: MachineActionInput, client?: 
 export async function setHarvestQuantityWithClient(input: HarvestQuantityInput, client?: ProductionClient) {
   const value = validate(harvestQuantitySchema, input); if (!value.ok) return value
   return parsedRpc(setHarvestQuantityRecord(await clientOrDefault(client), value.data.harvestId, value.data.quantity, value.data.idempotencyKey), actionResultSchema)
+}
+export async function addHistoricalMachineRunWithClient(input: HistoricalMachineRunInput, client?: ProductionClient) {
+  const value = validate(historicalMachineRunSchema, input); if (!value.ok) return value
+  return parsedRpc(addHistoricalMachineRunRecord(await clientOrDefault(client), value.data), actionResultSchema)
 }
 export async function correctProductionActionWithClient(input: ProductionCorrectionInput, client?: ProductionClient) {
   const value = validate(productionCorrectionSchema, input); if (!value.ok) return value
