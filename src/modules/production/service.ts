@@ -59,6 +59,7 @@ export function mapProductionError(message: string): ActionResult<never> {
     ['PRODUCTION_DAY_NOT_FOUND', 'PRODUCTION_DAY_NOT_FOUND', 'Ngày này chưa có hoạt động sản xuất để khóa.'],
     ['MACHINE_RUN_OVERLAP', 'INVALID_TIMELINE', 'Thời gian chỉnh sửa làm các phiên chạy bị chồng lấn.'],
     ['HARVEST_OUTSIDE_RUN', 'INVALID_TIMELINE', 'Thời gian xả phải nằm trong thời gian máy chạy.'],
+    ['RUN_NOT_FOUND_FOR_TIME', 'RUN_NOT_FOUND_FOR_TIME', 'Không tìm thấy phiên chạy chứa thời gian này. Hãy nhập giờ bắt đầu và giờ tắt máy đúng trước khi thêm lần xả.'],
     ['RUN_OUTSIDE_PRODUCTION_DAY', 'INVALID_TIMELINE', 'Giờ bắt đầu phải nằm trong ngày sản xuất của phiên này.'],
     ['machine_runs_check', 'INVALID_TIMELINE', 'Giờ tắt máy phải sau giờ bắt đầu.'],
     ['ACTIVE_MACHINE_NOT_FOUND', 'MACHINE_NOT_FOUND', 'Máy không tồn tại hoặc đã ngừng hoạt động.'],

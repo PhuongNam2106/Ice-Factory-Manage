@@ -53,4 +53,14 @@ describe('production service', () => {
       error: { code: 'DELETE_ACTION_NOT_LATEST' },
     })
   })
+
+  it('explains why a backfilled harvest cannot be attached to a machine run', () => {
+    expect(mapProductionError('RUN_NOT_FOUND_FOR_TIME')).toMatchObject({
+      ok: false,
+      error: {
+        code: 'RUN_NOT_FOUND_FOR_TIME',
+        message: 'Không tìm thấy phiên chạy chứa thời gian này. Hãy nhập giờ bắt đầu và giờ tắt máy đúng trước khi thêm lần xả.',
+      },
+    })
+  })
 })
