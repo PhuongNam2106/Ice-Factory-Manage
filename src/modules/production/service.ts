@@ -36,8 +36,9 @@ const summarySchema: z.ZodType<MachineProductivitySummary[]> = z.array(z.object(
   runtimeSeconds: z.number(), downtimeSeconds: z.number(), averageHarvestIntervalSeconds: z.number().nullable(),
   latestHarvestAt: z.string().nullable(), isRunning: z.boolean(),
 }))
+const optionalRpcUuidSchema = z.string().uuid().nullable().optional().transform((value) => value ?? undefined)
 const actionResultSchema: z.ZodType<MachineActionResult> = z.object({
-  machineId: z.string().uuid(), runId: z.string().uuid().optional(), harvestId: z.string().uuid().optional(),
+  machineId: z.string().uuid(), runId: optionalRpcUuidSchema, harvestId: optionalRpcUuidSchema,
   productionDate: z.string().optional(), startedAt: z.string().optional(), harvestedAt: z.string().optional(),
   stoppedAt: z.string().optional(), quantity: z.number().optional(), quantityUpdatedAt: z.string().optional(),
 })

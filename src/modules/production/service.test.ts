@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import {
   addHistoricalMachineRunWithClient,
+  correctProductionActionWithClient,
   deleteProductionActionWithClient,
   mapProductionError,
   setHarvestQuantityWithClient,
@@ -11,6 +12,32 @@ const machineId = '11111111-1111-4111-8111-111111111111'
 const key = '22222222-2222-4222-8222-222222222222'
 
 describe('production service', () => {
+  it('accepts null identifiers returned for fields that do not apply to a correction', async () => {
+    const harvestId = '33333333-3333-4333-8333-333333333333'
+    const rpc = vi.fn().mockResolvedValue({
+      data: {
+        actionType: 'add_harvest',
+        machineId,
+        runId: null,
+        harvestId,
+      },
+      error: null,
+    })
+
+    const result = await correctProductionActionWithClient({
+      actionType: 'add_harvest',
+      machineId,
+      occurredAt: '2026-09-01T21:00:00+07:00',
+      bagQuantity: 12,
+      idempotencyKey: key,
+    }, { rpc } as never)
+
+    expect(result).toEqual({
+      ok: true,
+      data: { machineId, harvestId },
+    })
+  })
+
   it('creates a complete historical run through one protected RPC call', async () => {
     const rpc = vi.fn().mockResolvedValue({
       data: {
