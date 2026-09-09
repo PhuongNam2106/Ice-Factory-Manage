@@ -89,6 +89,7 @@ export type Database = {
           payment_term_days: number
           phone: string | null
           updated_at: string
+          wholesale_unit_price_vnd: number | null
         }
         Insert: {
           address?: string | null
@@ -100,6 +101,7 @@ export type Database = {
           payment_term_days?: number
           phone?: string | null
           updated_at?: string
+          wholesale_unit_price_vnd?: number | null
         }
         Update: {
           address?: string | null
@@ -111,6 +113,7 @@ export type Database = {
           payment_term_days?: number
           phone?: string | null
           updated_at?: string
+          wholesale_unit_price_vnd?: number | null
         }
         Relationships: [
           {
@@ -1596,6 +1599,7 @@ export type Database = {
           p_name: string
           p_payment_term_days: number
           p_phone: string
+          p_wholesale_unit_price_vnd: number
         }
         Returns: string
       }

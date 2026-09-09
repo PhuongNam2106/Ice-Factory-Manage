@@ -43,6 +43,7 @@ export async function saveCustomer(
     p_phone: parsed.data.phone ?? '',
     p_address: parsed.data.address ?? '',
     p_payment_term_days: parsed.data.paymentTermDays,
+    p_wholesale_unit_price_vnd: parsed.data.wholesaleUnitPriceVnd,
   } as unknown as CustomerRpcArgs
   const { data, error } = await supabase.rpc('upsert_customer', args)
 
