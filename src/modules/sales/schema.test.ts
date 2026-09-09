@@ -22,16 +22,50 @@ describe('createSaleSchema', () => {
     expect(sale).not.toHaveProperty('operatingDay')
   })
 
-  it('requires a customer when wholesale credit remains', () => {
-    expect(() =>
-      createSaleSchema.parse({
-        ...base,
-        kind: 'wholesale',
-        customerId: null,
-        lines: [{ quantityBags: '10', unitPriceVnd: 7000 }],
-        paidNowVnd: 0,
-      }),
-    ).toThrow('Khách hàng')
+  it('accepts one wholesale quantity without a client-selected price', () => {
+    const sale = createSaleSchema.parse({
+      ...base,
+      kind: 'wholesale',
+      customerId: crypto.randomUUID(),
+      quantityBags: '10',
+      historicalUnitPriceVnd: null,
+      paidNowVnd: 0,
+    })
+
+    expect(sale).toMatchObject({
+      kind: 'wholesale',
+      quantityBags: 10,
+      historicalUnitPriceVnd: null,
+    })
+    expect(sale).not.toHaveProperty('lines')
+  })
+
+  it('requires a customer for every wholesale sale', () => {
+    expect(() => createSaleSchema.parse({
+      ...base,
+      kind: 'wholesale',
+      customerId: null,
+      quantityBags: 10,
+      historicalUnitPriceVnd: null,
+      paidNowVnd: 70000,
+    })).toThrow('Khách hàng')
+  })
+
+  it('rejects invalid wholesale quantities and historical prices', () => {
+    const wholesale = {
+      ...base,
+      kind: 'wholesale' as const,
+      customerId: crypto.randomUUID(),
+      quantityBags: 10,
+      historicalUnitPriceVnd: null,
+      paidNowVnd: 0,
+    }
+
+    expect(() => createSaleSchema.parse({ ...wholesale, quantityBags: 0 })).toThrow('Số bao')
+    expect(() => createSaleSchema.parse({
+      ...wholesale,
+      historicalUnitPriceVnd: 0,
+    })).toThrow('Đơn giá')
   })
 
   it('supports multiple retail prices in one shift', () => {
