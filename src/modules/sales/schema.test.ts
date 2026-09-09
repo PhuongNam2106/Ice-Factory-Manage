@@ -80,8 +80,9 @@ describe('createSaleSchema', () => {
       paidNowVnd: 90000,
     })
 
-    expect(sale.lines).toHaveLength(2)
     expect(sale).toMatchObject({ kind: 'retail', shiftCode: 'DAY' })
+    if (sale.kind !== 'retail') throw new Error('Expected retail sale')
+    expect(sale.lines).toHaveLength(2)
   })
 
   it('rejects an amount received above the server-derived total', () => {
