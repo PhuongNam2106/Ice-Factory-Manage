@@ -2,7 +2,11 @@
 
 import { useId, useState } from 'react'
 
-export function OccurredAtField() {
+export function OccurredAtField({
+  onValueChange,
+}: {
+  onValueChange?: (localValue: string | null) => void
+}) {
   const [useCurrentTime, setUseCurrentTime] = useState(true)
   const id = useId()
 
@@ -13,7 +17,11 @@ export function OccurredAtField() {
           checked={useCurrentTime}
           className="size-5 accent-sky-700"
           id={`${id}-current`}
-          onChange={(event) => setUseCurrentTime(event.target.checked)}
+          onChange={(event) => {
+            const checked = event.target.checked
+            setUseCurrentTime(checked)
+            onValueChange?.(checked ? null : '')
+          }}
           type="checkbox"
         />
         Dùng giờ hiện tại
@@ -27,6 +35,7 @@ export function OccurredAtField() {
             className="min-h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20"
             id={`${id}-actual`}
             name="occurredAt"
+            onChange={(event) => onValueChange?.(event.target.value)}
             required
             type="datetime-local"
           />

@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { OccurredAtField } from './occurred-at-field'
 
 afterEach(cleanup)
@@ -23,5 +23,18 @@ describe('OccurredAtField', () => {
     expect(input).toHaveAttribute('name', 'occurredAt')
     expect(input).toBeRequired()
     expect(input).toHaveAttribute('type', 'datetime-local')
+  })
+
+  it('reports a selected local time and resets to server time', async () => {
+    const user = userEvent.setup()
+    const onValueChange = vi.fn()
+    render(<OccurredAtField onValueChange={onValueChange} />)
+
+    await user.click(screen.getByRole('checkbox', { name: 'Dùng giờ hiện tại' }))
+    await user.type(screen.getByLabelText('Thời gian thực tế'), '2026-09-01T20:00')
+    expect(onValueChange).toHaveBeenLastCalledWith('2026-09-01T20:00')
+
+    await user.click(screen.getByRole('checkbox', { name: 'Dùng giờ hiện tại' }))
+    expect(onValueChange).toHaveBeenLastCalledWith(null)
   })
 })
