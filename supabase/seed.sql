@@ -30,13 +30,14 @@ insert into public.profiles (id, username, phone, full_name, role, is_active) va
 on conflict (id) do nothing;
 
 insert into public.customers (
-  id, name, phone, address, payment_term_days, created_by
+  id, name, phone, address, payment_term_days, wholesale_unit_price_vnd, created_by
 ) values (
   '33333333-3333-4333-8333-333333333333',
   'Đầu mối E2E',
   '0912345680',
   'Dữ liệu thử cục bộ',
   7,
+  7000,
   '22222222-2222-2222-2222-222222222222'
 ) on conflict (id) do nothing;
 
