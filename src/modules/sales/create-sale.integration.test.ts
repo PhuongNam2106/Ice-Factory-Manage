@@ -43,7 +43,14 @@ describe('create_sale RPC integration', () => {
       previousDay.setUTCDate(previousDay.getUTCDate() - 1)
       const previousDayString = previousDay.toISOString().slice(0, 10)
       const lockedDay = `2199-01-01`
+      const historicalDay = '2026-09-07'
       const key = crypto.randomUUID()
+      const repricedKey = crypto.randomUUID()
+      const missingPriceKey = crypto.randomUUID()
+      const forbiddenHistoricalKey = crypto.randomUUID()
+      const managerHistoricalKey = crypto.randomUUID()
+      const missingHistoricalKey = crypto.randomUUID()
+      const currentOverrideKey = crypto.randomUUID()
       const failedKey = crypto.randomUUID()
       const retailKey1 = crypto.randomUUID()
       const retailKey2 = crypto.randomUUID()
@@ -53,10 +60,17 @@ describe('create_sale RPC integration', () => {
 
       let userId: string | null = null
       let customerId: string | null = null
+      let customerWithoutPriceId: string | null = null
 
       const client = createClient<Database>(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+        { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } },
+      )
+      const managerClient = createClient<Database>(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+        { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } },
       )
 
       try {
@@ -80,29 +94,48 @@ describe('create_sale RPC integration', () => {
         await adminClient.from('settings').update({
           operating_day_cutover_at: '2026-09-05T13:00:00.000Z',
         }).eq('id', true)
-        const operatingDays = await adminClient.from('operating_days').insert([
+        const operatingDays = await adminClient.from('operating_days').upsert([
           { day: previousDayString, status: 'open' },
           { day, status: 'open' },
           { day: lockedDay, status: 'locked', locked_at: new Date().toISOString(), locked_by: userId },
-        ])
+          { day: historicalDay, status: 'open' },
+        ], { onConflict: 'day' })
         expect(operatingDays.error).toBeNull()
 
-        const { data: customer } = await adminClient
+        const { data: customer, error: customerError } = await adminClient
           .from('customers')
-          .insert({ name: 'Sales integration customer', created_by: userId })
+          .insert({
+            name: 'Sales integration customer',
+            created_by: userId,
+            wholesale_unit_price_vnd: 7000,
+          } as never)
           .select('id')
           .single()
+        expect(customerError).toBeNull()
         customerId = customer!.id
+
+        const { data: customerWithoutPrice } = await adminClient
+          .from('customers')
+          .insert({ name: 'Customer without wholesale price', created_by: userId })
+          .select('id')
+          .single()
+        customerWithoutPriceId = customerWithoutPrice!.id
 
         const { error: signInError } = await client.auth.signInWithPassword({ email, password })
         expect(signInError).toBeNull()
+        const { error: managerSignInError } = await managerClient.auth.signInWithPassword({
+          email: usernameToAuthEmail('quanly'),
+          password: '123456',
+        })
+        expect(managerSignInError).toBeNull()
 
         // 1. Idempotency test
         const input = {
           kind: 'wholesale' as const,
           occurredAt: `${day}T13:00:00.000Z`,
           customerId,
-          lines: [{ quantityBags: 10, unitPriceVnd: 7000 }],
+          quantityBags: 10,
+          historicalUnitPriceVnd: null,
           paidNowVnd: 0,
           paymentMethod: 'cash' as const,
         }
@@ -111,6 +144,12 @@ describe('create_sale RPC integration', () => {
         expect(first.error).toBeNull()
         expect(second.error).toBeNull()
         expect(second.data).toEqual(first.data)
+        expect(first.data).toMatchObject({
+          kind: 'wholesale',
+          unitPriceVnd: 7000,
+          totalVnd: 70000,
+          usedHistoricalPrice: false,
+        })
 
         const saleId = (first.data as { saleId: string }).saleId
         const { count: salesCount } = await adminClient
@@ -124,6 +163,68 @@ describe('create_sale RPC integration', () => {
           .eq('source_id', saleId)
         expect(salesCount).toBe(1)
         expect(stockIssues).toHaveLength(0)
+
+        expect((await adminClient.from('customers').update({
+          wholesale_unit_price_vnd: 7500,
+        } as never).eq('id', customerId)).error).toBeNull()
+        const repriced = await client.rpc('create_sale', {
+          p_input: { ...input, quantityBags: 2 },
+          p_idempotency_key: repricedKey,
+        })
+        expect(repriced.error).toBeNull()
+        expect(repriced.data).toMatchObject({ unitPriceVnd: 7500, totalVnd: 15000 })
+        expect((await adminClient.from('sale_lines')
+          .select('unit_price_vnd')
+          .eq('sale_id', saleId)
+          .single()).data?.unit_price_vnd).toBe(7000)
+
+        const missingPrice = await client.rpc('create_sale', {
+          p_input: { ...input, customerId: customerWithoutPriceId },
+          p_idempotency_key: missingPriceKey,
+        })
+        expect(missingPrice.error?.message).toContain('CUSTOMER_WHOLESALE_PRICE_MISSING')
+
+        const historicalInput = {
+          ...input,
+          occurredAt: `${historicalDay}T13:00:00.000Z`,
+          historicalUnitPriceVnd: 6500,
+        }
+        const forbiddenHistorical = await client.rpc('create_sale', {
+          p_input: historicalInput,
+          p_idempotency_key: forbiddenHistoricalKey,
+        })
+        expect(forbiddenHistorical.error?.message).toContain('HISTORICAL_WHOLESALE_PRICE_FORBIDDEN')
+
+        const managerHistorical = await managerClient.rpc('create_sale', {
+          p_input: historicalInput,
+          p_idempotency_key: managerHistoricalKey,
+        })
+        expect(managerHistorical.error).toBeNull()
+        expect(managerHistorical.data).toMatchObject({
+          kind: 'wholesale',
+          unitPriceVnd: 6500,
+          totalVnd: 65000,
+          usedHistoricalPrice: true,
+        })
+        const customerAfterOverride = await adminClient.from('customers')
+          .select('wholesale_unit_price_vnd')
+          .eq('id', customerId)
+          .single()
+        expect((customerAfterOverride.data as unknown as {
+          wholesale_unit_price_vnd: number
+        } | null)?.wholesale_unit_price_vnd).toBe(7500)
+
+        const missingHistorical = await managerClient.rpc('create_sale', {
+          p_input: { ...historicalInput, historicalUnitPriceVnd: null },
+          p_idempotency_key: missingHistoricalKey,
+        })
+        expect(missingHistorical.error?.message).toContain('HISTORICAL_WHOLESALE_PRICE_REQUIRED')
+
+        const currentOverride = await managerClient.rpc('create_sale', {
+          p_input: { ...input, historicalUnitPriceVnd: 6500 },
+          p_idempotency_key: currentOverrideKey,
+        })
+        expect(currentOverride.error?.message).toContain('HISTORICAL_WHOLESALE_PRICE_NOT_ALLOWED')
 
         const beforeBoundary = await client.rpc('create_sale', {
           p_input: { ...input, occurredAt: `${day}T12:59:59.999Z` },
@@ -158,7 +259,8 @@ describe('create_sale RPC integration', () => {
             kind: 'wholesale' as const,
             occurredAt: `${lockedDay}T13:00:00.000Z`,
             customerId,
-            lines: [{ quantityBags: 1, unitPriceVnd: 7000 }],
+            quantityBags: 1,
+            historicalUnitPriceVnd: null,
             paidNowVnd: 7000,
             paymentMethod: 'cash' as const,
           },
@@ -188,6 +290,7 @@ describe('create_sale RPC integration', () => {
         expect(beforeCutover.error?.message).toContain('OCCURRED_AT_BEFORE_CUTOVER')
       } finally {
         await client.auth.signOut()
+        await managerClient.auth.signOut()
 
         if (userId) {
           await adminClient.from('sale_lines').delete().neq('id', '00000000-0000-0000-0000-000000000000')
@@ -199,7 +302,10 @@ describe('create_sale RPC integration', () => {
           if (customerId) {
             await adminClient.from('customers').delete().eq('id', customerId)
           }
-          await adminClient.from('operating_days').delete().in('day', [previousDayString, day, lockedDay])
+          if (customerWithoutPriceId) {
+            await adminClient.from('customers').delete().eq('id', customerWithoutPriceId)
+          }
+          await adminClient.from('operating_days').delete().in('day', [previousDayString, day, lockedDay, historicalDay])
           await adminClient.from('settings').update({ operating_day_cutover_at: '2026-09-05T13:00:00.000Z' }).eq('id', true)
           await adminClient.from('profiles').delete().eq('id', userId)
           await adminClient.auth.admin.deleteUser(userId)
