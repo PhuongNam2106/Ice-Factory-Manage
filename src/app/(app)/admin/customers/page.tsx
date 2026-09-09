@@ -29,7 +29,7 @@ export default async function CustomerAdministrationPage() {
           </Link>
         }
         badge="Danh mục hệ thống"
-        description="Quản lý danh sách khách hàng đầu mối sỉ, số điện thoại và địa chỉ giao hàng"
+        description="Quản lý khách hàng đầu mối, giá sỉ theo bao, thông tin liên hệ và thời hạn công nợ"
         title="Khách Hàng Đầu Mối"
       />
 
