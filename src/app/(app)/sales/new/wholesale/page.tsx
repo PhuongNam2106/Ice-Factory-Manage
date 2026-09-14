@@ -1,11 +1,15 @@
 import Link from 'next/link'
 import { WholesaleSaleForm } from '@/components/forms/wholesale-sale-form'
 import { listActiveCustomers } from '@/modules/admin/catalog-service'
+import { requireUser } from '@/modules/auth/service'
 import { getOperatingDay } from '@/modules/shared/operating-day'
 import { ArrowLeft, Package } from '@phosphor-icons/react/dist/ssr'
 
 export default async function NewWholesaleSalePage() {
-  const customers = await listActiveCustomers()
+  const [customers, user] = await Promise.all([
+    listActiveCustomers(),
+    requireUser(),
+  ])
   const operatingDay = getOperatingDay(new Date())
 
   return (
@@ -32,7 +36,11 @@ export default async function NewWholesaleSalePage() {
         </p>
       </div>
 
-      <WholesaleSaleForm customers={customers} />
+      <WholesaleSaleForm
+        canEnterHistoricalPrice={user.role === 'manager'}
+        currentOperatingDay={operatingDay}
+        customers={customers}
+      />
     </section>
   )
 }

@@ -80,7 +80,11 @@ describe('record_receipt RPC integration', () => {
 
         const { data: customer } = await adminClient
           .from('customers')
-          .insert({ name: 'Receivables integration customer', created_by: userId })
+          .insert({
+            name: 'Receivables integration customer',
+            created_by: userId,
+            wholesale_unit_price_vnd: 10_000,
+          })
           .select('id')
           .single()
         customerId = customer!.id
@@ -103,7 +107,8 @@ describe('record_receipt RPC integration', () => {
             kind: 'wholesale' as const,
             occurredAt: `${day}T13:00:00.000Z`,
             customerId,
-            lines: [{ quantityBags: 10, unitPriceVnd: 10000 }],
+            quantityBags: 10,
+            historicalUnitPriceVnd: null,
             paidNowVnd: 0,
             paymentMethod: 'cash' as const,
           },

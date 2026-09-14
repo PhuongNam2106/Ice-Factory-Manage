@@ -92,8 +92,8 @@ async function prepareOperatingDays() {
   ])).error).toBeNull()
 
   const sales = await Promise.all([
-    employee.rpc('create_sale', {
-      p_input: { kind: 'wholesale', occurredAt: '2026-09-05T14:00:00.000Z', customerId, lines: [{ quantityBags: 300, unitPriceVnd: 7000 }], paidNowVnd: 0, paymentMethod: 'cash' },
+    manager.rpc('create_sale', {
+      p_input: { kind: 'wholesale', occurredAt: '2026-09-05T14:00:00.000Z', customerId, quantityBags: 300, historicalUnitPriceVnd: 7000, paidNowVnd: 0, paymentMethod: 'cash' },
       p_idempotency_key: crypto.randomUUID(),
     }),
     employee.rpc('create_sale', {

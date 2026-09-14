@@ -22,7 +22,6 @@ export const saleLineSchema = z.object({
 
 const commonSaleFields = {
   occurredAt: z.iso.datetime({ offset: true }).optional().nullable().default(null),
-  lines: z.array(saleLineSchema).min(1, 'Cần ít nhất một dòng bán hàng').max(50),
   paidNowVnd: vndSchema,
   paymentMethod: z.enum(['cash', 'bank_transfer']),
   note: z
@@ -38,12 +37,17 @@ const commonSaleFields = {
 const wholesaleSaleSchema = z.object({
   ...commonSaleFields,
   kind: z.literal('wholesale'),
-  customerId: z.string().uuid().optional().nullable(),
+  customerId: z
+    .string({ error: 'Khách hàng là bắt buộc' })
+    .uuid('Khách hàng không hợp lệ'),
+  quantityBags: quantityBagsSchema,
+  historicalUnitPriceVnd: unitPriceSchema.optional().nullable().default(null),
 })
 
 const retailSaleSchema = z.object({
   ...commonSaleFields,
   kind: z.literal('retail'),
+  lines: z.array(saleLineSchema).min(1, 'Cần ít nhất một dòng bán hàng').max(50),
   shiftCode: z
     .string()
     .trim()
@@ -55,6 +59,8 @@ const retailSaleSchema = z.object({
 export const createSaleSchema = z
   .discriminatedUnion('kind', [wholesaleSaleSchema, retailSaleSchema])
   .superRefine((sale, context) => {
+    if (sale.kind === 'wholesale') return
+
     const totalVnd = sale.lines.reduce(
       (total, line) => total + line.quantityBags * line.unitPriceVnd,
       0,
@@ -77,15 +83,7 @@ export const createSaleSchema = z
       })
     }
 
-    if (sale.kind === 'wholesale' && sale.paidNowVnd < totalVnd && !sale.customerId) {
-      context.addIssue({
-        code: 'custom',
-        path: ['customerId'],
-        message: 'Khách hàng là bắt buộc khi còn công nợ',
-      })
-    }
-
-    if (sale.kind === 'retail' && sale.paidNowVnd !== totalVnd) {
+    if (sale.paidNowVnd !== totalVnd) {
       context.addIssue({
         code: 'custom',
         path: ['paidNowVnd'],

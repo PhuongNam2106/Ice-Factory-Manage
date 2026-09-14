@@ -38,13 +38,17 @@ describe('safe cancellation integration', () => {
 
     try {
       await adminClient.from('operating_days').upsert({ day }, { onConflict: 'day' })
-      const customer = await adminClient.from('customers').insert({ name: `Khách hủy ${day}`, created_by: employeeId }).select('id').single()
+      const customer = await adminClient.from('customers').insert({
+        name: `Khách hủy ${day}`,
+        created_by: employeeId,
+        wholesale_unit_price_vnd: 10_000,
+      }).select('id').single()
       expect(customer.error).toBeNull(); customerId = customer.data!.id
       await adminClient.from('inventory_ledger').insert({ operating_day: day, kind: 'opening', quantity_delta_bags: 100, source_type: 'cancellation_fixture', source_id: crypto.randomUUID(), created_by: employeeId })
 
       const sale = await employee.rpc('create_sale', { p_input: {
-        kind: 'wholesale', operatingDay: day, customerId,
-        lines: [{ quantityBags: 10, unitPriceVnd: 10_000 }], paidNowVnd: 0, paymentMethod: 'cash',
+        kind: 'wholesale', occurredAt: `${day}T13:00:00.000Z`, customerId,
+        quantityBags: 10, historicalUnitPriceVnd: null, paidNowVnd: 0, paymentMethod: 'cash',
       }, p_idempotency_key: crypto.randomUUID() })
       expect(sale.error).toBeNull()
       const saleId = (sale.data as { saleId: string }).saleId
@@ -66,8 +70,8 @@ describe('safe cancellation integration', () => {
       expect(saleAudit.data).toHaveLength(1)
 
       const secondSale = await employee.rpc('create_sale', { p_input: {
-        kind: 'wholesale', operatingDay: day, customerId,
-        lines: [{ quantityBags: 5, unitPriceVnd: 10_000 }], paidNowVnd: 0, paymentMethod: 'cash',
+        kind: 'wholesale', occurredAt: `${day}T13:10:00.000Z`, customerId,
+        quantityBags: 5, historicalUnitPriceVnd: null, paidNowVnd: 0, paymentMethod: 'cash',
       }, p_idempotency_key: crypto.randomUUID() })
       const secondSaleId = (secondSale.data as { saleId: string }).saleId
       const secondDebt = await adminClient.from('receivables').select('id').eq('sale_id', secondSaleId).single()

@@ -17,4 +17,18 @@ export type SaleListItem = {
   createdAt: string
 }
 
-export type CreateSaleResult = { saleId: string }
+export type CreateSaleResult =
+  | {
+      saleId: string
+      kind: 'wholesale'
+      unitPriceVnd: number
+      totalVnd: number
+      usedHistoricalPrice: boolean
+    }
+  | {
+      saleId: string
+      kind: 'retail'
+      unitPriceVnd: null
+      totalVnd: number
+      usedHistoricalPrice: false
+    }

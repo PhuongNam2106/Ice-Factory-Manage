@@ -11,6 +11,8 @@ export type CustomerOption = {
   name: string
   phone: string | null
   paymentTermDays: number
+  wholesaleUnitPriceVnd: number | null
+  canCreateWholesaleSale: boolean
 }
 
 export type CustomerRecord = CustomerOption & {
@@ -36,7 +38,7 @@ export async function listCustomers(client?: CatalogClient): Promise<CustomerRec
   const supabase = await getClient(client)
   const { data, error } = await supabase
     .from('customers')
-    .select('id, name, phone, address, payment_term_days, is_active')
+    .select('id, name, phone, address, payment_term_days, wholesale_unit_price_vnd, is_active')
     .order('is_active', { ascending: false })
     .order('name')
 
@@ -48,6 +50,9 @@ export async function listCustomers(client?: CatalogClient): Promise<CustomerRec
     phone: customer.phone,
     address: customer.address,
     paymentTermDays: customer.payment_term_days,
+    wholesaleUnitPriceVnd: customer.wholesale_unit_price_vnd,
+    canCreateWholesaleSale:
+      customer.is_active && customer.wholesale_unit_price_vnd !== null,
     isActive: customer.is_active,
   }))
 }
@@ -56,7 +61,21 @@ export async function listActiveCustomers(client?: CatalogClient): Promise<Custo
   const customers = await listCustomers(client)
   return customers
     .filter((customer) => customer.isActive)
-    .map(({ id, name, phone, paymentTermDays }) => ({ id, name, phone, paymentTermDays }))
+    .map(({
+      id,
+      name,
+      phone,
+      paymentTermDays,
+      wholesaleUnitPriceVnd,
+      canCreateWholesaleSale,
+    }) => ({
+      id,
+      name,
+      phone,
+      paymentTermDays,
+      wholesaleUnitPriceVnd,
+      canCreateWholesaleSale,
+    }))
 }
 
 export async function getCustomerById(
