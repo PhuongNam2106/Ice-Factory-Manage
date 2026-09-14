@@ -1,0 +1,2055 @@
+{
+  "tables": {
+    "sales": [
+      {
+        "id": "86c22edd-31f8-4ab9-917e-a12fe235f42a",
+        "kind": "wholesale",
+        "note": null,
+        "status": "active",
+        "version": 1,
+        "total_vnd": 50000,
+        "created_at": "2026-08-13T03:25:35.73052+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "shift_code": null,
+        "updated_at": "2026-08-13T03:25:35.73052+00:00",
+        "customer_id": "71000000-0000-4000-8000-000000000010",
+        "cancelled_at": null,
+        "cancelled_by": null,
+        "paid_now_vnd": 10000,
+        "cancel_reason": null,
+        "operating_day": "2026-08-13",
+        "payment_method": "cash",
+        "idempotency_key": "177bbf83-067f-4524-804f-2b3680defa28"
+      },
+      {
+        "id": "cb71d8a4-010b-4ef2-8307-1cce0e1918d1",
+        "kind": "retail",
+        "note": null,
+        "status": "active",
+        "version": 1,
+        "total_vnd": 120000,
+        "created_at": "2026-08-13T03:26:40.46949+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "shift_code": "DAY",
+        "updated_at": "2026-08-13T03:26:40.46949+00:00",
+        "customer_id": null,
+        "cancelled_at": null,
+        "cancelled_by": null,
+        "paid_now_vnd": 120000,
+        "cancel_reason": null,
+        "operating_day": "2026-08-13",
+        "payment_method": "cash",
+        "idempotency_key": "ec116dea-e433-4042-8983-1598be79f31f"
+      },
+      {
+        "id": "cdc1ffbd-d1c3-4f30-af89-4321b55e0481",
+        "kind": "wholesale",
+        "note": null,
+        "status": "active",
+        "version": 1,
+        "total_vnd": 50000,
+        "created_at": "2026-08-24T03:05:48.565962+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "shift_code": null,
+        "updated_at": "2026-08-24T03:05:48.565962+00:00",
+        "customer_id": "71000000-0000-4000-8000-000000000010",
+        "cancelled_at": null,
+        "cancelled_by": null,
+        "paid_now_vnd": 50000,
+        "cancel_reason": null,
+        "operating_day": "2026-08-24",
+        "payment_method": "cash",
+        "idempotency_key": "766e002f-9778-479e-961d-f5cbc58b5538"
+      },
+      {
+        "id": "b1e9af70-692d-4728-a818-f89017984bb5",
+        "kind": "wholesale",
+        "note": null,
+        "status": "active",
+        "version": 1,
+        "total_vnd": 2821000,
+        "created_at": "2026-08-27T01:22:05.139389+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "shift_code": null,
+        "updated_at": "2026-08-27T01:22:05.139389+00:00",
+        "customer_id": "af9489bb-1bc7-4644-91b8-6a9c36e9cf34",
+        "cancelled_at": null,
+        "cancelled_by": null,
+        "paid_now_vnd": 2821000,
+        "cancel_reason": null,
+        "operating_day": "2026-08-27",
+        "payment_method": "cash",
+        "idempotency_key": "d475afa4-fe9e-43fd-b384-1095c1f1ef47"
+      },
+      {
+        "id": "e406c4d3-a4f6-4df6-95e8-7593d2ddefc2",
+        "kind": "retail",
+        "note": null,
+        "status": "active",
+        "version": 1,
+        "total_vnd": 1620000,
+        "created_at": "2026-08-27T01:53:11.73532+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "shift_code": "DAY",
+        "updated_at": "2026-08-27T01:53:11.73532+00:00",
+        "customer_id": null,
+        "cancelled_at": null,
+        "cancelled_by": null,
+        "paid_now_vnd": 1620000,
+        "cancel_reason": null,
+        "operating_day": "2026-08-27",
+        "payment_method": "cash",
+        "idempotency_key": "cc7a58b0-542b-43f8-a038-bd6053911665"
+      },
+      {
+        "id": "0cd9e265-82df-46ba-a9da-d03499e3f437",
+        "kind": "wholesale",
+        "note": null,
+        "status": "active",
+        "version": 1,
+        "total_vnd": 861000,
+        "created_at": "2026-09-05T04:19:14.58964+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "shift_code": null,
+        "updated_at": "2026-09-05T04:19:14.58964+00:00",
+        "customer_id": "71000000-0000-4000-8000-000000000010",
+        "cancelled_at": null,
+        "cancelled_by": null,
+        "paid_now_vnd": 861000,
+        "cancel_reason": null,
+        "operating_day": "2026-09-05",
+        "payment_method": "cash",
+        "idempotency_key": "eb92c943-42d0-4dfb-bcbe-37bb8c45f93f"
+      }
+    ],
+    "expenses": [],
+    "machines": [
+      {
+        "id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "code": "M1",
+        "name": "Máy 1",
+        "is_active": true,
+        "created_at": "2026-08-17T03:39:21.382043+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-08-17T03:39:21.382043+00:00"
+      },
+      {
+        "id": "3642ab5b-60ca-4d73-853f-6f56f216e9ec",
+        "code": "M2",
+        "name": "Máy 2",
+        "is_active": true,
+        "created_at": "2026-09-05T04:24:11.089185+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-09-05T04:24:11.089185+00:00"
+      },
+      {
+        "id": "ebead9ba-4ce2-431a-b873-e44c5ca5f66c",
+        "code": "M3",
+        "name": "Máy 3",
+        "is_active": true,
+        "created_at": "2026-09-05T05:06:58.09513+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-09-05T05:06:58.09513+00:00"
+      },
+      {
+        "id": "cd36e41e-7a2f-4a08-9c84-bac01e05dbea",
+        "code": "M4",
+        "name": "Máy 4",
+        "is_active": true,
+        "created_at": "2026-09-05T05:07:05.481309+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-09-05T05:07:05.481309+00:00"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "71000000-0000-4000-8000-000000000001",
+        "role": "manager",
+        "phone": "+84912345679",
+        "username": "quanly",
+        "full_name": "Quản lý dùng thử",
+        "is_active": true,
+        "created_at": "2026-08-12T09:18:38.81609+00:00",
+        "updated_at": "2026-08-12T10:45:36.625774+00:00"
+      }
+    ],
+    "receipts": [
+      {
+        "id": "5b7e266b-3363-4d54-84ae-261ba975b724",
+        "note": "Thu khi bÃ¡n hÃ ng",
+        "status": "active",
+        "version": 1,
+        "amount_vnd": 10000,
+        "created_at": "2026-08-13T03:25:35.73052+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-08-13T03:25:35.73052+00:00",
+        "customer_id": "71000000-0000-4000-8000-000000000010",
+        "cancelled_at": null,
+        "cancelled_by": null,
+        "cancel_reason": null,
+        "operating_day": "2026-08-13",
+        "payment_method": "cash",
+        "source_sale_id": "86c22edd-31f8-4ab9-917e-a12fe235f42a",
+        "idempotency_key": null
+      },
+      {
+        "id": "e9b41269-1279-4531-af8e-91c07457719f",
+        "note": "Thu khi bÃ¡n hÃ ng",
+        "status": "active",
+        "version": 1,
+        "amount_vnd": 120000,
+        "created_at": "2026-08-13T03:26:40.46949+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-08-13T03:26:40.46949+00:00",
+        "customer_id": null,
+        "cancelled_at": null,
+        "cancelled_by": null,
+        "cancel_reason": null,
+        "operating_day": "2026-08-13",
+        "payment_method": "cash",
+        "source_sale_id": "cb71d8a4-010b-4ef2-8307-1cce0e1918d1",
+        "idempotency_key": null
+      },
+      {
+        "id": "72e7317b-352f-4616-9e74-6ebbf92b11d3",
+        "note": "Thu khi bÃ¡n hÃ ng",
+        "status": "active",
+        "version": 1,
+        "amount_vnd": 50000,
+        "created_at": "2026-08-24T03:05:48.565962+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-08-24T03:05:48.565962+00:00",
+        "customer_id": "71000000-0000-4000-8000-000000000010",
+        "cancelled_at": null,
+        "cancelled_by": null,
+        "cancel_reason": null,
+        "operating_day": "2026-08-24",
+        "payment_method": "cash",
+        "source_sale_id": "cdc1ffbd-d1c3-4f30-af89-4321b55e0481",
+        "idempotency_key": null
+      },
+      {
+        "id": "7aa220ba-23be-474c-a574-7196a4c0dfa5",
+        "note": null,
+        "status": "active",
+        "version": 1,
+        "amount_vnd": 40000,
+        "created_at": "2026-08-24T03:06:16.125034+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-08-24T03:06:16.125034+00:00",
+        "customer_id": "71000000-0000-4000-8000-000000000010",
+        "cancelled_at": null,
+        "cancelled_by": null,
+        "cancel_reason": null,
+        "operating_day": "2026-08-24",
+        "payment_method": "cash",
+        "source_sale_id": null,
+        "idempotency_key": "f17de141-33e3-45d5-9778-81728dde083d"
+      },
+      {
+        "id": "9207d64a-e030-4c05-a91a-fde660eda475",
+        "note": null,
+        "status": "active",
+        "version": 1,
+        "amount_vnd": 40000,
+        "created_at": "2026-08-24T03:07:21.584129+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-08-24T03:07:21.584129+00:00",
+        "customer_id": "71000000-0000-4000-8000-000000000010",
+        "cancelled_at": null,
+        "cancelled_by": null,
+        "cancel_reason": null,
+        "operating_day": "2026-08-24",
+        "payment_method": "cash",
+        "source_sale_id": null,
+        "idempotency_key": "ed0221a6-17fc-4d9b-b650-0984f7612cea"
+      },
+      {
+        "id": "9ccfaaed-6956-4cf6-a34c-c40600e7545c",
+        "note": "Thu khi bÃ¡n hÃ ng",
+        "status": "active",
+        "version": 1,
+        "amount_vnd": 2821000,
+        "created_at": "2026-08-27T01:22:05.139389+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-08-27T01:22:05.139389+00:00",
+        "customer_id": "af9489bb-1bc7-4644-91b8-6a9c36e9cf34",
+        "cancelled_at": null,
+        "cancelled_by": null,
+        "cancel_reason": null,
+        "operating_day": "2026-08-27",
+        "payment_method": "cash",
+        "source_sale_id": "b1e9af70-692d-4728-a818-f89017984bb5",
+        "idempotency_key": null
+      },
+      {
+        "id": "d658b1c5-3069-410e-a1c1-38ada51b2f80",
+        "note": "Thu khi bÃ¡n hÃ ng",
+        "status": "active",
+        "version": 1,
+        "amount_vnd": 1620000,
+        "created_at": "2026-08-27T01:53:11.73532+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-08-27T01:53:11.73532+00:00",
+        "customer_id": null,
+        "cancelled_at": null,
+        "cancelled_by": null,
+        "cancel_reason": null,
+        "operating_day": "2026-08-27",
+        "payment_method": "cash",
+        "source_sale_id": "e406c4d3-a4f6-4df6-95e8-7593d2ddefc2",
+        "idempotency_key": null
+      },
+      {
+        "id": "dffd1f21-5a88-4c48-8a6a-1fd80cf5841f",
+        "note": "Thu khi bÃ¡n hÃ ng",
+        "status": "active",
+        "version": 1,
+        "amount_vnd": 861000,
+        "created_at": "2026-09-05T04:19:14.58964+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-09-05T04:19:14.58964+00:00",
+        "customer_id": "71000000-0000-4000-8000-000000000010",
+        "cancelled_at": null,
+        "cancelled_by": null,
+        "cancel_reason": null,
+        "operating_day": "2026-09-05",
+        "payment_method": "cash",
+        "source_sale_id": "0cd9e265-82df-46ba-a9da-d03499e3f437",
+        "idempotency_key": null
+      }
+    ],
+    "settings": [
+      {
+        "id": true,
+        "time_zone": "Asia/Bangkok",
+        "updated_at": "2026-08-12T07:19:32.79008+00:00",
+        "updated_by": null,
+        "allow_negative_stock": false,
+        "stock_variance_warning_pct": 5,
+        "production_harvest_reminder_minutes": 30
+      }
+    ],
+    "audit_log": [
+      {
+        "id": "536309f7-f34f-4454-a262-3f9b4904efd4",
+        "action": "sale.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "86c22edd-31f8-4ab9-917e-a12fe235f42a",
+        "after_data": {
+          "sale": {
+            "id": "86c22edd-31f8-4ab9-917e-a12fe235f42a",
+            "kind": "wholesale",
+            "note": null,
+            "status": "active",
+            "version": 1,
+            "total_vnd": 50000,
+            "created_at": "2026-08-13T03:25:35.73052+00:00",
+            "created_by": "71000000-0000-4000-8000-000000000001",
+            "shift_code": null,
+            "updated_at": "2026-08-13T03:25:35.73052+00:00",
+            "customer_id": "71000000-0000-4000-8000-000000000010",
+            "paid_now_vnd": 10000,
+            "operating_day": "2026-08-13",
+            "payment_method": "cash",
+            "idempotency_key": "177bbf83-067f-4524-804f-2b3680defa28"
+          },
+          "receiptId": "5b7e266b-3363-4d54-84ae-261ba975b724",
+          "receivableId": "69ca4762-d733-4f74-aa9d-14198972604c",
+          "totalQuantityBags": 10
+        },
+        "created_at": "2026-08-13T03:25:35.73052+00:00",
+        "before_data": null,
+        "entity_type": "sale"
+      },
+      {
+        "id": "551e6dfe-70a6-4fad-86b7-9772739a1fa1",
+        "action": "sale.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "cb71d8a4-010b-4ef2-8307-1cce0e1918d1",
+        "after_data": {
+          "sale": {
+            "id": "cb71d8a4-010b-4ef2-8307-1cce0e1918d1",
+            "kind": "retail",
+            "note": null,
+            "status": "active",
+            "version": 1,
+            "total_vnd": 120000,
+            "created_at": "2026-08-13T03:26:40.46949+00:00",
+            "created_by": "71000000-0000-4000-8000-000000000001",
+            "shift_code": "DAY",
+            "updated_at": "2026-08-13T03:26:40.46949+00:00",
+            "customer_id": null,
+            "paid_now_vnd": 120000,
+            "operating_day": "2026-08-13",
+            "payment_method": "cash",
+            "idempotency_key": "ec116dea-e433-4042-8983-1598be79f31f"
+          },
+          "receiptId": "e9b41269-1279-4531-af8e-91c07457719f",
+          "receivableId": null,
+          "totalQuantityBags": 10
+        },
+        "created_at": "2026-08-13T03:26:40.46949+00:00",
+        "before_data": null,
+        "entity_type": "sale"
+      },
+      {
+        "id": "c2e357ad-1aba-4f39-bf3f-623de2a13d04",
+        "action": "customer.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "af9489bb-1bc7-4644-91b8-6a9c36e9cf34",
+        "after_data": {
+          "id": "af9489bb-1bc7-4644-91b8-6a9c36e9cf34",
+          "name": "SANG",
+          "phone": null,
+          "address": null,
+          "is_active": true,
+          "created_at": "2026-08-27T01:18:23.909212+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "updated_at": "2026-08-27T01:18:23.909212+00:00",
+          "payment_term_days": 0
+        },
+        "created_at": "2026-08-27T01:18:23.909212+00:00",
+        "before_data": null,
+        "entity_type": "customer"
+      },
+      {
+        "id": "6990a22e-dfc2-44f5-a282-066c7bc5eedc",
+        "action": "machine.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "after_data": {
+          "id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "code": "M1",
+          "name": "Máy 1",
+          "is_active": true,
+          "created_at": "2026-08-17T03:39:21.382043+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "updated_at": "2026-08-17T03:39:21.382043+00:00"
+        },
+        "created_at": "2026-08-17T03:39:21.382043+00:00",
+        "before_data": null,
+        "entity_type": "machine"
+      },
+      {
+        "id": "88957593-571a-4e96-a0a8-9e5982de9af5",
+        "action": "customer.updated",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "71000000-0000-4000-8000-000000000010",
+        "after_data": {
+          "id": "71000000-0000-4000-8000-000000000010",
+          "name": "Nam",
+          "phone": "0912345680",
+          "address": "Dữ liệu dùng thử",
+          "is_active": true,
+          "created_at": "2026-08-12T09:18:38.81609+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "updated_at": "2026-08-17T03:41:01.558095+00:00",
+          "payment_term_days": 7
+        },
+        "created_at": "2026-08-17T03:41:01.558095+00:00",
+        "before_data": {
+          "id": "71000000-0000-4000-8000-000000000010",
+          "name": "Đầu mối dùng thử",
+          "phone": "0912345680",
+          "address": "Dữ liệu dùng thử",
+          "is_active": true,
+          "created_at": "2026-08-12T09:18:38.81609+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "updated_at": "2026-08-12T09:18:38.81609+00:00",
+          "payment_term_days": 7
+        },
+        "entity_type": "customer"
+      },
+      {
+        "id": "b96b44b1-cb67-4bc4-bbe4-17a40221d260",
+        "action": "production_batch.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "1c9a7410-112c-464e-b651-5aa6c4bcf865",
+        "after_data": {
+          "id": "1c9a7410-112c-464e-b651-5aa6c4bcf865",
+          "note": null,
+          "status": "active",
+          "version": 1,
+          "end_time": "2026-08-17T15:21:00+00:00",
+          "good_bags": 16,
+          "created_at": "2026-08-17T13:17:46.457246+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "shift_code": "ca_sang",
+          "start_time": "2026-08-17T14:30:00+00:00",
+          "updated_at": "2026-08-17T13:17:46.457246+00:00",
+          "cancelled_at": null,
+          "cancelled_by": null,
+          "cancel_reason": null,
+          "operating_day": "2026-08-17",
+          "rejected_bags": 0,
+          "idempotency_key": "0e781f45-5990-4ca4-bc61-02e24da3ac29"
+        },
+        "created_at": "2026-08-17T13:17:46.457246+00:00",
+        "before_data": null,
+        "entity_type": "production_batch"
+      },
+      {
+        "id": "d4b31403-14cd-440f-8e37-b860f5f225aa",
+        "action": "production_batch.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "08cb4f4e-8101-4b09-88a2-69f8d34e4dda",
+        "after_data": {
+          "id": "08cb4f4e-8101-4b09-88a2-69f8d34e4dda",
+          "note": null,
+          "status": "active",
+          "version": 1,
+          "end_time": "2026-08-17T14:21:00+00:00",
+          "good_bags": 17,
+          "created_at": "2026-08-17T13:19:28.013503+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "shift_code": "ca_sang",
+          "start_time": "2026-08-17T14:20:00+00:00",
+          "updated_at": "2026-08-17T13:19:28.013503+00:00",
+          "cancelled_at": null,
+          "cancelled_by": null,
+          "cancel_reason": null,
+          "operating_day": "2026-08-17",
+          "rejected_bags": 0,
+          "idempotency_key": "0724ce58-f138-4973-a6bc-4d416a6808c7"
+        },
+        "created_at": "2026-08-17T13:19:28.013503+00:00",
+        "before_data": null,
+        "entity_type": "production_batch"
+      },
+      {
+        "id": "339180ed-07a4-4081-9e57-3b7436c7e854",
+        "action": "customer.updated",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "71000000-0000-4000-8000-000000000010",
+        "after_data": {
+          "id": "71000000-0000-4000-8000-000000000010",
+          "name": "Nam update",
+          "phone": "0912345680",
+          "address": "Dữ liệu dùng thử",
+          "is_active": true,
+          "created_at": "2026-08-12T09:18:38.81609+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "updated_at": "2026-08-24T03:05:03.178245+00:00",
+          "payment_term_days": 7
+        },
+        "created_at": "2026-08-24T03:05:03.178245+00:00",
+        "before_data": {
+          "id": "71000000-0000-4000-8000-000000000010",
+          "name": "Nam",
+          "phone": "0912345680",
+          "address": "Dữ liệu dùng thử",
+          "is_active": true,
+          "created_at": "2026-08-12T09:18:38.81609+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "updated_at": "2026-08-17T03:41:01.558095+00:00",
+          "payment_term_days": 7
+        },
+        "entity_type": "customer"
+      },
+      {
+        "id": "a5dab3e3-9275-4851-ab39-dac90c34e0ce",
+        "action": "sale.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "cdc1ffbd-d1c3-4f30-af89-4321b55e0481",
+        "after_data": {
+          "sale": {
+            "id": "cdc1ffbd-d1c3-4f30-af89-4321b55e0481",
+            "kind": "wholesale",
+            "note": null,
+            "status": "active",
+            "version": 1,
+            "total_vnd": 50000,
+            "created_at": "2026-08-24T03:05:48.565962+00:00",
+            "created_by": "71000000-0000-4000-8000-000000000001",
+            "shift_code": null,
+            "updated_at": "2026-08-24T03:05:48.565962+00:00",
+            "customer_id": "71000000-0000-4000-8000-000000000010",
+            "cancelled_at": null,
+            "cancelled_by": null,
+            "paid_now_vnd": 50000,
+            "cancel_reason": null,
+            "operating_day": "2026-08-24",
+            "payment_method": "cash",
+            "idempotency_key": "766e002f-9778-479e-961d-f5cbc58b5538"
+          },
+          "receiptId": "72e7317b-352f-4616-9e74-6ebbf92b11d3",
+          "receivableId": null,
+          "totalQuantityBags": 10
+        },
+        "created_at": "2026-08-24T03:05:48.565962+00:00",
+        "before_data": null,
+        "entity_type": "sale"
+      },
+      {
+        "id": "0d8685b1-1144-4051-be1b-73a1482582a7",
+        "action": "receipt.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "7aa220ba-23be-474c-a574-7196a4c0dfa5",
+        "after_data": {
+          "receipt": {
+            "id": "7aa220ba-23be-474c-a574-7196a4c0dfa5",
+            "note": null,
+            "status": "active",
+            "version": 1,
+            "amount_vnd": 40000,
+            "created_at": "2026-08-24T03:06:16.125034+00:00",
+            "created_by": "71000000-0000-4000-8000-000000000001",
+            "updated_at": "2026-08-24T03:06:16.125034+00:00",
+            "customer_id": "71000000-0000-4000-8000-000000000010",
+            "cancelled_at": null,
+            "cancelled_by": null,
+            "cancel_reason": null,
+            "operating_day": "2026-08-24",
+            "payment_method": "cash",
+            "source_sale_id": null,
+            "idempotency_key": "f17de141-33e3-45d5-9778-81728dde083d"
+          },
+          "unallocatedVnd": 40000,
+          "totalAllocatedVnd": 0
+        },
+        "created_at": "2026-08-24T03:06:16.125034+00:00",
+        "before_data": null,
+        "entity_type": "receipt"
+      },
+      {
+        "id": "8eaee90b-940c-4ebc-a8a8-6bdba25d80a4",
+        "action": "receipt.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "9207d64a-e030-4c05-a91a-fde660eda475",
+        "after_data": {
+          "receipt": {
+            "id": "9207d64a-e030-4c05-a91a-fde660eda475",
+            "note": null,
+            "status": "active",
+            "version": 1,
+            "amount_vnd": 40000,
+            "created_at": "2026-08-24T03:07:21.584129+00:00",
+            "created_by": "71000000-0000-4000-8000-000000000001",
+            "updated_at": "2026-08-24T03:07:21.584129+00:00",
+            "customer_id": "71000000-0000-4000-8000-000000000010",
+            "cancelled_at": null,
+            "cancelled_by": null,
+            "cancel_reason": null,
+            "operating_day": "2026-08-24",
+            "payment_method": "cash",
+            "source_sale_id": null,
+            "idempotency_key": "ed0221a6-17fc-4d9b-b650-0984f7612cea"
+          },
+          "unallocatedVnd": 0,
+          "totalAllocatedVnd": 40000
+        },
+        "created_at": "2026-08-24T03:07:21.584129+00:00",
+        "before_data": null,
+        "entity_type": "receipt"
+      },
+      {
+        "id": "9c34feb0-d15a-4b79-b598-98543fd46435",
+        "action": "customer.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "03f0f43b-4c14-49e5-b7e4-e99db6de185c",
+        "after_data": {
+          "id": "03f0f43b-4c14-49e5-b7e4-e99db6de185c",
+          "name": "TOÀN (XE MÁY)",
+          "phone": null,
+          "address": null,
+          "is_active": true,
+          "created_at": "2026-08-27T01:18:45.560949+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "updated_at": "2026-08-27T01:18:45.560949+00:00",
+          "payment_term_days": 0
+        },
+        "created_at": "2026-08-27T01:18:45.560949+00:00",
+        "before_data": null,
+        "entity_type": "customer"
+      },
+      {
+        "id": "c392d42c-f6af-417e-9e1c-79ff81452c53",
+        "action": "customer.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "05da651e-9e03-46e0-a221-5514d3c218a7",
+        "after_data": {
+          "id": "05da651e-9e03-46e0-a221-5514d3c218a7",
+          "name": "BẢO (VŨ)",
+          "phone": null,
+          "address": null,
+          "is_active": true,
+          "created_at": "2026-08-27T01:18:58.508563+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "updated_at": "2026-08-27T01:18:58.508563+00:00",
+          "payment_term_days": 0
+        },
+        "created_at": "2026-08-27T01:18:58.508563+00:00",
+        "before_data": null,
+        "entity_type": "customer"
+      },
+      {
+        "id": "e11f99a0-061f-496a-9d6e-627210edec63",
+        "action": "customer.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "60b43f57-4bb3-4c67-8fcd-7fb3b4468515",
+        "after_data": {
+          "id": "60b43f57-4bb3-4c67-8fcd-7fb3b4468515",
+          "name": "BẢO QUỐC",
+          "phone": null,
+          "address": null,
+          "is_active": true,
+          "created_at": "2026-08-27T01:19:04.808406+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "updated_at": "2026-08-27T01:19:04.808406+00:00",
+          "payment_term_days": 0
+        },
+        "created_at": "2026-08-27T01:19:04.808406+00:00",
+        "before_data": null,
+        "entity_type": "customer"
+      },
+      {
+        "id": "45f74e1e-2e27-4b90-9420-d5514e5830a9",
+        "action": "customer.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "c5fd7662-c7d1-4fde-a6a2-6fd9782be800",
+        "after_data": {
+          "id": "c5fd7662-c7d1-4fde-a6a2-6fd9782be800",
+          "name": "HOÀNG (TỈNH)",
+          "phone": null,
+          "address": null,
+          "is_active": true,
+          "created_at": "2026-08-27T01:19:11.978686+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "updated_at": "2026-08-27T01:19:11.978686+00:00",
+          "payment_term_days": 0
+        },
+        "created_at": "2026-08-27T01:19:11.978686+00:00",
+        "before_data": null,
+        "entity_type": "customer"
+      },
+      {
+        "id": "75f486b4-72ee-4e96-bdb1-90179a87dbfb",
+        "action": "customer.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "4faaf3dc-6d4c-4d73-bfe8-2e2eb89bc1e9",
+        "after_data": {
+          "id": "4faaf3dc-6d4c-4d73-bfe8-2e2eb89bc1e9",
+          "name": "NGỌC ÂN",
+          "phone": null,
+          "address": null,
+          "is_active": true,
+          "created_at": "2026-08-27T01:19:18.295365+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "updated_at": "2026-08-27T01:19:18.295365+00:00",
+          "payment_term_days": 0
+        },
+        "created_at": "2026-08-27T01:19:18.295365+00:00",
+        "before_data": null,
+        "entity_type": "customer"
+      },
+      {
+        "id": "ed6bbf43-3316-4c24-a82f-d35f6dc6113d",
+        "action": "sale.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "b1e9af70-692d-4728-a818-f89017984bb5",
+        "after_data": {
+          "sale": {
+            "id": "b1e9af70-692d-4728-a818-f89017984bb5",
+            "kind": "wholesale",
+            "note": null,
+            "status": "active",
+            "version": 1,
+            "total_vnd": 2821000,
+            "created_at": "2026-08-27T01:22:05.139389+00:00",
+            "created_by": "71000000-0000-4000-8000-000000000001",
+            "shift_code": null,
+            "updated_at": "2026-08-27T01:22:05.139389+00:00",
+            "customer_id": "af9489bb-1bc7-4644-91b8-6a9c36e9cf34",
+            "cancelled_at": null,
+            "cancelled_by": null,
+            "paid_now_vnd": 2821000,
+            "cancel_reason": null,
+            "operating_day": "2026-08-27",
+            "payment_method": "cash",
+            "idempotency_key": "d475afa4-fe9e-43fd-b384-1095c1f1ef47"
+          },
+          "receiptId": "9ccfaaed-6956-4cf6-a34c-c40600e7545c",
+          "receivableId": null,
+          "totalQuantityBags": 403
+        },
+        "created_at": "2026-08-27T01:22:05.139389+00:00",
+        "before_data": null,
+        "entity_type": "sale"
+      },
+      {
+        "id": "cb6ae2f8-a36a-4691-9f4b-2d93870aca67",
+        "action": "sale.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "e406c4d3-a4f6-4df6-95e8-7593d2ddefc2",
+        "after_data": {
+          "sale": {
+            "id": "e406c4d3-a4f6-4df6-95e8-7593d2ddefc2",
+            "kind": "retail",
+            "note": null,
+            "status": "active",
+            "version": 1,
+            "total_vnd": 1620000,
+            "created_at": "2026-08-27T01:53:11.73532+00:00",
+            "created_by": "71000000-0000-4000-8000-000000000001",
+            "shift_code": "DAY",
+            "updated_at": "2026-08-27T01:53:11.73532+00:00",
+            "customer_id": null,
+            "cancelled_at": null,
+            "cancelled_by": null,
+            "paid_now_vnd": 1620000,
+            "cancel_reason": null,
+            "operating_day": "2026-08-27",
+            "payment_method": "cash",
+            "idempotency_key": "cc7a58b0-542b-43f8-a038-bd6053911665"
+          },
+          "receiptId": "d658b1c5-3069-410e-a1c1-38ada51b2f80",
+          "receivableId": null,
+          "totalQuantityBags": 135
+        },
+        "created_at": "2026-08-27T01:53:11.73532+00:00",
+        "before_data": null,
+        "entity_type": "sale"
+      },
+      {
+        "id": "0715e34b-b9b6-44f9-8824-dd0ecc19e1e4",
+        "action": "production_batch.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "6de67d39-5942-4052-aa98-802eede7cbff",
+        "after_data": {
+          "id": "6de67d39-5942-4052-aa98-802eede7cbff",
+          "note": null,
+          "status": "active",
+          "version": 1,
+          "end_time": "2026-08-27T15:25:00+00:00",
+          "good_bags": 16,
+          "created_at": "2026-08-27T01:54:58.936709+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "shift_code": "ca_sang",
+          "start_time": "2026-08-27T14:20:00+00:00",
+          "updated_at": "2026-08-27T01:54:58.936709+00:00",
+          "cancelled_at": null,
+          "cancelled_by": null,
+          "cancel_reason": null,
+          "operating_day": "2026-08-27",
+          "rejected_bags": 0,
+          "idempotency_key": "cc6fca50-1922-42be-b67e-d0773b4f9aa7"
+        },
+        "created_at": "2026-08-27T01:54:58.936709+00:00",
+        "before_data": null,
+        "entity_type": "production_batch"
+      },
+      {
+        "id": "22d11188-0c31-4579-b120-666ed96f8654",
+        "action": "sale.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "0cd9e265-82df-46ba-a9da-d03499e3f437",
+        "after_data": {
+          "sale": {
+            "id": "0cd9e265-82df-46ba-a9da-d03499e3f437",
+            "kind": "wholesale",
+            "note": null,
+            "status": "active",
+            "version": 1,
+            "total_vnd": 861000,
+            "created_at": "2026-09-05T04:19:14.58964+00:00",
+            "created_by": "71000000-0000-4000-8000-000000000001",
+            "shift_code": null,
+            "updated_at": "2026-09-05T04:19:14.58964+00:00",
+            "customer_id": "71000000-0000-4000-8000-000000000010",
+            "cancelled_at": null,
+            "cancelled_by": null,
+            "paid_now_vnd": 861000,
+            "cancel_reason": null,
+            "operating_day": "2026-09-05",
+            "payment_method": "cash",
+            "idempotency_key": "eb92c943-42d0-4dfb-bcbe-37bb8c45f93f"
+          },
+          "receiptId": "dffd1f21-5a88-4c48-8a6a-1fd80cf5841f",
+          "receivableId": null,
+          "totalQuantityBags": 123
+        },
+        "created_at": "2026-09-05T04:19:14.58964+00:00",
+        "before_data": null,
+        "entity_type": "sale"
+      },
+      {
+        "id": "629ad11b-f026-4669-adfd-92713bb66b80",
+        "action": "machine.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "3642ab5b-60ca-4d73-853f-6f56f216e9ec",
+        "after_data": {
+          "id": "3642ab5b-60ca-4d73-853f-6f56f216e9ec",
+          "code": "M2",
+          "name": "Máy 2",
+          "is_active": true,
+          "created_at": "2026-09-05T04:24:11.089185+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "updated_at": "2026-09-05T04:24:11.089185+00:00"
+        },
+        "created_at": "2026-09-05T04:24:11.089185+00:00",
+        "before_data": null,
+        "entity_type": "machine"
+      },
+      {
+        "id": "b313f91c-3dec-4df5-905e-a577bd84ac9a",
+        "action": "machine.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "ebead9ba-4ce2-431a-b873-e44c5ca5f66c",
+        "after_data": {
+          "id": "ebead9ba-4ce2-431a-b873-e44c5ca5f66c",
+          "code": "M3",
+          "name": "Máy 3",
+          "is_active": true,
+          "created_at": "2026-09-05T05:06:58.09513+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "updated_at": "2026-09-05T05:06:58.09513+00:00"
+        },
+        "created_at": "2026-09-05T05:06:58.09513+00:00",
+        "before_data": null,
+        "entity_type": "machine"
+      },
+      {
+        "id": "bf0517a8-70c1-4f4a-9af9-38a648c8aad1",
+        "action": "machine.created",
+        "reason": null,
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "entity_id": "cd36e41e-7a2f-4a08-9c84-bac01e05dbea",
+        "after_data": {
+          "id": "cd36e41e-7a2f-4a08-9c84-bac01e05dbea",
+          "code": "M4",
+          "name": "Máy 4",
+          "is_active": true,
+          "created_at": "2026-09-05T05:07:05.481309+00:00",
+          "created_by": "71000000-0000-4000-8000-000000000001",
+          "updated_at": "2026-09-05T05:07:05.481309+00:00"
+        },
+        "created_at": "2026-09-05T05:07:05.481309+00:00",
+        "before_data": null,
+        "entity_type": "machine"
+      }
+    ],
+    "customers": [
+      {
+        "id": "71000000-0000-4000-8000-000000000010",
+        "name": "Nam update",
+        "phone": "0912345680",
+        "address": "Dữ liệu dùng thử",
+        "is_active": true,
+        "created_at": "2026-08-12T09:18:38.81609+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-08-24T03:05:03.178245+00:00",
+        "payment_term_days": 7
+      },
+      {
+        "id": "af9489bb-1bc7-4644-91b8-6a9c36e9cf34",
+        "name": "SANG",
+        "phone": null,
+        "address": null,
+        "is_active": true,
+        "created_at": "2026-08-27T01:18:23.909212+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-08-27T01:18:23.909212+00:00",
+        "payment_term_days": 0
+      },
+      {
+        "id": "03f0f43b-4c14-49e5-b7e4-e99db6de185c",
+        "name": "TOÀN (XE MÁY)",
+        "phone": null,
+        "address": null,
+        "is_active": true,
+        "created_at": "2026-08-27T01:18:45.560949+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-08-27T01:18:45.560949+00:00",
+        "payment_term_days": 0
+      },
+      {
+        "id": "05da651e-9e03-46e0-a221-5514d3c218a7",
+        "name": "BẢO (VŨ)",
+        "phone": null,
+        "address": null,
+        "is_active": true,
+        "created_at": "2026-08-27T01:18:58.508563+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-08-27T01:18:58.508563+00:00",
+        "payment_term_days": 0
+      },
+      {
+        "id": "60b43f57-4bb3-4c67-8fcd-7fb3b4468515",
+        "name": "BẢO QUỐC",
+        "phone": null,
+        "address": null,
+        "is_active": true,
+        "created_at": "2026-08-27T01:19:04.808406+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-08-27T01:19:04.808406+00:00",
+        "payment_term_days": 0
+      },
+      {
+        "id": "c5fd7662-c7d1-4fde-a6a2-6fd9782be800",
+        "name": "HOÀNG (TỈNH)",
+        "phone": null,
+        "address": null,
+        "is_active": true,
+        "created_at": "2026-08-27T01:19:11.978686+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-08-27T01:19:11.978686+00:00",
+        "payment_term_days": 0
+      },
+      {
+        "id": "4faaf3dc-6d4c-4d73-bfe8-2e2eb89bc1e9",
+        "name": "NGỌC ÂN",
+        "phone": null,
+        "address": null,
+        "is_active": true,
+        "created_at": "2026-08-27T01:19:18.295365+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "updated_at": "2026-08-27T01:19:18.295365+00:00",
+        "payment_term_days": 0
+      }
+    ],
+    "auth_users": [
+      {
+        "id": "71000000-0000-4000-8000-000000000001",
+        "aud": "authenticated",
+        "role": "authenticated",
+        "email": "quanly@account.icefactory.invalid",
+        "phone": null,
+        "created_at": "2026-08-12T09:18:38.81609+00:00",
+        "deleted_at": null,
+        "invited_at": null,
+        "updated_at": "2026-09-08T16:55:22.846843+00:00",
+        "instance_id": "00000000-0000-0000-0000-000000000000",
+        "is_sso_user": false,
+        "banned_until": null,
+        "confirmed_at": "2026-08-12T10:45:36.625774+00:00",
+        "email_change": "",
+        "is_anonymous": false,
+        "phone_change": "",
+        "is_super_admin": null,
+        "recovery_token": "",
+        "last_sign_in_at": "2026-09-08T16:55:22.824644+00:00",
+        "recovery_sent_at": null,
+        "raw_app_meta_data": {
+          "provider": "email",
+          "providers": [
+            "email"
+          ]
+        },
+        "confirmation_token": "",
+        "email_confirmed_at": "2026-08-12T10:45:36.625774+00:00",
+        "encrypted_password": "$2b$10$nXk5wK5Zhywq./deigg.KOZpKZlERYv7E296EfR0AVoWhXrhVrCim",
+        "phone_change_token": "",
+        "phone_confirmed_at": null,
+        "raw_user_meta_data": {},
+        "confirmation_sent_at": null,
+        "email_change_sent_at": null,
+        "phone_change_sent_at": null,
+        "email_change_token_new": "",
+        "reauthentication_token": "",
+        "reauthentication_sent_at": null,
+        "email_change_token_current": "",
+        "email_change_confirm_status": 0
+      }
+    ],
+    "sale_lines": [
+      {
+        "id": "56a859b3-6e5a-4a19-94bb-2e2532a2380a",
+        "sale_id": "86c22edd-31f8-4ab9-917e-a12fe235f42a",
+        "created_at": "2026-08-13T03:25:35.73052+00:00",
+        "line_number": 1,
+        "quantity_bags": 10,
+        "line_total_vnd": 50000,
+        "unit_price_vnd": 5000
+      },
+      {
+        "id": "565e086d-54b3-4da0-bf5a-6cb8ab3ed717",
+        "sale_id": "cb71d8a4-010b-4ef2-8307-1cce0e1918d1",
+        "created_at": "2026-08-13T03:26:40.46949+00:00",
+        "line_number": 1,
+        "quantity_bags": 10,
+        "line_total_vnd": 120000,
+        "unit_price_vnd": 12000
+      },
+      {
+        "id": "bf2eabb1-e4f4-4d52-8622-baf9d4408b14",
+        "sale_id": "cdc1ffbd-d1c3-4f30-af89-4321b55e0481",
+        "created_at": "2026-08-24T03:05:48.565962+00:00",
+        "line_number": 1,
+        "quantity_bags": 10,
+        "line_total_vnd": 50000,
+        "unit_price_vnd": 5000
+      },
+      {
+        "id": "056dc7e2-5637-4936-9ff1-d7e127c9d548",
+        "sale_id": "b1e9af70-692d-4728-a818-f89017984bb5",
+        "created_at": "2026-08-27T01:22:05.139389+00:00",
+        "line_number": 1,
+        "quantity_bags": 403,
+        "line_total_vnd": 2821000,
+        "unit_price_vnd": 7000
+      },
+      {
+        "id": "62c2c788-2ee7-4703-a4ed-4e7bd39fab51",
+        "sale_id": "e406c4d3-a4f6-4df6-95e8-7593d2ddefc2",
+        "created_at": "2026-08-27T01:53:11.73532+00:00",
+        "line_number": 1,
+        "quantity_bags": 135,
+        "line_total_vnd": 1620000,
+        "unit_price_vnd": 12000
+      },
+      {
+        "id": "c5255b8e-5c8b-4eec-bc22-f7cbafe1b212",
+        "sale_id": "0cd9e265-82df-46ba-a9da-d03499e3f437",
+        "created_at": "2026-09-05T04:19:14.58964+00:00",
+        "line_number": 1,
+        "quantity_bags": 123,
+        "line_total_vnd": 861000,
+        "unit_price_vnd": 7000
+      }
+    ],
+    "receivables": [
+      {
+        "id": "69ca4762-d733-4f74-aa9d-14198972604c",
+        "status": "paid",
+        "sale_id": "86c22edd-31f8-4ab9-917e-a12fe235f42a",
+        "version": 2,
+        "due_date": "2026-08-20",
+        "created_at": "2026-08-13T03:25:35.73052+00:00",
+        "updated_at": "2026-08-24T03:07:21.584129+00:00",
+        "customer_id": "71000000-0000-4000-8000-000000000010",
+        "operating_day": "2026-08-13",
+        "original_amount_vnd": 50000,
+        "outstanding_amount_vnd": 0
+      }
+    ],
+    "machine_runs": [
+      {
+        "id": "a62345de-fcc0-44b8-881c-b987ae28c829",
+        "created_at": "2026-09-05T04:24:24.538478+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "started_at": "2026-09-05T04:24:24.54077+00:00",
+        "started_by": "71000000-0000-4000-8000-000000000001",
+        "stopped_at": "2026-09-05T15:39:46.485976+00:00",
+        "stopped_by": "71000000-0000-4000-8000-000000000001",
+        "production_day_id": "2394bb32-f761-49ac-acfc-a0039d69e696"
+      },
+      {
+        "id": "a74b57b2-4a0a-4c25-b6a6-d35eba53ee61",
+        "created_at": "2026-09-05T04:26:12.408424+00:00",
+        "machine_id": "3642ab5b-60ca-4d73-853f-6f56f216e9ec",
+        "started_at": "2026-09-05T04:26:12.410388+00:00",
+        "started_by": "71000000-0000-4000-8000-000000000001",
+        "stopped_at": "2026-09-05T15:39:51.7238+00:00",
+        "stopped_by": "71000000-0000-4000-8000-000000000001",
+        "production_day_id": "2394bb32-f761-49ac-acfc-a0039d69e696"
+      },
+      {
+        "id": "1ea1dd79-563f-4cd0-8ae7-6ab2ea4e3b19",
+        "created_at": "2026-09-05T05:07:21.558725+00:00",
+        "machine_id": "ebead9ba-4ce2-431a-b873-e44c5ca5f66c",
+        "started_at": "2026-09-05T05:07:21.560916+00:00",
+        "started_by": "71000000-0000-4000-8000-000000000001",
+        "stopped_at": "2026-09-05T15:39:54.693254+00:00",
+        "stopped_by": "71000000-0000-4000-8000-000000000001",
+        "production_day_id": "2394bb32-f761-49ac-acfc-a0039d69e696"
+      },
+      {
+        "id": "bf3e8c7c-1b48-49df-9988-196d0d93c895",
+        "created_at": "2026-09-05T05:07:26.104966+00:00",
+        "machine_id": "cd36e41e-7a2f-4a08-9c84-bac01e05dbea",
+        "started_at": "2026-09-05T05:07:26.106924+00:00",
+        "started_by": "71000000-0000-4000-8000-000000000001",
+        "stopped_at": "2026-09-05T15:39:56.750199+00:00",
+        "stopped_by": "71000000-0000-4000-8000-000000000001",
+        "production_day_id": "2394bb32-f761-49ac-acfc-a0039d69e696"
+      },
+      {
+        "id": "e7efa51b-1d8e-4b4e-84c9-e5e490605680",
+        "created_at": "2026-09-07T05:49:10.507553+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "started_at": "2026-09-07T05:49:10.512153+00:00",
+        "started_by": "71000000-0000-4000-8000-000000000001",
+        "stopped_at": "2026-09-08T15:20:41.030159+00:00",
+        "stopped_by": "71000000-0000-4000-8000-000000000001",
+        "production_day_id": "59da6276-5bf8-4b41-895b-f34bc14f7a58"
+      },
+      {
+        "id": "f36c378b-fb28-4436-b742-26c28f84a1d6",
+        "created_at": "2026-09-08T15:20:52.56206+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "started_at": "2026-09-08T15:20:52.579483+00:00",
+        "started_by": "71000000-0000-4000-8000-000000000001",
+        "stopped_at": null,
+        "stopped_by": null,
+        "production_day_id": "80709f0d-ade9-4847-942e-dc20a8feaf23"
+      }
+    ],
+    "stock_counts": [],
+    "operating_days": [
+      {
+        "id": "a9e5ab8e-cf6d-47a4-8f51-ce3f60ed8aff",
+        "day": "2026-08-12",
+        "status": "open",
+        "snapshot": null,
+        "locked_at": null,
+        "locked_by": null,
+        "reopened_at": null,
+        "reopened_by": null,
+        "reopen_reason": null,
+        "snapshot_version": 0
+      },
+      {
+        "id": "99c5e0ca-8c42-4b2c-ae8d-fd0313dbcaab",
+        "day": "2026-08-13",
+        "status": "open",
+        "snapshot": null,
+        "locked_at": null,
+        "locked_by": null,
+        "reopened_at": null,
+        "reopened_by": null,
+        "reopen_reason": null,
+        "snapshot_version": 0
+      },
+      {
+        "id": "9730e05a-108f-4ec6-9725-8582f70cc6c2",
+        "day": "2026-08-17",
+        "status": "open",
+        "snapshot": null,
+        "locked_at": null,
+        "locked_by": null,
+        "reopened_at": null,
+        "reopened_by": null,
+        "reopen_reason": null,
+        "snapshot_version": 0
+      },
+      {
+        "id": "37e09e39-c1c4-405b-ac40-49ed9acb262f",
+        "day": "2026-08-18",
+        "status": "open",
+        "snapshot": null,
+        "locked_at": null,
+        "locked_by": null,
+        "reopened_at": null,
+        "reopened_by": null,
+        "reopen_reason": null,
+        "snapshot_version": 0
+      },
+      {
+        "id": "cbf15186-4213-486b-a88e-1bc8928118a3",
+        "day": "2026-08-24",
+        "status": "open",
+        "snapshot": null,
+        "locked_at": null,
+        "locked_by": null,
+        "reopened_at": null,
+        "reopened_by": null,
+        "reopen_reason": null,
+        "snapshot_version": 0
+      },
+      {
+        "id": "cec08da7-c9af-4386-bd5c-e3b8474df770",
+        "day": "2026-08-27",
+        "status": "open",
+        "snapshot": null,
+        "locked_at": null,
+        "locked_by": null,
+        "reopened_at": null,
+        "reopened_by": null,
+        "reopen_reason": null,
+        "snapshot_version": 0
+      },
+      {
+        "id": "02631e1a-52df-4157-a36d-4c80edd164a0",
+        "day": "2026-09-04",
+        "status": "open",
+        "snapshot": null,
+        "locked_at": null,
+        "locked_by": null,
+        "reopened_at": null,
+        "reopened_by": null,
+        "reopen_reason": null,
+        "snapshot_version": 0
+      },
+      {
+        "id": "9407247a-67d7-4d40-b11f-63d13125baef",
+        "day": "2026-09-05",
+        "status": "open",
+        "snapshot": null,
+        "locked_at": null,
+        "locked_by": null,
+        "reopened_at": null,
+        "reopened_by": null,
+        "reopen_reason": null,
+        "snapshot_version": 0
+      },
+      {
+        "id": "d779822c-8d59-4d32-b0c7-33c1fbcac119",
+        "day": "2026-09-07",
+        "status": "open",
+        "snapshot": null,
+        "locked_at": null,
+        "locked_by": null,
+        "reopened_at": null,
+        "reopened_by": null,
+        "reopen_reason": null,
+        "snapshot_version": 0
+      },
+      {
+        "id": "ebfdef46-0b9e-4b8a-9908-d0bb84b5a647",
+        "day": "2026-09-08",
+        "status": "open",
+        "snapshot": null,
+        "locked_at": null,
+        "locked_by": null,
+        "reopened_at": null,
+        "reopened_by": null,
+        "reopen_reason": null,
+        "snapshot_version": 0
+      }
+    ],
+    "production_days": [
+      {
+        "id": "2394bb32-f761-49ac-acfc-a0039d69e696",
+        "status": "open",
+        "ends_at": "2026-09-05T11:00:00+00:00",
+        "locked_at": null,
+        "locked_by": null,
+        "starts_at": "2026-09-04T13:00:00+00:00",
+        "created_at": "2026-09-05T04:24:24.538478+00:00",
+        "reopened_at": null,
+        "reopened_by": null,
+        "production_date": "2026-09-04"
+      },
+      {
+        "id": "59da6276-5bf8-4b41-895b-f34bc14f7a58",
+        "status": "open",
+        "ends_at": "2026-09-07T11:00:00+00:00",
+        "locked_at": null,
+        "locked_by": null,
+        "starts_at": "2026-09-06T13:00:00+00:00",
+        "created_at": "2026-09-07T05:49:10.507553+00:00",
+        "reopened_at": null,
+        "reopened_by": null,
+        "production_date": "2026-09-06"
+      },
+      {
+        "id": "80709f0d-ade9-4847-942e-dc20a8feaf23",
+        "status": "open",
+        "ends_at": "2026-09-09T11:00:00+00:00",
+        "locked_at": null,
+        "locked_by": null,
+        "starts_at": "2026-09-08T13:00:00+00:00",
+        "created_at": "2026-09-08T15:20:52.56206+00:00",
+        "reopened_at": null,
+        "reopened_by": null,
+        "production_date": "2026-09-08"
+      }
+    ],
+    "idempotency_keys": [
+      {
+        "key": "177bbf83-067f-4524-804f-2b3680defa28",
+        "status": "completed",
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "saleId": "86c22edd-31f8-4ab9-917e-a12fe235f42a"
+        },
+        "entity_id": "86c22edd-31f8-4ab9-917e-a12fe235f42a",
+        "operation": "create_sale",
+        "created_at": "2026-08-13T03:25:35.73052+00:00",
+        "completed_at": "2026-08-13T03:25:35.73052+00:00"
+      },
+      {
+        "key": "ec116dea-e433-4042-8983-1598be79f31f",
+        "status": "completed",
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "saleId": "cb71d8a4-010b-4ef2-8307-1cce0e1918d1"
+        },
+        "entity_id": "cb71d8a4-010b-4ef2-8307-1cce0e1918d1",
+        "operation": "create_sale",
+        "created_at": "2026-08-13T03:26:40.46949+00:00",
+        "completed_at": "2026-08-13T03:26:40.46949+00:00"
+      },
+      {
+        "key": "0e781f45-5990-4ca4-bc61-02e24da3ac29",
+        "status": "completed",
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "batchId": "1c9a7410-112c-464e-b651-5aa6c4bcf865"
+        },
+        "entity_id": "1c9a7410-112c-464e-b651-5aa6c4bcf865",
+        "operation": "record_production_batch",
+        "created_at": "2026-08-17T13:17:46.457246+00:00",
+        "completed_at": "2026-08-17T13:17:46.457246+00:00"
+      },
+      {
+        "key": "0724ce58-f138-4973-a6bc-4d416a6808c7",
+        "status": "completed",
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "batchId": "08cb4f4e-8101-4b09-88a2-69f8d34e4dda"
+        },
+        "entity_id": "08cb4f4e-8101-4b09-88a2-69f8d34e4dda",
+        "operation": "record_production_batch",
+        "created_at": "2026-08-17T13:19:28.013503+00:00",
+        "completed_at": "2026-08-17T13:19:28.013503+00:00"
+      },
+      {
+        "key": "766e002f-9778-479e-961d-f5cbc58b5538",
+        "status": "completed",
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "saleId": "cdc1ffbd-d1c3-4f30-af89-4321b55e0481"
+        },
+        "entity_id": "cdc1ffbd-d1c3-4f30-af89-4321b55e0481",
+        "operation": "create_sale",
+        "created_at": "2026-08-24T03:05:48.565962+00:00",
+        "completed_at": "2026-08-24T03:05:48.565962+00:00"
+      },
+      {
+        "key": "f17de141-33e3-45d5-9778-81728dde083d",
+        "status": "completed",
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "receiptId": "7aa220ba-23be-474c-a574-7196a4c0dfa5"
+        },
+        "entity_id": "7aa220ba-23be-474c-a574-7196a4c0dfa5",
+        "operation": "record_receipt",
+        "created_at": "2026-08-24T03:06:16.125034+00:00",
+        "completed_at": "2026-08-24T03:06:16.125034+00:00"
+      },
+      {
+        "key": "ed0221a6-17fc-4d9b-b650-0984f7612cea",
+        "status": "completed",
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "receiptId": "9207d64a-e030-4c05-a91a-fde660eda475"
+        },
+        "entity_id": "9207d64a-e030-4c05-a91a-fde660eda475",
+        "operation": "record_receipt",
+        "created_at": "2026-08-24T03:07:21.584129+00:00",
+        "completed_at": "2026-08-24T03:07:21.584129+00:00"
+      },
+      {
+        "key": "d475afa4-fe9e-43fd-b384-1095c1f1ef47",
+        "status": "completed",
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "saleId": "b1e9af70-692d-4728-a818-f89017984bb5"
+        },
+        "entity_id": "b1e9af70-692d-4728-a818-f89017984bb5",
+        "operation": "create_sale",
+        "created_at": "2026-08-27T01:22:05.139389+00:00",
+        "completed_at": "2026-08-27T01:22:05.139389+00:00"
+      },
+      {
+        "key": "cc7a58b0-542b-43f8-a038-bd6053911665",
+        "status": "completed",
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "saleId": "e406c4d3-a4f6-4df6-95e8-7593d2ddefc2"
+        },
+        "entity_id": "e406c4d3-a4f6-4df6-95e8-7593d2ddefc2",
+        "operation": "create_sale",
+        "created_at": "2026-08-27T01:53:11.73532+00:00",
+        "completed_at": "2026-08-27T01:53:11.73532+00:00"
+      },
+      {
+        "key": "cc6fca50-1922-42be-b67e-d0773b4f9aa7",
+        "status": "completed",
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "batchId": "6de67d39-5942-4052-aa98-802eede7cbff"
+        },
+        "entity_id": "6de67d39-5942-4052-aa98-802eede7cbff",
+        "operation": "record_production_batch",
+        "created_at": "2026-08-27T01:54:58.936709+00:00",
+        "completed_at": "2026-08-27T01:54:58.936709+00:00"
+      },
+      {
+        "key": "eb92c943-42d0-4dfb-bcbe-37bb8c45f93f",
+        "status": "completed",
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "saleId": "0cd9e265-82df-46ba-a9da-d03499e3f437"
+        },
+        "entity_id": "0cd9e265-82df-46ba-a9da-d03499e3f437",
+        "operation": "create_sale",
+        "created_at": "2026-09-05T04:19:14.58964+00:00",
+        "completed_at": "2026-09-05T04:19:14.58964+00:00"
+      }
+    ],
+    "inventory_ledger": [
+      {
+        "id": "6dd35b20-fd15-42d2-8325-d203b9070a6a",
+        "kind": "opening",
+        "note": "Tồn đầu phục vụ kiểm thử giao diện",
+        "source_id": "71000000-0000-4000-8000-000000000020",
+        "created_at": "2026-08-12T09:18:38.81609+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "source_type": "demo_opening_balance",
+        "operating_day": "2026-08-12",
+        "reversal_of_id": null,
+        "quantity_delta_bags": 1000
+      },
+      {
+        "id": "0cd2d304-1383-43c1-8f1e-b895245479ac",
+        "kind": "sale",
+        "note": null,
+        "source_id": "86c22edd-31f8-4ab9-917e-a12fe235f42a",
+        "created_at": "2026-08-13T03:25:35.73052+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "source_type": "sale",
+        "operating_day": "2026-08-13",
+        "reversal_of_id": null,
+        "quantity_delta_bags": -10
+      },
+      {
+        "id": "57d3ab99-9a9f-4829-a24f-5801315595d1",
+        "kind": "sale",
+        "note": null,
+        "source_id": "cb71d8a4-010b-4ef2-8307-1cce0e1918d1",
+        "created_at": "2026-08-13T03:26:40.46949+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "source_type": "sale",
+        "operating_day": "2026-08-13",
+        "reversal_of_id": null,
+        "quantity_delta_bags": -10
+      },
+      {
+        "id": "4d5fdb0a-f621-4a5f-868b-ae6f47ecbf56",
+        "kind": "sale",
+        "note": null,
+        "source_id": "cdc1ffbd-d1c3-4f30-af89-4321b55e0481",
+        "created_at": "2026-08-24T03:05:48.565962+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "source_type": "sale",
+        "operating_day": "2026-08-24",
+        "reversal_of_id": null,
+        "quantity_delta_bags": -10
+      },
+      {
+        "id": "30f704b7-467f-4b23-8e5f-8bd5139c9f5b",
+        "kind": "sale",
+        "note": null,
+        "source_id": "b1e9af70-692d-4728-a818-f89017984bb5",
+        "created_at": "2026-08-27T01:22:05.139389+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "source_type": "sale",
+        "operating_day": "2026-08-27",
+        "reversal_of_id": null,
+        "quantity_delta_bags": -403
+      },
+      {
+        "id": "8c5ee0a4-f624-412e-ba67-9ff284bde4bc",
+        "kind": "sale",
+        "note": null,
+        "source_id": "e406c4d3-a4f6-4df6-95e8-7593d2ddefc2",
+        "created_at": "2026-08-27T01:53:11.73532+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "source_type": "sale",
+        "operating_day": "2026-08-27",
+        "reversal_of_id": null,
+        "quantity_delta_bags": -135
+      },
+      {
+        "id": "41978528-717f-4f46-ba30-4260482089d8",
+        "kind": "sale",
+        "note": null,
+        "source_id": "0cd9e265-82df-46ba-a9da-d03499e3f437",
+        "created_at": "2026-09-05T04:19:14.58964+00:00",
+        "created_by": "71000000-0000-4000-8000-000000000001",
+        "source_type": "sale",
+        "operating_day": "2026-09-05",
+        "reversal_of_id": null,
+        "quantity_delta_bags": -123
+      }
+    ],
+    "machine_harvests": [
+      {
+        "id": "31c68258-c56b-4bab-9a34-984aacfeefdd",
+        "created_at": "2026-09-05T04:24:30.528795+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "bag_quantity": 20,
+        "harvested_at": "2026-09-05T04:24:30.530784+00:00",
+        "harvested_by": "71000000-0000-4000-8000-000000000001",
+        "machine_run_id": "a62345de-fcc0-44b8-881c-b987ae28c829",
+        "quantity_updated_at": "2026-09-05T04:24:42.879067+00:00",
+        "quantity_updated_by": "71000000-0000-4000-8000-000000000001"
+      },
+      {
+        "id": "588bf179-0533-4296-b2eb-1c9e62939741",
+        "created_at": "2026-09-05T04:25:30.435189+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "bag_quantity": 25,
+        "harvested_at": "2026-09-05T04:25:30.441308+00:00",
+        "harvested_by": "71000000-0000-4000-8000-000000000001",
+        "machine_run_id": "a62345de-fcc0-44b8-881c-b987ae28c829",
+        "quantity_updated_at": "2026-09-05T04:25:42.044549+00:00",
+        "quantity_updated_by": "71000000-0000-4000-8000-000000000001"
+      },
+      {
+        "id": "7dfd0531-1854-4e5c-b36e-c995cc671f11",
+        "created_at": "2026-09-05T04:26:47.591237+00:00",
+        "machine_id": "3642ab5b-60ca-4d73-853f-6f56f216e9ec",
+        "bag_quantity": 36,
+        "harvested_at": "2026-09-05T04:26:47.593177+00:00",
+        "harvested_by": "71000000-0000-4000-8000-000000000001",
+        "machine_run_id": "a74b57b2-4a0a-4c25-b6a6-d35eba53ee61",
+        "quantity_updated_at": "2026-09-05T04:26:53.871141+00:00",
+        "quantity_updated_by": "71000000-0000-4000-8000-000000000001"
+      },
+      {
+        "id": "274414da-2d9f-43aa-ab36-0f60f33b1a36",
+        "created_at": "2026-09-05T05:05:20.288741+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "bag_quantity": 15,
+        "harvested_at": "2026-09-05T05:05:20.293811+00:00",
+        "harvested_by": "71000000-0000-4000-8000-000000000001",
+        "machine_run_id": "a62345de-fcc0-44b8-881c-b987ae28c829",
+        "quantity_updated_at": "2026-09-05T05:05:44.893349+00:00",
+        "quantity_updated_by": "71000000-0000-4000-8000-000000000001"
+      },
+      {
+        "id": "de5af2c0-0cf3-4368-8ad4-0db7a2a6b496",
+        "created_at": "2026-09-07T05:49:19.023975+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "bag_quantity": 58,
+        "harvested_at": "2026-09-07T05:49:19.026425+00:00",
+        "harvested_by": "71000000-0000-4000-8000-000000000001",
+        "machine_run_id": "e7efa51b-1d8e-4b4e-84c9-e5e490605680",
+        "quantity_updated_at": "2026-09-07T05:49:48.328948+00:00",
+        "quantity_updated_by": "71000000-0000-4000-8000-000000000001"
+      }
+    ],
+    "expense_categories": [
+      {
+        "id": "698b5411-09d7-498c-be3e-765918bf110b",
+        "code": "electricity",
+        "name": "Tiá»n Ä‘iá»‡n",
+        "is_active": true,
+        "created_at": "2026-08-15T16:23:59.139783+00:00"
+      },
+      {
+        "id": "ef54f2a7-e226-4abc-9af4-c94fab8c29d9",
+        "code": "fuel",
+        "name": "NhiÃªn liá»‡u",
+        "is_active": true,
+        "created_at": "2026-08-15T16:23:59.139783+00:00"
+      },
+      {
+        "id": "f2b0fbde-6fff-4d40-a41a-52da7b3fea67",
+        "code": "wages",
+        "name": "NhÃ¢n cÃ´ng",
+        "is_active": true,
+        "created_at": "2026-08-15T16:23:59.139783+00:00"
+      },
+      {
+        "id": "6edaf8f4-8b78-43ef-be09-ecd13fca85b4",
+        "code": "maintenance",
+        "name": "Sá»­a chá»¯a, báº£o trÃ¬",
+        "is_active": true,
+        "created_at": "2026-08-15T16:23:59.139783+00:00"
+      },
+      {
+        "id": "5f67c48a-d867-439f-9033-9b1958dcbf8b",
+        "code": "delivery",
+        "name": "Váº­n chuyá»ƒn",
+        "is_active": true,
+        "created_at": "2026-08-15T16:23:59.139783+00:00"
+      },
+      {
+        "id": "8faf45b4-bc67-444a-9bf8-a76aab4d432b",
+        "code": "supplies",
+        "name": "Váº­t tÆ°",
+        "is_active": true,
+        "created_at": "2026-08-15T16:23:59.139783+00:00"
+      },
+      {
+        "id": "0e67c764-23b3-42ae-b9c3-d0c5d1d97d2d",
+        "code": "other",
+        "name": "Chi phÃ­ khÃ¡c",
+        "is_active": true,
+        "created_at": "2026-08-15T16:23:59.139783+00:00"
+      }
+    ],
+    "expense_attachments": [],
+    "receipt_allocations": [
+      {
+        "id": "bef43662-cde3-44ee-b1d0-6dc3dbaefa23",
+        "amount_vnd": 10000,
+        "created_at": "2026-08-13T03:25:35.73052+00:00",
+        "receipt_id": "5b7e266b-3363-4d54-84ae-261ba975b724",
+        "receivable_id": "69ca4762-d733-4f74-aa9d-14198972604c"
+      },
+      {
+        "id": "f92430c7-f89c-4afe-a426-499b203a81d4",
+        "amount_vnd": 40000,
+        "created_at": "2026-08-24T03:07:21.584129+00:00",
+        "receipt_id": "9207d64a-e030-4c05-a91a-fde660eda475",
+        "receivable_id": "69ca4762-d733-4f74-aa9d-14198972604c"
+      }
+    ],
+    "machine_harvest_revisions": [
+      {
+        "id": 2,
+        "changed_at": "2026-09-05T04:24:42.879067+00:00",
+        "changed_by": "71000000-0000-4000-8000-000000000001",
+        "harvest_id": "31c68258-c56b-4bab-9a34-984aacfeefdd",
+        "new_quantity": 20,
+        "old_quantity": null
+      },
+      {
+        "id": 3,
+        "changed_at": "2026-09-05T04:25:42.044549+00:00",
+        "changed_by": "71000000-0000-4000-8000-000000000001",
+        "harvest_id": "588bf179-0533-4296-b2eb-1c9e62939741",
+        "new_quantity": 25,
+        "old_quantity": null
+      },
+      {
+        "id": 4,
+        "changed_at": "2026-09-05T04:26:53.871141+00:00",
+        "changed_by": "71000000-0000-4000-8000-000000000001",
+        "harvest_id": "7dfd0531-1854-4e5c-b36e-c995cc671f11",
+        "new_quantity": 36,
+        "old_quantity": null
+      },
+      {
+        "id": 6,
+        "changed_at": "2026-09-05T05:05:44.893349+00:00",
+        "changed_by": "71000000-0000-4000-8000-000000000001",
+        "harvest_id": "274414da-2d9f-43aa-ab36-0f60f33b1a36",
+        "new_quantity": 15,
+        "old_quantity": null
+      },
+      {
+        "id": 7,
+        "changed_at": "2026-09-07T05:49:48.328948+00:00",
+        "changed_by": "71000000-0000-4000-8000-000000000001",
+        "harvest_id": "de5af2c0-0cf3-4368-8ad4-0db7a2a6b496",
+        "new_quantity": 58,
+        "old_quantity": null
+      }
+    ],
+    "production_action_requests": [
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "runId": "1ea1dd79-563f-4cd0-8ae7-6ab2ea4e3b19",
+          "machineId": "ebead9ba-4ce2-431a-b873-e44c5ca5f66c",
+          "startedAt": "2026-09-05T05:07:21.560916+00:00",
+          "productionDate": "2026-09-04"
+        },
+        "operation": "start_machine",
+        "created_at": "2026-09-05T05:07:21.558725+00:00",
+        "machine_id": "ebead9ba-4ce2-431a-b873-e44c5ca5f66c",
+        "request_id": "46567f8b-f5b1-4d61-abf4-aafe75cd3cac",
+        "completed_at": "2026-09-05T05:07:21.568722+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "runId": "bf3e8c7c-1b48-49df-9988-196d0d93c895",
+          "machineId": "cd36e41e-7a2f-4a08-9c84-bac01e05dbea",
+          "startedAt": "2026-09-05T05:07:26.106924+00:00",
+          "productionDate": "2026-09-04"
+        },
+        "operation": "start_machine",
+        "created_at": "2026-09-05T05:07:26.104966+00:00",
+        "machine_id": "cd36e41e-7a2f-4a08-9c84-bac01e05dbea",
+        "request_id": "4db5e82f-b5d3-4a40-a9c9-630341737c9a",
+        "completed_at": "2026-09-05T05:07:26.128453+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "runId": "a62345de-fcc0-44b8-881c-b987ae28c829",
+          "machineId": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "startedAt": "2026-09-05T04:24:24.54077+00:00",
+          "productionDate": "2026-09-04"
+        },
+        "operation": "start_machine",
+        "created_at": "2026-09-05T04:24:24.538478+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "request_id": "34ff15ad-3514-4812-ae5f-4a5d2ed64313",
+        "completed_at": "2026-09-05T04:24:24.568636+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "runId": "a62345de-fcc0-44b8-881c-b987ae28c829",
+          "harvestId": "31c68258-c56b-4bab-9a34-984aacfeefdd",
+          "machineId": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "harvestedAt": "2026-09-05T04:24:30.530784+00:00"
+        },
+        "operation": "record_machine_harvest",
+        "created_at": "2026-09-05T04:24:30.528795+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "request_id": "6cb26657-234a-4d27-ad77-97ade33990b5",
+        "completed_at": "2026-09-05T04:24:30.539198+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "quantity": 20,
+          "harvestId": "31c68258-c56b-4bab-9a34-984aacfeefdd",
+          "machineId": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "quantityUpdatedAt": "2026-09-05T04:24:42.879067+00:00"
+        },
+        "operation": "set_harvest_quantity",
+        "created_at": "2026-09-05T04:24:42.875419+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "request_id": "18a8db7d-9917-4a47-af44-623dbef8b103",
+        "completed_at": "2026-09-05T04:24:42.891544+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "runId": "a62345de-fcc0-44b8-881c-b987ae28c829",
+          "harvestId": "588bf179-0533-4296-b2eb-1c9e62939741",
+          "machineId": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "harvestedAt": "2026-09-05T04:25:30.441308+00:00"
+        },
+        "operation": "record_machine_harvest",
+        "created_at": "2026-09-05T04:25:30.435189+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "request_id": "d3589403-92e7-48c3-a87e-33acbf6ef71b",
+        "completed_at": "2026-09-05T04:25:30.452681+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "quantity": 25,
+          "harvestId": "588bf179-0533-4296-b2eb-1c9e62939741",
+          "machineId": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "quantityUpdatedAt": "2026-09-05T04:25:42.044549+00:00"
+        },
+        "operation": "set_harvest_quantity",
+        "created_at": "2026-09-05T04:25:42.042454+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "request_id": "83042de1-975e-44b7-94ff-3594774e126d",
+        "completed_at": "2026-09-05T04:25:42.050676+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "runId": "a74b57b2-4a0a-4c25-b6a6-d35eba53ee61",
+          "machineId": "3642ab5b-60ca-4d73-853f-6f56f216e9ec",
+          "startedAt": "2026-09-05T04:26:12.410388+00:00",
+          "productionDate": "2026-09-04"
+        },
+        "operation": "start_machine",
+        "created_at": "2026-09-05T04:26:12.408424+00:00",
+        "machine_id": "3642ab5b-60ca-4d73-853f-6f56f216e9ec",
+        "request_id": "ab39968d-8bb4-492a-864b-3bfceff25169",
+        "completed_at": "2026-09-05T04:26:12.417787+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "runId": "a74b57b2-4a0a-4c25-b6a6-d35eba53ee61",
+          "harvestId": "7dfd0531-1854-4e5c-b36e-c995cc671f11",
+          "machineId": "3642ab5b-60ca-4d73-853f-6f56f216e9ec",
+          "harvestedAt": "2026-09-05T04:26:47.593177+00:00"
+        },
+        "operation": "record_machine_harvest",
+        "created_at": "2026-09-05T04:26:47.591237+00:00",
+        "machine_id": "3642ab5b-60ca-4d73-853f-6f56f216e9ec",
+        "request_id": "28a291f5-0ecb-47e3-b6dc-70edc9d68d5d",
+        "completed_at": "2026-09-05T04:26:47.595889+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "quantity": 36,
+          "harvestId": "7dfd0531-1854-4e5c-b36e-c995cc671f11",
+          "machineId": "3642ab5b-60ca-4d73-853f-6f56f216e9ec",
+          "quantityUpdatedAt": "2026-09-05T04:26:53.871141+00:00"
+        },
+        "operation": "set_harvest_quantity",
+        "created_at": "2026-09-05T04:26:53.870085+00:00",
+        "machine_id": "3642ab5b-60ca-4d73-853f-6f56f216e9ec",
+        "request_id": "4b5b834e-d634-442e-99ef-1f8ccfe3b843",
+        "completed_at": "2026-09-05T04:26:53.873538+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "runId": "a62345de-fcc0-44b8-881c-b987ae28c829",
+          "machineId": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "stoppedAt": "2026-09-05T15:39:46.485976+00:00"
+        },
+        "operation": "stop_machine",
+        "created_at": "2026-09-05T15:39:46.484029+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "request_id": "346f93ec-878a-4d86-ab5a-e2b6ff0f1bc7",
+        "completed_at": "2026-09-05T15:39:46.504759+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "runId": "a74b57b2-4a0a-4c25-b6a6-d35eba53ee61",
+          "machineId": "3642ab5b-60ca-4d73-853f-6f56f216e9ec",
+          "stoppedAt": "2026-09-05T15:39:51.7238+00:00"
+        },
+        "operation": "stop_machine",
+        "created_at": "2026-09-05T15:39:51.721583+00:00",
+        "machine_id": "3642ab5b-60ca-4d73-853f-6f56f216e9ec",
+        "request_id": "7a838c44-dad1-4221-ac7e-0bfdb4b88b33",
+        "completed_at": "2026-09-05T15:39:51.728263+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "runId": "a62345de-fcc0-44b8-881c-b987ae28c829",
+          "harvestId": "274414da-2d9f-43aa-ab36-0f60f33b1a36",
+          "machineId": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "harvestedAt": "2026-09-05T05:05:20.293811+00:00"
+        },
+        "operation": "record_machine_harvest",
+        "created_at": "2026-09-05T05:05:20.288741+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "request_id": "d4ad70a3-8252-44a4-8f1c-636a8ea9d0fd",
+        "completed_at": "2026-09-05T05:05:20.326856+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "quantity": 15,
+          "harvestId": "274414da-2d9f-43aa-ab36-0f60f33b1a36",
+          "machineId": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "quantityUpdatedAt": "2026-09-05T05:05:44.893349+00:00"
+        },
+        "operation": "set_harvest_quantity",
+        "created_at": "2026-09-05T05:05:44.890951+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "request_id": "411525d3-59fa-4297-9c5b-b01951c3fa12",
+        "completed_at": "2026-09-05T05:05:44.906368+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "runId": "1ea1dd79-563f-4cd0-8ae7-6ab2ea4e3b19",
+          "machineId": "ebead9ba-4ce2-431a-b873-e44c5ca5f66c",
+          "stoppedAt": "2026-09-05T15:39:54.693254+00:00"
+        },
+        "operation": "stop_machine",
+        "created_at": "2026-09-05T15:39:54.692235+00:00",
+        "machine_id": "ebead9ba-4ce2-431a-b873-e44c5ca5f66c",
+        "request_id": "cd8c0b65-4b2e-4798-8dc2-6395e0b548ad",
+        "completed_at": "2026-09-05T15:39:54.694847+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "runId": "bf3e8c7c-1b48-49df-9988-196d0d93c895",
+          "machineId": "cd36e41e-7a2f-4a08-9c84-bac01e05dbea",
+          "stoppedAt": "2026-09-05T15:39:56.750199+00:00"
+        },
+        "operation": "stop_machine",
+        "created_at": "2026-09-05T15:39:56.749042+00:00",
+        "machine_id": "cd36e41e-7a2f-4a08-9c84-bac01e05dbea",
+        "request_id": "998b6bfb-b0a9-4310-a740-4eaee0607f20",
+        "completed_at": "2026-09-05T15:39:56.751787+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "runId": "e7efa51b-1d8e-4b4e-84c9-e5e490605680",
+          "machineId": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "startedAt": "2026-09-07T05:49:10.512153+00:00",
+          "productionDate": "2026-09-06"
+        },
+        "operation": "start_machine",
+        "created_at": "2026-09-07T05:49:10.507553+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "request_id": "b7f8f5c6-62bc-46d9-8599-77881901c6f6",
+        "completed_at": "2026-09-07T05:49:10.548404+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "runId": "e7efa51b-1d8e-4b4e-84c9-e5e490605680",
+          "harvestId": "de5af2c0-0cf3-4368-8ad4-0db7a2a6b496",
+          "machineId": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "harvestedAt": "2026-09-07T05:49:19.026425+00:00"
+        },
+        "operation": "record_machine_harvest",
+        "created_at": "2026-09-07T05:49:19.023975+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "request_id": "7ebf1848-f648-4486-a6a2-0ac0288902ae",
+        "completed_at": "2026-09-07T05:49:19.039923+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "quantity": 58,
+          "harvestId": "de5af2c0-0cf3-4368-8ad4-0db7a2a6b496",
+          "machineId": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "quantityUpdatedAt": "2026-09-07T05:49:48.328948+00:00"
+        },
+        "operation": "set_harvest_quantity",
+        "created_at": "2026-09-07T05:49:48.326892+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "request_id": "5112ed70-5aae-4ff0-8f33-3dc8be6ba327",
+        "completed_at": "2026-09-07T05:49:48.338759+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "runId": "e7efa51b-1d8e-4b4e-84c9-e5e490605680",
+          "machineId": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "stoppedAt": "2026-09-08T15:20:41.030159+00:00"
+        },
+        "operation": "stop_machine",
+        "created_at": "2026-09-08T15:20:41.026393+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "request_id": "d4ae43d1-be09-4dae-ad71-809ad9c21a6e",
+        "completed_at": "2026-09-08T15:20:41.065031+00:00"
+      },
+      {
+        "actor_id": "71000000-0000-4000-8000-000000000001",
+        "response": {
+          "runId": "f36c378b-fb28-4436-b742-26c28f84a1d6",
+          "machineId": "2448a594-e406-4809-98ec-f54fa2eceb68",
+          "startedAt": "2026-09-08T15:20:52.579483+00:00",
+          "productionDate": "2026-09-08"
+        },
+        "operation": "start_machine",
+        "created_at": "2026-09-08T15:20:52.56206+00:00",
+        "machine_id": "2448a594-e406-4809-98ec-f54fa2eceb68",
+        "request_id": "9a95cb5f-87c7-432b-8144-a6d6e219734f",
+        "completed_at": "2026-09-08T15:20:52.62563+00:00"
+      }
+    ]
+  },
+  "project_id": "mqclrhhatdkghvdebbyq",
+  "exported_at": "2026-09-08T17:07:45.00946+00:00"
+}
